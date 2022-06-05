@@ -17,7 +17,7 @@
 
 ## 1. Overview
 
-[<b>Please watch our introduction video here</b>]()
+[<b>Please watch our introduction video here</b>](https://www.youtube.com/watch?v=7HWpVtX4m6Q)
 
 UNSW needs a change in business model. Revenue has been going down, despite the absolutely perfect MyExperience feedback.
 
