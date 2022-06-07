@@ -3,7 +3,7 @@
 // You may also add a short description explaining your design
 ```
 
-users [
+users {
     {
       'email': 'kennethkuo25@outlook.com',
       'password': 'Aero123',
@@ -30,9 +30,9 @@ users [
       'name': 'master',
       'uId': 3,
     },   
-]
+}
 
-channel [
+channel {
     {
       users, //users list in the channel
       'authUserId': 123,
@@ -53,6 +53,6 @@ channel [
       'message': 'Help me',
     },
     
-]
+}
 
 
