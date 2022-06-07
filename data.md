@@ -11,7 +11,7 @@
   'nameLast': 'Kuo',
   'name': 'master',
   'uId': 1,
-},
+}
     
 {
   'email': 'garyang123@yahoo.com',
@@ -20,7 +20,7 @@
   'nameLast': 'Ang',
   'name': 'master',
   'uId': 2,
-},
+}
     
 {
   'email': 'steve1531@gmail.com',
@@ -29,25 +29,25 @@
   'nameLast': 'Berrospi',
   'name': 'master',
   'uId': 3,
-},   
+}   
 
 
 
 {
-  users, //users list in the channel
+  'users': 
   'authUserId': 123,
   'name': 'AeroFirst',
-  'isPublic': true, //true or false
+  'isPublic': true, 
   'channelId': 345,
   'start': 10,  
   'message': 'Finish it before deadline!',   
-},
+}
     
 {
-  users, //users list in the channel
+  'users': 
   'authUserId': 676,
   'name': 'AeroSecond',
-  'isPublic': false, //true or false
+  'isPublic': false, 
   'channelId': 787,
   'start': 10,    
   'message': 'Help me',
