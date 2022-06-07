@@ -3,7 +3,6 @@
 // You may also add a short description explaining your design
 ```
 
-// the list of users.
 users [
     {
       'email': 'kennethkuo25@outlook.com',
@@ -33,7 +32,6 @@ users [
     },   
 ]
 
-// the list of channel.
 channel [
     {
       users, //users list in the channel
