@@ -1,9 +1,6 @@
 ```javascript
 // TODO: insert your data structure that contains users + channels info here
 // You may also add a short description explaining your design
-```
-
-
 {
   'email': 'kennethkuo25@outlook.com',
   'password': 'Aero123',
@@ -34,7 +31,7 @@
 
 
 {
-  'users': 
+  'users': ,
   'authUserId': 123,
   'name': 'AeroFirst',
   'isPublic': true, 
@@ -44,7 +41,7 @@
 }
     
 {
-  'users': 
+  'users': ,
   'authUserId': 676,
   'name': 'AeroSecond',
   'isPublic': false, 
@@ -53,5 +50,9 @@
   'message': 'Help me',
 }
     
+
+```
+
+
 
 
