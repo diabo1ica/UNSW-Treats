@@ -3,5 +3,5 @@ function channelsCreateV1(authUserId, name, isPublic) {
 }
 
 function channelsListallV1 (authUserId) {
-    return authUserId;
+    return 'authUserId';
 }
