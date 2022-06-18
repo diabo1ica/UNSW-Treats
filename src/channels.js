@@ -1,12 +1,20 @@
 function channelsCreateV1(authUserId, name, isPublic) {
-  return 'authUserId' + 'name' + 'isPublic';
+  return {
+    channelId: 1,
+  };
 }
 
-function channelsListallV1 (authUserId) {
-    return 'authUserId';
+function channelsListV1(authUserId) {
+  return {
+    channels: [] // see interface for contents
+  };
 }
 
-function channelsListV1 (authUserId) {
-  return 'authUserId';
+function channelsListallV1(authUserId) {
+  return {
+    channels: [] // see interface for contents
+  };
 }
+
+export { channelsCreateV1, channelsListV1, channelsListallV1 };
 
