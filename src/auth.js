@@ -11,4 +11,3 @@ function authloginV1(email, password) {
 }
 
 export { authloginV1, authRegisterV1 };
-
