@@ -22,7 +22,7 @@ describe('Testing channelslist', () => {
    
    const lists = channelsListV1( 'user_id1' );
    
-   expect(['channel_air', 'channel_earth', 'channel_fire', 'channel_water']).toEqual(expect.arrayContaining(lists));
+   expect(['channel_air', 'channel_earth']).toEqual(expect.arrayContaining(lists));
 
         
         
