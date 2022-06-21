@@ -2,8 +2,8 @@ import validator from 'validator';
 //validator.isEmail('foo@bar.com');
 
 function authRegisterV1(email, password, nameFirst, nameLast) {
-  if(!validator.isEmail(email) 
-  || password.length < 6
+  if(//!validator.isEmail(email) 
+   password.length < 6
   || !validName(nameFirst)
   || !validName(nameLast)){
     return {error : 'error'};
