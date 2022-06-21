@@ -1,9 +1,9 @@
 import validator from 'validator';
-//validator.isEmail('foo@bar.com');
+import {getData} from './dataStore';
 
 function authRegisterV1(email, password, nameFirst, nameLast) {
-  if(//!validator.isEmail(email) 
-   password.length < 6
+  if(!validator.isEmail(email) 
+  || password.length < 6
   || !validName(nameFirst)
   || !validName(nameLast)){
     return {error : 'error'};
@@ -11,16 +11,19 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   const data = getData();
   if(data.users.some(obj => obj.email === email)) return {error : 'error'};
   
+  const user = userTemplate();
   if(data.userIdCounter === 0){
-    const user = userTemplate();
     user.id = 1;
-    userIdCounter++;
+    data.userIdCounter++;
   }
   else{
-    const user = userTemplate();
-    user.id = userIdCounter + 1;
-    userIdCounter++;
+    user.id = data.userIdCounter + 1;
+    data.userIdCounter++;
   }
+  user.email = email;
+  user.name = nameFirst + ' ' + nameLast;
+  user.password = password;
+  data.users.push(user);
   return {
     authUserId: user.id
   }
