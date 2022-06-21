@@ -3,6 +3,7 @@ import { authRegisterV1, authloginV1 } from './auth'
 import { channelsCreateV1 } from './channels'
 
 test ('Testing Invitation(exist)', () => {
+  clearV1(); 
   const a = authRegisterV1('garyang@gmail.com', '12345678', 'Gary', 'Ang');
   const u_id = a.authUserId;
   
@@ -20,6 +21,7 @@ test ('Testing Invitation(exist)', () => {
 
 
 test('Testing Invitation(do not exist (1))', () => {
+  clearV1();
   const a = authRegisterV1('garyang@gmail.com', '12345678', 'Gary', 'Ang');
   const u_id = a.authUserId;
   
@@ -37,6 +39,7 @@ test('Testing Invitation(do not exist (1))', () => {
 
 
 test('Testing Invitation(do not exist (2))', () => {
+  clearV1();
   const a = authRegisterV1('garyang@gmail.com', '12345678', 'Gary', 'Ang');
   const u_id = a.authUserId;
   
@@ -53,6 +56,7 @@ test('Testing Invitation(do not exist (2))', () => {
 });
 
 test('Testing Invitation(do not exist (3))', () => {
+  clearV1();
   const a = authRegisterV1('garyang@gmail.com', '12345678', 'Gary', 'Ang');
   const u_id = a.authUserId;
   
