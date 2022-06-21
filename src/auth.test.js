@@ -2,7 +2,9 @@ import { authRegisterV1 } from './auth';
 import {clearV1} from './other';
 
 test('Valid authRegisterV1',() => {
-  expect(authRegisterV1('validemail@gmail.com', 'drowssap', 'Strongjaw', 'Strongjaw')).toStrictEqual({authUserId: 1,});
+  expect(authRegisterV1('validemail@gmail.com', 'drowssap', 'Strongjaw', 'Strongjaw')).toStrictEqual(expect.objectContaining({
+    authUserId: expect.any(Number),
+  }));
 });
 
 test('Email not valid',() => {
