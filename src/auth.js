@@ -13,11 +13,11 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   
   const user = userTemplate();
   if(data.userIdCounter === 0){
-    user.id = 1;
+    user.userId = 1;
     data.userIdCounter++;
   }
   else{
-    user.id = data.userIdCounter + 1;
+    user.userId = data.userIdCounter + 1;
     data.userIdCounter++;
   }
   user.email = email;
@@ -25,14 +25,29 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   user.password = password;
   data.users.push(user);
   return {
-    authUserId: user.id
+    authUserId: user.userId
   }
 }
 
-function authloginV1(email, password) {
-  return {
-    authUserId: 1,
+function authLoginV1(email, password) {
+  if (validator.isEmail(email) === false) {
+    return {
+      error: 'error',
+    }
   }
+  const data = getData();
+  for (let item of data.users) {
+    if (email === item.email) {
+      if (password === item.password) {
+        return {
+          authUserId: item.userId,
+        };
+      }
+    }
+  }
+  return {
+    error: 'error'
+  };
 }
 
 function validName(name){
@@ -51,4 +66,4 @@ function userTemplate(){
   return user;
 }
 
-export { authloginV1, authRegisterV1 };
+export { authLoginV1, authRegisterV1 };
