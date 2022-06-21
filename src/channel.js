@@ -1,17 +1,27 @@
-function channelDetailsV1(authUserId, channelId){
-  return 'authUserId' + 'channelId';
+function channelDetailsV1(authUserId, channelId) {
+  return {
+    name: 'secret candy crush team', 
+    isPublic: true,
+    ownerMembers: [],
+    allMembers: [],
+  };
+}
+
+function channelJoinV1(authUserId, channelId) {
+  return {};
 }
 
 function channelInviteV1(authUserId, channelId, uId) {
-  return 'authUserId' + 'channelId' + 'uId';
+  return {};
 }
 
-function channelMessagesV1 (authUserId, channelId, start) {
-    return 'authUserId' + 'channelId' + 'start';
+function channelMessagesV1(authUserId, channelId, start) {
+  return {
+    messages: [],
+    start: 0,
+    end: -1,
+  };
 }
 
-function channelJoinsV1 (authUserId, channelId) {
-  return 'authUserId' + 'channelId';
-}
-
+export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
 
