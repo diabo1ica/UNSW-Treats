@@ -1,4 +1,11 @@
 function channelDetailsV1(authUserId, channelId) {
+/*
+  TODO:
+  if(!data.channels.some(obj => obj.channelId === channelId)
+  || !data.channels.users.some(obj => obj.authUserId === authUserId)){
+    return { error: 'error' }
+  }
+*/
   return {
     name: 'secret candy crush team', 
     isPublic: true,
