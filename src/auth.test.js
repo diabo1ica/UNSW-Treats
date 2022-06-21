@@ -1,4 +1,4 @@
-import { authRegisterV1 } from './auth';
+import { authRegisterV1, authLoginV1 } from './auth';
 import { clearV1 } from './other';
 
 describe('Sample test', () => {

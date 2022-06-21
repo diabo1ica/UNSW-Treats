@@ -13,11 +13,11 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   
   const user = userTemplate();
   if(data.userIdCounter === 0){
-    user.id = 1;
+    user.userId = 1;
     data.userIdCounter++;
   }
   else{
-    user.id = data.userIdCounter + 1;
+    user.userId = data.userIdCounter + 1;
     data.userIdCounter++;
   }
   user.email = email;
@@ -25,7 +25,7 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   user.password = password;
   data.users.push(user);
   return {
-    authUserId: user.id
+    authUserId: user.userId
   }
 }
 
@@ -66,4 +66,4 @@ function userTemplate(){
   return user;
 }
 
-export { authloginV1, authRegisterV1 };
+export { authLoginV1, authRegisterV1 };
