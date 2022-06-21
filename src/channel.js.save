@@ -1,0 +1,9 @@
+
+function channelDetailsV1(authUserId, channelId){
+  return 'authUserId' + 'channelId';
+}
+
+function channelJoinsV1(authUserId, channelId) {
+ return 'authUserId' + 'channelId';
+}
+

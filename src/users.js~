@@ -1,6 +1,4 @@
 function userProfileV1(authUserId, uId) {
-
-
   return {
     uId: 1, 
     email: 'example@gmail.com',
