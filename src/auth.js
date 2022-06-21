@@ -4,11 +4,10 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   }
 }
 
-function authLoginV1(email, password) {
+function authloginV1(email, password) {
   return {
     authUserId: 1,
   }
 }
 
 export { authLoginV1, authRegisterV1 };
-
