@@ -1,0 +1,7 @@
+import { channelDetailsV1 } from './channel.js';
+import { authRegisterV1 } from './auth.js';
+import { channelsCreateV1 } from './channels.js';
+
+authRegisterV1('email@gmail.com', 'drowssap', 'Drow', 'Sapling');
+channelsCreateV1(1, 'Ghor Dranas', true);
+channelDetailsV1(1, 1);

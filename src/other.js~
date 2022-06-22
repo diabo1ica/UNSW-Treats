@@ -1,0 +1,12 @@
+import { getData } from './dataStore';
+
+function clearV1() {
+  let data = getData();
+  data.users = [];
+  data.channels = [];
+  userIdCounter = 0;
+  channelIdCounter = 0;
+  return {};
+}
+
+export { clearV1 };
