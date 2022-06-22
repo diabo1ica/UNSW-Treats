@@ -6,7 +6,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
   }
   const data = getData();
   const channels = channelsTemplate();
-  if (data.userIdCounter === 0) {
+  if (data.channelIdCounter === 0) {
     channels.channelId = 1;
     data.channelIdCounter++;
   }
@@ -27,6 +27,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
         nameFirst: item.firstname,
         nameLast: item.lastname,
         handleStr:'',
+        channelPermsId: 1,
       });
     }
   }

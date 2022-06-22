@@ -66,4 +66,12 @@ function userTemplate(){
   return user;
 }
 
+{
+    uId:
+    email:
+    nameFirst:
+    nameLast:
+    handleStr:
+}
+
 export { authLoginV1, authRegisterV1 };
