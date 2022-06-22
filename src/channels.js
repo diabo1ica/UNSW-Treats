@@ -1,4 +1,4 @@
-import { getData, setData } from './dataStore'
+import { getData, setData } from './dataStore.js'
 
 function channelsCreateV1(authUserId, name, isPublic) {
   if (name.length < 1 || name.length > 20) {

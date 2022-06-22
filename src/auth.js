@@ -1,5 +1,5 @@
 import validator from 'validator';
-import {getData} from './dataStore';
+import {getData, setData} from './dataStore.js';
 
 function authRegisterV1(email, password, nameFirst, nameLast) {
   if(!validator.isEmail(email) 
@@ -22,7 +22,7 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   }
   user.email = email;
   user.nameFirst = nameFirst; 
-  user.nameLast =  nameLast;
+  user.nameLast = nameLast;
   user.password = password;
   data.users.push(user);
   return {
