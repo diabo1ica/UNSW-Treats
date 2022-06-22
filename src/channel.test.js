@@ -27,7 +27,8 @@ describe('channelDetails tests', () => {
         channelPermsId: 1,
       }]
     });
-
+  )};
+  
   test('Invalid authId and channelId',() => {
     expect(channelDetailsV1(2, 2)).toStrictEqual({error: 'error'});
   });
