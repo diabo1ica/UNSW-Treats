@@ -26,7 +26,7 @@ test('Testing ChannelsCreate (no error)', () => {
   const user_authUserId = a.authUserId;
   const b = channelsCreateV1(user_authUserId, 'Channel1', 'true');
   const channel_id = b.channelId;
-  expect(b).toStrictEqual(expect.objectcontaining({
+  expect(b).toStrictEqual(expect.objectContaining({
     channelId: expect.any(Number),
   }));
 });
@@ -38,7 +38,7 @@ test('Testing ChannelsCreate (no error)', () => {
   const user_authUserId = a.authUserId;
   const b = channelsCreateV1(user_authUserId, 'Channel2', 'false');
   const channel_id = b.channelId;
-  expect(b).toStrictEqual(expect.objectcontaining({
+  expect(b).toStrictEqual(expect.objectContaining({
     channelId: expect.any(Number),
   }));
 });
