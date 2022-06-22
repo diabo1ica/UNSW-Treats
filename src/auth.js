@@ -21,7 +21,8 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
     data.userIdCounter++;
   }
   user.email = email;
-  user.name = nameFirst + ' ' + nameLast;
+  user.nameFirst = nameFirst; 
+  user.nameLast =  nameLast;
   user.password = password;
   data.users.push(user);
   return {
