@@ -23,7 +23,7 @@ describe('channelDetails tests', () => {
         email: 'email@gmail.com',
         nameFirst: 'Drow',
         nameLast: 'Sapling',
-        handleStr: '',
+        handleStr: 'DrowSapling',
         channelPermsId: 1,
       }]
     });

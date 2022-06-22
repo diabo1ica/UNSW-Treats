@@ -30,7 +30,27 @@ function channelJoinV1(authUserId, channelId) {
 function channelInviteV1(authUserId, channelId, uId) {
   return {};
 }
+/*
+Displays the list of messages of a given channel, and indicates whether there
+are more messages to load or if it has loaded all least recent messages.
 
+Arguments:
+    authUserId (integer)   - Identification number of the user calling the 
+                             function.
+    channelId (integer)    - Identification number of the channel whose messages
+                             are to be viewed.
+    start (integer)        - The starting index of which the user wants to start
+                             looking at the messages from.
+
+Return Value:
+    Returns {messages, start, end} on correct input
+    Returns {error: 'error'} on authUserId is invalid 
+    Returns {error: 'error'} on start is greater than the total amount of
+    messages
+    Returns {error: 'error'} on channelId is invalid
+    Returns {error: 'error'} on channelId is valid but authUserId is not a
+    member of the channel
+*/
 function channelMessagesV1(authUserId, channelId, start) {
   const data = getData(); 
   

@@ -44,7 +44,20 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
     authUserId: user.userId
   }
 }
+/*
+Allows the user to login to their account and view their userId.
 
+Arguments:
+    email (string)    - the email which the user has used to register their 
+                        account with.
+    password (string)    - The password which the user has used to register
+                           their account with.
+                           
+Return Value:
+    Returns authUserId on email is valid and password is correct
+    Returns {error: 'error'} on email is invalid
+    Returns {error: 'error'} on password is incorrect
+*/
 function authLoginV1(email, password) {
   if (validator.isEmail(email) === false) {
     return {
