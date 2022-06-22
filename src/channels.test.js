@@ -1,6 +1,7 @@
 import { channelInviteV1, channelJoinV1 } from './channel'
 import { authRegisterV1, authloginV1 } from './auth'
 import { channelsCreateV1, channelsListV1 } from './channels'
+import { clearV1 } from './other'
 
 test('Testing ChannelsCreate (error)', () => {
   clearV1();
