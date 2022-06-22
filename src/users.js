@@ -3,9 +3,17 @@ import {getData} from './dataStore';
 function userProfileV1(authUserId, uId) {
   let data = getData();
   
-  for (let uId of data.users.userId) {
-    if (uId === data.users.userId) {
-      return data.users;
+  for (let item of data.users) {
+    if (uId === item.userId) {
+      return {
+        user : {
+            uId : item.userId,
+            email : item.email,
+            nameFirst : item.nameFirst,
+            nameLast : item.nameLast,
+            hhandleStr : item.handleStr,
+        };
+      }
     }
   }
   
