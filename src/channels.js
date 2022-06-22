@@ -1,4 +1,4 @@
-import { getData } from './dataStore'
+import { getData, setData } from './dataStore'
 
 function channelsCreateV1(authUserId, name, isPublic) {
   if (name.length < 1 || name.length > 20) {
@@ -6,7 +6,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
   }
   const data = getData();
   const channels = channelsTemplate();
-  if (data.userIdCounter === 0) {
+  if (data.channelIdCounter === 0) {
     channels.channelId = 1;
     data.channelIdCounter++;
   }
@@ -27,10 +27,12 @@ function channelsCreateV1(authUserId, name, isPublic) {
         nameFirst: item.firstname,
         nameLast: item.lastname,
         handleStr:'',
+        channelPermsId: 1,
       });
     }
   }
   data.channels.push(channels);
+  setData(data);
   return {
     channelId: channels.channelId,
   }
