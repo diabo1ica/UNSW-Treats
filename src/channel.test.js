@@ -27,7 +27,6 @@ describe('channelDetails tests', () => {
         channelPermsId: 1,
       }]
     });
-  });
 
   test('Invalid authId and channelId',() => {
     expect(channelDetailsV1(2, 2)).toStrictEqual({error: 'error'});
@@ -40,6 +39,7 @@ describe('channelDetails tests', () => {
   test('Valid channelId but invalid authId',() => {
     expect(channelDetailsV1(2, 1)).toStrictEqual({error: 'error'});
   });
+});
 
 describe('Test suite for channelMessagesV1', () => {
   let user_id1, user_id2, user_id3, user_id4;
