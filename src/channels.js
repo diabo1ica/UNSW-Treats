@@ -45,8 +45,23 @@ function channelsListV1(authUserId) {
 }
 
 function channelsListallV1(authUserId) {
+  const data = getData();
+  if (validateUserId(authUserId) === false) {
+    return {
+      error: 'error'
+    }
+  }
+  
+  const allChannels = []; 
+  for (let item of data.channels) {
+    allChannels.push({
+      channelId: item.channelId,
+      name: item.name,
+    });
+  }
+  
   return {
-    channels: [] // see interface for contents
+    channels: allChannels // see interface for contents
   };
 }
 
@@ -60,6 +75,16 @@ function channelsTemplate() {
   }
   
   return channel;
+}
+
+function validateUserId(UserId) {
+  const data = getData();
+  for (let item of data.users) {
+    if (item.userId === UserId) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export { channelsCreateV1, channelsListV1, channelsListallV1 };
