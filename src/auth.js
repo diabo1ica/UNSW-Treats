@@ -29,10 +29,10 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   // Generate handle
   let handle = nameFirst + nameLast;
   if(handle.length > 20) handle = handle.slice(0, 20);
-  if(data.users.some(obj => obj.handleStr === handle){
+  if(data.users.some(obj => obj.handleStr === handle)){
     for(const i = 0; i <= 9; i++){
       let numStr = i.toString();
-      if(!data.users.some(obj => obj.handleStr === (handle + numStr)){
+      if(!data.users.some(obj => obj.handleStr === (handle + numStr))){
         handle = handle + numStr;
         break;
       }
