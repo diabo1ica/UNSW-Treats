@@ -20,12 +20,11 @@ function channelsCreateV1(authUserId, name, isPublic) {
   
   for (let item of data.users) {
     if (item.userId === authUserId) {
-      channels.members[name] = item.name;
       channels.members.push({
         uId: authUserId,
         email: item.email,
-        nameFirst: item.firstname,
-        nameLast: item.lastname,
+        nameFirst: item.nameFirst,
+        nameLast: item.nameLast,
         handleStr:'',
         channelPermsId: 1,
       });
