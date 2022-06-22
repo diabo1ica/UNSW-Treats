@@ -19,7 +19,7 @@ function channelJoinV1(authUserId, channelId) {
 }
 
 function channelInviteV1(authUserId, channelId, uId) {
-  const data = getData();
+  /*const data = getData();
   for (channel of data.channels) {
     if (channelId !== channel.channelId) {
       break;
@@ -39,7 +39,8 @@ function channelInviteV1(authUserId, channelId, uId) {
         break;
     }
   }
-  return {error: 'error'};
+  return {error: 'error'};*/
+  return {};
 }
 
 function channelMessagesV1(authUserId, channelId, start) {

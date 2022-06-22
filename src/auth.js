@@ -66,9 +66,5 @@ function userTemplate(){
   return user;
 }
 
-<<<<<<< HEAD
-export { authloginV1, authRegisterV1 };
->>>>>>> origin/gary
-=======
 export { authLoginV1, authRegisterV1 };
->>>>>>> f3bbffbd389a15c4527c2ca9a213f2b49177c554
+
