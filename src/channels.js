@@ -1,4 +1,4 @@
-import { getData } from './dataStore'
+import { getData, setData } from './dataStore'
 
 function channelsCreateV1(authUserId, name, isPublic) {
   if (name.length < 1 || name.length > 20) {
@@ -32,6 +32,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
     }
   }
   data.channels.push(channels);
+  setData(data);
   return {
     channelId: channels.channelId,
   }
