@@ -1,15 +1,25 @@
 import { getData, setData } from './dataStore.js';
 function channelDetailsV1(authUserId, channelId) {
-  if(!data.channels.some(obj => obj.channelId === channelId)
-  || !data.channels.users.some(obj => obj.authUserId === authUserId)){
-    return { error: 'error' }
+  const data = getData();
+  if(!data.channels.some(obj => obj.channelId === channelId)){;
+    return { error: 'error' };
   }
-
+  let object;
+  for(const channel of data.channels){
+    if(channel.channelId === channelId){
+      object = channel;
+      break;
+    }
+  }
+  if(!object.members.some(obj => obj.uId === authUserId)){
+    return { error: 'error' };
+  }
+  setData(data);
   return {
-    name: 'secret candy crush team', 
-    isPublic: true,
-    ownerMembers: [],
-    allMembers: [],
+    channelId: object.channelId,
+    name: object.name, 
+    isPublic: object.isPublic,
+    members: object.members
   };
 }
 

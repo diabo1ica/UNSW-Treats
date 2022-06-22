@@ -1,5 +1,5 @@
 import validator from 'validator';
-import {getData, setData} from './dataStore.js';
+import { getData, setData } from './dataStore.js';
 
 function authRegisterV1(email, password, nameFirst, nameLast) {
   if(!validator.isEmail(email) 
@@ -15,13 +15,14 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   if(data.userIdCounter === 0){
     user.userId = 1;
     data.userIdCounter++;
+    user.globalPermsId = 1;
   }
   else{
     user.userId = data.userIdCounter + 1;
     data.userIdCounter++;
   }
   user.email = email;
-  user.nameFirst = nameFirst; 
+  user.nameFirst = nameFirst;
   user.nameLast = nameLast;
   user.password = password;
   data.users.push(user);
@@ -59,10 +60,12 @@ function validName(name){
 // TODO implement a user template function
 function userTemplate(){
   const user = {
-    name: '',
+    nameFirst: '',
+    nameLast:'',
     email: '',
     password: '',
-    userId: 0 
+    userId: 0,
+    globalPermsId: 2
   }
   return user;
 }
