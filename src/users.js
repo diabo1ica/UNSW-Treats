@@ -11,8 +11,8 @@ function userProfileV1(authUserId, uId) {
             email : item.email,
             nameFirst : item.nameFirst,
             nameLast : item.nameLast,
-            hhandleStr : item.handleStr,
-        };
+            handleStr : item.handleStr,
+        }
       }
     }
   }

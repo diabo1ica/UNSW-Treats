@@ -4,19 +4,10 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   }
 }
 
-<<<<<<< HEAD
-function authLoginV1(email, password) {
-=======
 function authloginV1(email, password) {
->>>>>>> master
   return {
     authUserId: 1,
   }
 }
 
-<<<<<<< HEAD
-export { authLoginV1, authRegisterV1 };
-
-=======
 export { authloginV1, authRegisterV1 };
->>>>>>> master
