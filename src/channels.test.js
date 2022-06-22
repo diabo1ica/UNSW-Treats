@@ -51,10 +51,10 @@ describe('Test suite for channelsListallV1', () => {
     user_id2 = authRegisterV1('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
     user_id3 = authRegisterV1('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
     user_id4 = authRegisterV1('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;    
-    channel_id1 = channelsCreateV1(user_id1, 'Aero', true);
-    channel_id2 = channelsCreateV1(user_id2, 'Aero1', true);
-    channel_id3 = channelsCreateV1(user_id3, 'Aero2', false);
-    channel_id4 = channelsCreateV1(user_id4, 'Aero3', false);
+    channel_id1 = channelsCreateV1(user_id1, 'Aero', true).channelId;
+    channel_id2 = channelsCreateV1(user_id2, 'Aero1', true).channelId;
+    channel_id3 = channelsCreateV1(user_id3, 'Aero2', false).channelId;
+    channel_id4 = channelsCreateV1(user_id4, 'Aero3', false).channelId;
   
   });
 
@@ -69,21 +69,21 @@ describe('Test suite for channelsListallV1', () => {
   
   });
   
-  test('Correct return type', () => {
+  test('Correct return type (list 4 channels)', () => {
     expect(channelsListallV1(user_id1)).toStrictEqual(expect.objectContaining(
     {
       channels: expect.arrayContaining([
         {
-          channelId: channel_id1 ,
-          name: 'Aero'
+          channelId: channel_id1,
+          name: 'Aero',
         }, 
         {
           channelId: channel_id2,
-          name: 'Aero1'
+          name: 'Aero1',
         },
         {
           channelId: channel_id3,
-          name: 'Aero2'
+          name: 'Aero2',
         },
         {
           channelId: channel_id4,
