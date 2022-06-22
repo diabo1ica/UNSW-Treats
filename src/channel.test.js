@@ -35,7 +35,7 @@ describe('Test suite for channelMessagesV1', () => {
   });
   
   test('Correct return type', () => {
-    expect(channelmessagesV1(user_id1, channel_id1, 0)).toStrictEqual(expect.objectContaining(
+    expect(channelMessagesV1(user_id1, channel_id1, 0)).toStrictEqual(expect.objectContaining(
     {
       messages: expect.arrayContaining([]),
       start: 0,
