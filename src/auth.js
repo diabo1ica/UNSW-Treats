@@ -25,6 +25,20 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   user.nameFirst = nameFirst;
   user.nameLast = nameLast;
   user.password = password;
+  
+  // Generate handle
+  let handle = nameFirst + nameLast;
+  if(handle.length > 20) handle = handle.slice(0, 20);
+  if(data.users.some(obj => obj.handleStr === handle)){
+    for(const i = 0; i <= 9; i++){
+      let numStr = i.toString();
+      if(!data.users.some(obj => obj.handleStr === (handle + numStr))){
+        handle = handle + numStr;
+        break;
+      }
+    }
+  }
+  user.handleStr = handle;  
   data.users.push(user);
   return {
     authUserId: user.userId
@@ -62,6 +76,7 @@ function userTemplate(){
   const user = {
     nameFirst: '',
     nameLast:'',
+    handleStr: '',
     email: '',
     password: '',
     userId: 0,
