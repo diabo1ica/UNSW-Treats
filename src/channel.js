@@ -1,4 +1,18 @@
 import { getData, setData } from './dataStore.js';
+
+// Display channel details of channel with channelId
+// Arguements:
+//    authUserId (number)   - User id of user trying to access channel details
+//    channelId (number)    - Channel id of the channel that will be inspected
+// Return value:
+//    Returns {
+//      channelId: <number>,
+//      name: <string>,           on valid authUserId and channelId
+//      isPublic: <bool>,
+//      members: <array>
+//    }
+//    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
+//    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
 function channelDetailsV1(authUserId, channelId) {
   const data = getData();
   if(!data.channels.some(obj => obj.channelId === channelId)){;
