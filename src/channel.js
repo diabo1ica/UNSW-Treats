@@ -27,13 +27,29 @@ function channelDetailsV1(authUserId, channelId) {
   }
   if(!object.members.some(obj => obj.uId === authUserId)){
     return { error: 'error' };
+  }  
+  // Filter owmer members in members array
+  let owner = [];
+  let members = []
+  for(let user of object.members){
+    let member = {
+      uId: user.uId,
+      email: user.email,
+      nameFirst: user.nameFirst,
+      nameLast: user.nameLast,
+      handleStr: user.handleStr
+    };
+    members.push(member);
+    if(user.channelPermsId === 1){            
+      owner.push(member);
+    }   
   }
   setData(data);
   return {
-    channelId: object.channelId,
     name: object.name, 
     isPublic: object.isPublic,
-    members: object.members
+    ownerMembers: owner,
+    allMembers: members
   };
 }
 
