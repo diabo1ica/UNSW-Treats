@@ -40,6 +40,7 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   }
   user.handleStr = handle;  
   data.users.push(user);
+  setData(data);
   return {
     authUserId: user.userId
   }
