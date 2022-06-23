@@ -25,7 +25,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
         email: item.email,
         nameFirst: item.nameFirst,
         nameLast: item.nameLast,
-        handleStr:'',
+        handleStr:item.handleStr,
         channelPermsId: 1,
       });
     }
