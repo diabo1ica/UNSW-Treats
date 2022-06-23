@@ -18,17 +18,18 @@ describe('Testing channelslist', () => {
 
    channelJoinV1( 'user_id1', 'channel_earth');
    
-   //const lists = channelsListV1( 'user_id1' );
    
    expect(channelsListV1( 'user_id1' )).toStrictEqual(expect.objectContaining(
    {
    channels: expect.arrayContaining([
-   {channelId: channel_air, name: 'air',}, 
-   {channelId: channel_earth, name: 'earth',}
+   {
+   channelId: channel_air,
+    name: 'air',
+    }, 
+   {channelId: channel_earth,
+    name: 'earth',
+    }
    ])
-   }));
-
-        
-        
-    });
+   }));   
+   });
 });

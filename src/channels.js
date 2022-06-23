@@ -41,8 +41,8 @@ function channelsListV1(authUserId) {
   const data = getData();
   const userchannels = [];
   
-  for (let item of data.channels) {
-    if (item.members.uId === authUserId) {
+  for (let channel of data.channels) {
+    if (channel.members.includes(authUserId)) {
       userchannels.push({
         channelId: item.channelId,
         name: item.name,
@@ -54,6 +54,7 @@ function channelsListV1(authUserId) {
     channels: userchannels
   };
 }
+
 /*
 Finds all existing channels and lists them in an array including their details.
 
@@ -109,6 +110,3 @@ function validateUserId(UserId) {
 }
 
 export { channelsCreateV1, channelsListV1, channelsListallV1 };
-
-
-
