@@ -25,7 +25,7 @@ function channelsCreateV1(authUserId, name, isPublic) {
         email: item.email,
         nameFirst: item.nameFirst,
         nameLast: item.nameLast,
-        handleStr:item.handleStr,
+        handleStr: item.handleStr,
         channelPermsId: 1,
       });
     }
@@ -42,7 +42,17 @@ function channelsListV1(authUserId) {
     channels: [] // see interface for contents
   };
 }
+/*
+Finds all existing channels and lists them in an array including their details.
 
+Arguments:
+    authUserId (integer)    - Identification number of the user calling the 
+                              function
+    
+Return Value:
+    Returns { channels } on authUserId is valid
+    Returns {error: 'error'} on authUserId is invalid 
+*/
 function channelsListallV1(authUserId) {
   const data = getData();
   if (validateUserId(authUserId) === false) {
