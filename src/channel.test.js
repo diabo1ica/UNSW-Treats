@@ -15,11 +15,11 @@ describe('channelDetails tests', () => {
   
   test('Valid Channel Details',() => {
     expect(channelDetailsV1(1, 1)).toStrictEqual({
-      channelId: 1,
+      channelId: expect.any(Number),
       name: 'Ghor Dranas', 
       isPublic: true,
       members: [{
-        uId: 1,
+        uId: expect.any(Number),
         email: 'email@gmail.com',
         nameFirst: 'Drow',
         nameLast: 'Sapling',
