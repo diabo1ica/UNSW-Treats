@@ -26,35 +26,46 @@ function channelDetailsV1(authUserId, channelId) {
 
 function channelJoinV1(authUserId, channelId) {
   const data = getData();
+  let object;
+  let found;
   
-  for (const channel of data.channels) {
-    if (channel.channelId === channelId) {
-      if (channel.isPublic === false) {
-        return { error: 'error' };
-      }
-      for (let member of data.channels.members) {
-        if (authUserId === member.uId) {
-            return { error: 'error'};
-        }
-      }
-      for (let item of data.users) {
-        if (item.userId === authUserId) {
-          data.channels.members.push({
-            uId: authUserId,
-            email: item.email,
-            nameFirst: item.nameFirst,
-            nameLast: item.nameLast,
-            handleStr: item.handleStr,
-            channelPermsId: 2,
-          });
-          return ({});;
-        }
-      }
-    }   
+  for(const channel of data.channels){
+    found = false;
+    
+    if(channel.channelId === channelId){
+    found = true;
+      object = channel;
+      break;
+    }
   }
+  if (found = false) {
+    return {error : 'error'};
+  }
+    if(object.members.some(obj => obj.uId === authUserId)) {
+      return { error: 'error' };
+    }
+    if(object.isPublic.some(obj => obj.uId === false)) {
+      return { error: 'error' };
+    }
+    for (let item of data.users) {
+      if (item.userId === authUserId) {
+        channels.members.push({
+         uId: authUserId,
+         email: item.email,
+         nameFirst: item.nameFirst,
+         nameLast: item.nameLast,
+         handleStr: item.handleStr,
+         channelPermsId: 2,
+        });
+      }
+    }
+    return ({});
   
+
   return { error: 'error'};
 }
+
+
 
 function channelInviteV1(authUserId, channelId, uId) {
   return {};
