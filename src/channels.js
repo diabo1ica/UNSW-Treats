@@ -70,7 +70,7 @@ function channelsTemplate() {
     name: ' ',
     isPublic: ' ',
     members: [],  
-    messages: [], 
+    messages: [] 
   }
   
   return channel;
