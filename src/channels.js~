@@ -40,10 +40,9 @@ function channelsCreateV1(authUserId, name, isPublic) {
 function channelsListV1(authUserId) {
   const data = getData();
   const userchannels = [];
-  const a = ['a'];
   
   for (let channel of data.channels) {
-    if (channel.members.includes(authUserId)) {
+    if(channel.members.some(obj => obj.uId === authUserId)) {
       userchannels.push({
         channelId: item.channelId,
         name: item.name,
