@@ -133,7 +133,7 @@ test('Testing Invitation(do not exist (2))', () => {
   const c = channelsCreateV1(user_authUserId, 'Channel1', 'true');  
   const channel_id = c.channelId;
   
-  expect(channelInviteV1(user_authUserId, channel_id, 1000000)).toStrictEqual({error: 'error'});
+  expect(channelInviteV1(user_authUserId, channel_id, user_authUserId)).toStrictEqual({error: 'error'});
 });
 
 test('Testing Invitation(do not exist (3))', () => {
