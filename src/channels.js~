@@ -76,9 +76,9 @@ function channelsListallV1(authUserId) {
 
 function channelsTemplate() {
   const channel = {
-    channelId:' ',
-    name: ' ',
-    isPublic: ' ',
+    channelId:'',
+    name: '',
+    isPublic: '',
     members: [],  
     messages: [], 
   }
@@ -97,3 +97,6 @@ function validateUserId(UserId) {
 }
 
 export { channelsCreateV1, channelsListV1, channelsListallV1 };
+
+
+
