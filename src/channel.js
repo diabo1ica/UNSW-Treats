@@ -1,4 +1,18 @@
 import { getData, setData } from './dataStore.js';
+
+// Display channel details of channel with channelId
+// Arguements:
+//    authUserId (number)   - User id of user trying to access channel details
+//    channelId (number)    - Channel id of the channel that will be inspected
+// Return value:
+//    Returns {
+//      channelId: <number>,
+//      name: <string>,           on valid authUserId and channelId
+//      isPublic: <bool>,
+//      members: <array>
+//    }
+//    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
+//    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
 function channelDetailsV1(authUserId, channelId) {
   const data = getData();
   if(!data.channels.some(obj => obj.channelId === channelId)){;
@@ -13,13 +27,29 @@ function channelDetailsV1(authUserId, channelId) {
   }
   if(!object.members.some(obj => obj.uId === authUserId)){
     return { error: 'error' };
+  }  
+  // Filter owmer members in members array
+  let owner = [];
+  let members = []
+  for(let user of object.members){
+    let member = {
+      uId: user.uId,
+      email: user.email,
+      nameFirst: user.nameFirst,
+      nameLast: user.nameLast,
+      handleStr: user.handleStr
+    };
+    members.push(member);
+    if(user.channelPermsId === 1){            
+      owner.push(member);
+    }   
   }
   setData(data);
   return {
-    channelId: object.channelId,
     name: object.name, 
     isPublic: object.isPublic,
-    members: object.members
+    ownerMembers: owner,
+    allMembers: members
   };
 }
 
