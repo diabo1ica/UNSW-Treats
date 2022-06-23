@@ -57,6 +57,24 @@ function channelJoinV1(authUserId, channelId) {
   return {};
 }
 
+/*
+Invite other uId to join channel with specified channelId
+
+Arguments:
+    authUserId (integer)  - author user id, the user that create the channel 
+                            and a member of channel.
+    channelId (integer)   - the channelId of the channel where other user will
+                            be invited to join.
+    uId (integer)         - the user id of user that will be invited.
+                           
+Return Value:
+    Returns {} on valid uId, authUserId and channelId
+    Returns {error: 'error'} on channelId is invalid
+    Returns {error: 'error'} on uId is invalid
+    Returns {error: 'error'} on uId is already a member
+    Returns {error: 'error'} on channelId is valid but authUserId is
+                             not a member
+*/
 function channelInviteV1(authUserId, channelId, uId) {
   const data = getData();
   for (let item of data.channels) {
