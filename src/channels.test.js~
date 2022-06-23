@@ -10,24 +10,16 @@ describe('Testing channelslist', () => {
         
   const user_id1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve',
    'Berrospi').authUserId;
-  const user_id2 = authRegisterV1('z3329234@unsw.edu.au', 'aero321', 'Gary',
-   'Ang').authUserId;
 
-   const channel_air = channelsCreateV1( 'user_id1', 'air', 'Public').channelId;
-   const channel_earth = channelsCreateV1( 'user_id2', 'earth', 'Public').channelId;
+   const channel_air = channelsCreateV1( user_id1, 'air', true).channelId;
 
-   channelJoinV1( 'user_id1', 'channel_earth');
-
-   expect(channelsListV1( 'user_id1' )).toStrictEqual(expect.objectContaining(
+   expect(channelsListV1( user_id1 )).toStrictEqual(expect.objectContaining(
    {
    channels: expect.arrayContaining([
    {
    channelId: channel_air,
     name: 'air',
     }, 
-   {channelId: channel_earth,
-    name: 'earth',
-    }
    ])
    }));   
    });

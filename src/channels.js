@@ -42,10 +42,10 @@ function channelsListV1(authUserId) {
   const userchannels = [];
   
   for (let channel of data.channels) {
-    if(channel.members.some(obj => obj.uId === authUserId)) {
+    if(channel.members.some(obj => obj.uId === authUserId)) { 
       userchannels.push({
-        channelId: item.channelId,
-        name: item.name,
+        channelId: channel.channelId,
+        name: channel.name,
       });
     }
   }

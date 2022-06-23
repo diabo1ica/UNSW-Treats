@@ -43,9 +43,14 @@ function channelsListV1(authUserId) {
   
   for (let channel of data.channels) {
     if(channel.members.some(obj => obj.uId === authUserId)) {
+      //for (let item of data.users) {
+       // if (item.userId === authUserId) {
+        //  break;
+       // }
+      //}
       userchannels.push({
-        channelId: item.channelId,
-        name: item.name,
+        channelId: channel.channelId,
+        name: channel.name,
       });
     }
   }
