@@ -42,6 +42,48 @@ function channelJoinV1(authUserId, channelId) {
 }
 
 function channelInviteV1(authUserId, channelId, uId) {
+  const data = getData();
+  for (let item of data.channels) {
+    if (channelId !== item.channelId) {
+      return {error: 'error'};
+    }
+    for (let member of item.members) {
+      if (uId === member.uId) {
+        return {error: 'error'};
+      }
+      if (channelId === item.channelId && authUserId !== member.uId) {
+        return {error: 'error'};
+      }
+    }
+  }
+  
+  if (validateUserId(uId) == false) {
+    return {error: 'error'};
+  }
+  
+  const channeltemp = channelsTemplate();
+  for (let channel of data.channels) {
+    if (channelId === channel.channelId) {
+      channeltemp.name = channel.name;
+      channeltemp.isPublic = channel.isPublic;  
+      for (let item of data.users) {
+        if (item.userId === uId) {
+          channeltemp.members.push({
+            uId: uId,
+            email: item.email,
+            nameFirst: item.nameFirst,
+            nameLast: item.nameLast,
+            handleStr: item.handleStr,
+            channelPermsId: 2,
+          });
+        }
+      }  
+    }
+  }
+  
+  data.channels.push(channeltemp);
+  setData(data);
+  
   return {};
 }
 /*
@@ -119,6 +161,28 @@ function isMember(userId, channel_obj) {
     }
   }
   return false;
+}
+
+function validateUserId(UserId) {
+  const data = getData();
+  for (let item of data.users) {
+    if (item.userId === UserId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function channelsTemplate() {
+  const channel = {
+    channelId:' ',
+    name: ' ',
+    isPublic: ' ',
+    members: [],  
+    messages: [], 
+  }
+  
+  return channel;
 }
 
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
