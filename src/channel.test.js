@@ -15,16 +15,21 @@ describe('channelDetails tests', () => {
   
   test('Valid Channel Details',() => {
     expect(channelDetailsV1(1, 1)).toStrictEqual({
-      channelId: expect.any(Number),
       name: 'Ghor Dranas', 
       isPublic: true,
-      members: [{
+      ownerMembers: [{
         uId: expect.any(Number),
         email: 'email@gmail.com',
         nameFirst: 'Drow',
         nameLast: 'Sapling',
-        handleStr: 'DrowSapling',
-        channelPermsId: 1,
+        handleStr: 'DrowSapling'
+      }],
+      allMembers: [{
+        uId: expect.any(Number),
+        email: 'email@gmail.com',
+        nameFirst: 'Drow',
+        nameLast: 'Sapling',
+        handleStr: 'DrowSapling'
       }]
     });
   });
