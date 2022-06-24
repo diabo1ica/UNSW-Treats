@@ -53,6 +53,16 @@ function channelDetailsV1(authUserId, channelId) {
   };
 }
 
+/*
+The authorised user joins the channel using channelId given.
+
+Arguments:
+    authUserId (integer) - Id of user that is joining the channel
+    channelId  (integer) - Id of channel that user wants to joining
+    
+Return Value:
+    Returns {} on joining channel
+*/
 function channelJoinV1(authUserId, channelId) {
   const data = getData();
   let obj;
