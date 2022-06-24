@@ -111,4 +111,3 @@ function userTemplate(){
 }
 
 export { authLoginV1, authRegisterV1 };
-
