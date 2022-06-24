@@ -19,13 +19,16 @@ describe('Test for userProfileV1', () => {
   });
 
   test('correct return', () => {
-    
-    expect(userProfileV1(user_id1, user_id2)).toStrictEqual(expect.objectContaining({
-      uId: 2,
-      email: 'z3329234@unsw.edu.au',
-      nameFirst: 'Gary',
-      nameLast: 'Ang',
-      handleStr: 'GaryAng', 
-    },));
-    });
+    const expected = {
+        user : {
+            uId: 2,
+            email: 'z3329234@unsw.edu.au',
+            nameFirst: 'Gary',
+            nameLast: 'Ang',
+            handleStr: 'GaryAng',
+        }
+    }   
+    expect(userProfileV1(user_id1, user_id2)).toEqual(expected);
+
+  });
 });

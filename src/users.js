@@ -6,11 +6,13 @@ function userProfileV1(authUserId, uId) {
   for (let item of data.users) {
     if (item.userId === uId) {
       return { 
-        uId: item.userId,
-        email: item.email,
-        nameFirst: item.nameFirst,
-        nameLast: item.nameLast,
-        handleStr: item.handleStr,
+        user: {
+          uId: item.userId,
+          email: item.email,
+          nameFirst: item.nameFirst,
+          nameLast: item.nameLast,
+          handleStr: item.handleStr,
+        }
       }
     }
   }
