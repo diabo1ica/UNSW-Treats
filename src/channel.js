@@ -54,7 +54,39 @@ function channelDetailsV1(authUserId, channelId) {
 }
 
 function channelJoinV1(authUserId, channelId) {
-  return {};
+  const data = getData();
+  let obj;
+  
+  for (let new_member of data.users) {
+    if (new_member.userId === authUserId) {
+      obj = new_member;
+      break;
+    }
+  }
+
+  for (let channel of data.channels) {
+    if (channel.channelId === channelId) {
+      if (channel.isPublic === false) {
+        return {error: 'error'};
+      }
+      for (let item of channel.members) {
+        if (item.uId === authUserId) {
+          return {error: 'error'};
+        }
+      }
+      channel.members.push({
+          uId: authUserId,
+          email: obj.email,
+          nameFirst: obj.nameFirst,
+          nameLast: obj.nameLast,
+          handleStr: obj.handleStr,
+          channelPermsId: 2,
+        });
+      data.channels.push();
+      return {}; 
+    }
+  }
+  return {error: 'error'};
 }
 
 /*
