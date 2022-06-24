@@ -6,7 +6,10 @@ import {clearV1} from './other';
 
 
 describe('Test suite for channelJoinsV1', () => {
-
+  let user_id1;
+  let user_id2;
+  let channel_id1;
+  
   test('Channelid not existing', () => {
     clearV1();
    
