@@ -1,6 +1,24 @@
+import validator from 'validator';
 import { getData, setData } from './dataStore.js';
 
+// Creates a user and store it in dataStore
+// Arguments:
+//    email (string)      - An email string used to register the user
+//    password (string)   - A string used for the user's password
+//    nameFirst (string)  - The user's first name
+//    nameLast (string)   - The user's last name
+// Return value:
+//    Returns authUserId on email, password, nameFirst and namelast is valid
+//    Returns { error : 'error' } on email not valid (Already taken, argument not in email format
+//    Returns { error : 'error' } on password length not valid (< 6)
+//    Returns { error : 'error' } on nameFirst and/or nameLast length not valid
 function authRegisterV1(email, password, nameFirst, nameLast) {
+  if(!validator.isEmail(email) 
+  || password.length < 6
+  || !validName(nameFirst)
+  || !validName(nameLast)){
+    return {error : 'error'};
+  }
   const data = getData();
   if(data.users.some(obj => obj.email === email)) return {error : 'error'};
   
@@ -33,6 +51,7 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   }
   user.handleStr = handle;  
   data.users.push(user);
+  setData(data);
   return {
     authUserId: user.userId
   }
@@ -77,7 +96,7 @@ function validName(name){
   return true;
 }
 
-// TODO implement a user template function
+// Creates an empty user template
 function userTemplate(){
   const user = {
     nameFirst: '',
