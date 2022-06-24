@@ -1,5 +1,19 @@
 import { getData, setData } from './dataStore.js'
 
+/*
+Create a channel with given name and whether it is public or private.
+
+Arguments:
+    authUserId (integer)  - author user id, the user that create the channel 
+                            and a member of channel.
+    name (string)         - the name of the channel.
+    isPublic (boolean)    - true if it is public and false for private.
+                           
+Return Value:
+    Returns {channelId: <number>} on valid authUserId and name
+    Returns {error: 'error'} on name that is invalid (less than 1 or 
+                             more than 20
+*/
 function channelsCreateV1(authUserId, name, isPublic) {
   if (name.length < 1 || name.length > 20) {
     return {error: 'error'};
@@ -80,7 +94,7 @@ function channelsTemplate() {
     name: ' ',
     isPublic: ' ',
     members: [],  
-    messages: [], 
+    messages: [] 
   }
   
   return channel;
