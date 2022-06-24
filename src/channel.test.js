@@ -1,5 +1,5 @@
 import {authRegisterV1} from './auth';
-import (channelsCreateV1, channelsListallV1} from './channels';
+import {channelsCreateV1, channelsListallV1} from './channels';
 import {channelDetailsV1} from './channel';
 import {clearV1} from './other';
 
