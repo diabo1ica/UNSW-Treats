@@ -4,7 +4,6 @@ let data = {
   channels: [],
   userIdCounter: 0,
   channelIdCounter: 0,
-
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1
