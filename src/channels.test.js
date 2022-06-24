@@ -93,3 +93,24 @@ describe('Test suite for channelsListallV1', () => {
    }));
   });
 });
+
+describe('Testing channelslist', () => {
+
+  test('return all channles involved for userid' , () => {
+    clearV1();
+        
+  const user_id1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve',
+   'Berrospi').authUserId;
+   const channel_air = channelsCreateV1( user_id1, 'air', true).channelId;
+
+   expect(channelsListV1( user_id1 )).toStrictEqual(expect.objectContaining(
+   {
+   channels: expect.arrayContaining([
+   {
+   channelId: channel_air,
+    name: 'air',
+    }, 
+   ])
+   }));   
+   });
+ });

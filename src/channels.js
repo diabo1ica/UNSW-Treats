@@ -50,10 +50,32 @@ function channelsCreateV1(authUserId, name, isPublic) {
     channelId: channels.channelId,
   }
 }
+/*
+Provide a list of channels and it's details that the authorised user is a part of.
+
+Arguments:
+    authUserId (integer) - Identification number of the user calling the 
+                          function
+
+Return Value:
+    Returns { channels } on authUserId is valid
+*/
 
 function channelsListV1(authUserId) {
+  const data = getData();
+  const userchannels = [];
+  
+  for (let channel of data.channels) {
+    if(channel.members.some(obj => obj.uId === authUserId)) { 
+      userchannels.push({
+        channelId: channel.channelId,
+        name: channel.name,
+      });
+    }
+  }
+
   return {
-    channels: [] // see interface for contents
+    channels: userchannels
   };
 }
 /*
