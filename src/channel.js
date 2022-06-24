@@ -1,5 +1,18 @@
 import { getData, setData } from './dataStore.js';
 
+// Display channel details of channel with channelId
+// Arguements:
+//    authUserId (number)   - User id of user trying to access channel details
+//    channelId (number)    - Channel id of the channel that will be inspected
+// Return value:
+//    Returns {
+//      channelId: <number>,
+//      name: <string>,           on valid authUserId and channelId
+//      isPublic: <bool>,
+//      members: <array>
+//    }
+//    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
+//    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
 function channelDetailsV1(authUserId, channelId) {
   const data = getData();
   if(!data.channels.some(obj => obj.channelId === channelId)){;
@@ -14,60 +27,129 @@ function channelDetailsV1(authUserId, channelId) {
   }
   if(!object.members.some(obj => obj.uId === authUserId)){
     return { error: 'error' };
+  }  
+  // Filter owmer members in members array
+  let owner = [];
+  let members = []
+  for(let user of object.members){
+    let member = {
+      uId: user.uId,
+      email: user.email,
+      nameFirst: user.nameFirst,
+      nameLast: user.nameLast,
+      handleStr: user.handleStr
+    };
+    members.push(member);
+    if(user.channelPermsId === 1){            
+      owner.push(member);
+    }   
   }
   setData(data);
   return {
-    channelId: object.channelId,
     name: object.name, 
     isPublic: object.isPublic,
-    members: object.members
+    ownerMembers: owner,
+    allMembers: members
   };
 }
 
 function channelJoinV1(authUserId, channelId) {
   const data = getData();
-  let object;
-  let found;
+  let obj;
   
-  for(const channel of data.channels){
-    found = false;
-    
-    if(channel.channelId === channelId){
-    found = true;
-      object = channel;
+  for (let new_member of data.users) {
+    if (new_member.userId === authUserId) {
+      obj = new_member;
       break;
     }
   }
-  if (found = false) {
-    return {error : 'error'};
-  }
-    if(object.members.some(obj => obj.uId === authUserId)) {
-      return { error: 'error' };
-    }
-    if(object.isPublic.some(obj => obj.uId === false)) {
-      return { error: 'error' };
-    }
-    for (let item of data.users) {
-      if (item.userId === authUserId) {
-        channels.members.push({
-         uId: authUserId,
-         email: item.email,
-         nameFirst: item.nameFirst,
-         nameLast: item.nameLast,
-         handleStr: item.handleStr,
-         channelPermsId: 2,
-        });
-      }
-    }
-    return ({});
-  
 
-  return { error: 'error'};
+  for (let channel of data.channels) {
+    if (channel.channelId === channelId) {
+      if (channel.isPublic === false) {
+        return {error: 'error'};
+      }
+      for (let item of channel.members) {
+        if (item.uId === authUserId) {
+          return {error: 'error'};
+        }
+      }
+      channel.members.push({
+          uId: authUserId,
+          email: obj.email,
+          nameFirst: obj.nameFirst,
+          nameLast: obj.nameLast,
+          handleStr: obj.handleStr,
+          channelPermsId: 2,
+        });
+      data.channels.push();
+      return {}; 
+    }
+  }
+  return {error: 'error'};
 }
 
+/*
+Invite other uId to join channel with specified channelId
 
-
+Arguments:
+    authUserId (integer)  - author user id, the user that create the channel 
+                            and a member of channel.
+    channelId (integer)   - the channelId of the channel where other user will
+                            be invited to join.
+    uId (integer)         - the user id of user that will be invited.
+                           
+Return Value:
+    Returns {} on valid uId, authUserId and channelId
+    Returns {error: 'error'} on channelId is invalid
+    Returns {error: 'error'} on uId is invalid
+    Returns {error: 'error'} on uId is already a member
+    Returns {error: 'error'} on channelId is valid but authUserId is
+                             not a member
+*/
 function channelInviteV1(authUserId, channelId, uId) {
+  const data = getData();
+  for (let item of data.channels) {
+    if (channelId !== item.channelId) {
+      return {error: 'error'};
+    }
+    for (let member of item.members) {
+      if (uId === member.uId) {
+        return {error: 'error'};
+      }
+      if (channelId === item.channelId && authUserId !== member.uId) {
+        return {error: 'error'};
+      }
+    }
+  }
+  
+  if (validateUserId(uId) == false) {
+    return {error: 'error'};
+  }
+  
+  const channeltemp = channelsTemplate();
+  for (let channel of data.channels) {
+    if (channelId === channel.channelId) {
+      channeltemp.name = channel.name;
+      channeltemp.isPublic = channel.isPublic;  
+      for (let item of data.users) {
+        if (item.userId === uId) {
+          channeltemp.members.push({
+            uId: uId,
+            email: item.email,
+            nameFirst: item.nameFirst,
+            nameLast: item.nameLast,
+            handleStr: item.handleStr,
+            channelPermsId: 2,
+          });
+        }
+      }  
+    }
+  }
+  
+  data.channels.push(channeltemp);
+  setData(data);
+  
   return {};
 }
 /*
@@ -147,6 +229,26 @@ function isMember(userId, channel_obj) {
   return false;
 }
 
+function validateUserId(UserId) {
+  const data = getData();
+  for (let item of data.users) {
+    if (item.userId === UserId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function channelsTemplate() {
+  const channel = {
+    channelId:' ',
+    name: ' ',
+    isPublic: ' ',
+    members: [],  
+    messages: [], 
+  }
+  
+  return channel;
+}
+
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
-
-

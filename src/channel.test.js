@@ -16,6 +16,7 @@ describe('Test suite for channelJoinsV1', () => {
   });
 
   test('ChannelId not existing', () => {
+    const channel_id1 = channelsCreateV1(user_id1, 'Steve', true).channelId;
     expect(channelJoinV1(user_id2, -1)).toStrictEqual({error: 'error'});
   });
   
@@ -36,3 +37,4 @@ describe('Test suite for channelJoinsV1', () => {
   });
 
 });
+
