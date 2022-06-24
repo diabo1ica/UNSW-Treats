@@ -220,4 +220,3 @@ function channelsTemplate() {
 }
 
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
-
