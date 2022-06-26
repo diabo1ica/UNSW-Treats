@@ -1,0 +1,152 @@
+npm verb cli [
+npm verb cli   '/import/kamen/3/cs1531/.nvm/versions/node/v16.14.2/bin/node',
+npm verb cli   '/import/kamen/3/cs1531/.nvm/versions/node/v16.14.2/bin/npm',
+npm verb cli   'run',
+npm verb cli   'test',
+npm verb cli   '--verbose',
+npm verb cli   'tests/'
+npm verb cli ]
+npm info using npm@8.5.0
+npm info using node@v16.14.2
+npm timing npm:load:whichnode Completed in 0ms
+npm timing config:load:defaults Completed in 2ms
+npm timing config:load:file:/import/kamen/3/cs1531/.nvm/versions/node/v16.14.2/lib/node_modules/npm/npmrc Completed in 1ms
+npm timing config:load:builtin Completed in 1ms
+npm timing config:load:cli Completed in 2ms
+npm timing config:load:env Completed in 1ms
+npm timing config:load:file:/import/kamen/3/cs1531/project-automarking/tempstore/.npmrc Completed in 0ms
+npm timing config:load:project Completed in 12ms
+npm timing config:load:file:/import/kamen/3/cs1531/.npmrc Completed in 0ms
+npm timing config:load:user Completed in 1ms
+npm timing config:load:file:/import/kamen/3/cs1531/.nvm/versions/node/v16.14.2/etc/npmrc Completed in 0ms
+npm timing config:load:global Completed in 0ms
+npm timing config:load:validate Completed in 0ms
+npm timing config:load:credentials Completed in 2ms
+npm timing config:load:setEnvs Completed in 1ms
+npm timing config:load Completed in 23ms
+npm timing npm:load:configload Completed in 23ms
+npm timing npm:load:setTitle Completed in 0ms
+npm timing config:load:flatten Completed in 3ms
+npm timing npm:load:display Completed in 7ms
+npm verb logfile /import/kamen/3/cs1531/.npm/_logs/2022-06-25T00_41_36_671Z-debug-0.log
+npm timing npm:load:logFile Completed in 8ms
+npm timing npm:load:timers Completed in 0ms
+npm timing npm:load:configScope Completed in 0ms
+npm timing npm:load Completed in 39ms
+
+> test
+> jest "tests/"
+
+PASS tests/tests/channels_tests/channelsCreate.test.js
+FAIL tests/tests/channels_tests/channelsListall.test.js
+  ● Test when no channels
+
+    expect(received).toStrictEqual(expected) // deep equality
+
+    Expected: []
+    Received: undefined
+
+      22 |     clearV1();
+      23 |     let res = channelsListallV1(uIdZerg)['channels']
+    > 24 |     expect(res).toStrictEqual([]);
+         |                 ^
+      25 | });
+      26 |
+      27 | test('Test when one channel exists private', () => {
+
+      at Object.<anonymous> (tests/tests/channels_tests/channelsListall.test.js:24:17)
+
+FAIL tests/tests/channel_tests/channelJoin.test.js
+  ● Test global owner can join private channel
+
+    TypeError: Cannot read properties of undefined (reading 'map')
+
+      22 |     channelJoinV1(uIdWoody, chIdZerg);
+      23 |     let chDeets = channelDetailsV1(uIdWoody, chIdZerg);
+    > 24 |     let owners = chDeets['ownerMembers'].map(mem => mem['uId']);
+         |                                          ^
+      25 |     let allmems = chDeets['allMembers'].map(mem => mem['uId']);
+      26 |     expect(owners).toEqual(expect.not.arrayContaining([uIdWoody]));
+      27 |     expect(allmems).toContain(uIdWoody);
+
+      at Object.<anonymous> (tests/tests/channel_tests/channelJoin.test.js:24:42)
+
+FAIL tests/tests/channel_tests/channelInvite.test.js
+  ● Test inviting global owner 1
+
+    TypeError: Cannot read properties of undefined (reading 'map')
+
+      31 |     let channelDetail = channelDetailsV1(uIdBuzz, chIdWoody);
+      32 |     // buzz should be in all members, not owners
+    > 33 |     let owners = channelDetail['ownerMembers'].map(mem => mem['uId']);
+         |                                                ^
+      34 |     let allmems = channelDetail['allMembers'].map(mem => mem['uId']);
+      35 |     expect(owners).toEqual(expect.not.arrayContaining([uIdBuzz]));
+      36 |     expect(allmems).toContain(uIdBuzz);
+
+      at Object.<anonymous> (tests/tests/channel_tests/channelInvite.test.js:33:48)
+
+  ● Test inviting global owner 2
+
+    TypeError: Cannot read properties of undefined (reading 'map')
+
+      42 |     let channelDetail = channelDetailsV1(uIdWoody, chIdZerg);
+      43 |     // buzz should be in all members, not owners
+    > 44 |     let owners = channelDetail['ownerMembers'].map(mem => mem['uId']);
+         |                                                ^
+      45 |     let allmems = channelDetail['allMembers'].map(mem => mem['uId']);
+      46 |     expect(owners).toEqual(expect.not.arrayContaining([uIdWoody]));
+      47 |     expect(allmems).toContain(uIdWoody);
+
+      at Object.<anonymous> (tests/tests/channel_tests/channelInvite.test.js:44:48)
+
+PASS tests/tests/user_tests/userProfile.test.js
+FAIL tests/tests/channel_tests/channelDetails.test.js
+  ● Test handles generated correctly › Should behave correctly for duplicate names
+
+    expect(received).toContainEqual(expected) // deep equality
+
+    Expected value: {"email": "blah1@email.com", "handleStr": "bcdefghjklmnopqrst", "nameFirst": "@bcdefgh!j", "nameLast": "klmn opqrst", "uId": 5}
+    Received array: [{"email": "sheriff.woody@andysroom.com", "handleStr": "sheriffwoody", "nameFirst": "sheriff", "nameLast": "woody", "uId": 2}, {"email": "blah1@email.com", "handleStr": "@bcdefgh!jklmn opqrs", "nameFirst": "@bcdefgh!j", "nameLast": "klmn opqrst", "uId": 5}, {"email": "blah2@email.com", "handleStr": "bcdefghjklmnopqrst", "nameFirst": "bcdefghj", "nameLast": "klmnopqrst", "uId": 6}]
+
+      45 |             let expected1 = {'uId': uId1, 'email': email1, 'nameFirst': first1, 'nameLast': last1, 'handleStr': handle1};
+      46 |             let expected2 = {'uId': uId2, 'email': email2, 'nameFirst': first2, 'nameLast': last2, 'handleStr': handle2};
+    > 47 |             expect(chDeets['allMembers']).toContainEqual(expected1);
+         |                                           ^
+      48 |             expect(chDeets['allMembers']).toContainEqual(expected2);
+      49 |         }
+      50 |     );
+
+      at tests/tests/channel_tests/channelDetails.test.js:47:43
+
+  ● Test handles generated correctly › Should behave correctly for duplicate names
+
+    TypeError: "i" is read-only
+
+      19 |   || !validName(nameLast)){
+      20 |     return {error : 'error'};
+    > 21 |   }
+         |    ^
+      22 |   const data = getData();
+      23 |   if(data.users.some(obj => obj.email === email)) return {error : 'error'};
+      24 |   
+
+      at _readOnlyError (src/auth.js:21:39)
+      at authRegisterV1 (src/auth.js:44:5)
+      at tests/tests/channel_tests/channelDetails.test.js:40:24
+
+PASS tests/tests/channel_tests/channelMessages.test.js
+PASS tests/tests/channels_tests/channelsList.test.js
+PASS tests/tests/auth_tests/authRegister.test.js
+PASS tests/tests/auth_tests/authLogin.test.js
+PASS tests/tests/other_tests/clear.test.js
+
+Test Suites: 4 failed, 7 passed, 11 total
+Tests:       6 failed, 46 passed, 52 total
+Snapshots:   0 total
+Time:        2.37 s
+Ran all test suites matching /tests\//i.
+npm timing command:run Completed in 3666ms
+npm verb exit 1
+npm timing npm Completed in 3999ms
+npm verb code 1
