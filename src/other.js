@@ -1,5 +1,6 @@
-import { getData } from './dataStore';
+import { getData } from './dataStore.js';
 
+// Clears the dataStore 
 function clearV1() {
   let data = getData();
   data.users = [];
@@ -10,3 +11,4 @@ function clearV1() {
 }
 
 export { clearV1 };
+
