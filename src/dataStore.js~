@@ -1,7 +1,21 @@
 // YOU SHOULD MODIFY THIS OBJECT BELOW
 let data = {
-  users: [],
-  channels: [],
+  users: {
+    email: ' ',
+    password: ' ',
+    id: ' ',
+    firstname: ' ',
+    lastname: ' ',
+  },
+  channels: {
+    channel: {     
+      channelid: ' ',
+      name: [],
+      members: {
+        users,
+      },
+    },
+  },
   userIdCounter: 0,
   channelIdCounter: 0,
 };

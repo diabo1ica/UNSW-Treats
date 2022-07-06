@@ -53,50 +53,8 @@ function channelDetailsV1(authUserId, channelId) {
   };
 }
 
-/*
-The authorised user joins the channel using channelId given.
-
-Arguments:
-    authUserId (integer) - Id of user that is joining the channel
-    channelId  (integer) - Id of channel that user wants to joining
-    
-Return Value:
-    Returns {} on joining channel
-*/
 function channelJoinV1(authUserId, channelId) {
-  const data = getData();
-  let obj;
-  
-  for (let new_member of data.users) {
-    if (new_member.userId === authUserId) {
-      obj = new_member;
-      break;
-    }
-  }
-
-  for (let channel of data.channels) {
-    if (channel.channelId === channelId) {
-      if (channel.isPublic === false) {
-        return {error: 'error'};
-      }
-      for (let item of channel.members) {
-        if (item.uId === authUserId) {
-          return {error: 'error'};
-        }
-      }
-      channel.members.push({
-          uId: authUserId,
-          email: obj.email,
-          nameFirst: obj.nameFirst,
-          nameLast: obj.nameLast,
-          handleStr: obj.handleStr,
-          channelPermsId: 2,
-        });
-      data.channels.push();
-      return {}; 
-    }
-  }
-  return {error: 'error'};
+  return {};
 }
 
 /*
@@ -110,12 +68,9 @@ Arguments:
     uId (integer)         - the user id of user that will be invited.
                            
 Return Value:
-    Returns {} on valid uId, authUserId and channelId
-    Returns {error: 'error'} on channelId is invalid
-    Returns {error: 'error'} on uId is invalid
-    Returns {error: 'error'} on uId is already a member
-    Returns {error: 'error'} on channelId is valid but authUserId is
-                             not a member
+    Returns authUserId on email is valid and password is correct
+    Returns {error: 'error'} on email is invalid
+    Returns {error: 'error'} on password is incorrect
 */
 function channelInviteV1(authUserId, channelId, uId) {
   const data = getData();
@@ -262,3 +217,4 @@ function channelsTemplate() {
 }
 
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
+
