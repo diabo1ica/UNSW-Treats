@@ -7,7 +7,6 @@
         "start": "ts-node src/server.ts"
     },
     "dependencies": {
-<<<<<<< HEAD
         "express": "^4.18.0",
         "http-errors": "^2.0.0",
         "morgan": "^1.10.0",
@@ -15,9 +14,6 @@
         "sync-request": "^6.1.0",
         "ts-node": "^10.7.0",
         "typescript": "^4.6.3",
-=======
-        "rewire": "^6.0.0",
->>>>>>> d98050e3e38eebd24921b0293c3407350d8caab3
         "validator": "^13.7.0"
     },
     "devDependencies": {
