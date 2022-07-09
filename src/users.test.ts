@@ -1,8 +1,7 @@
+// @ts-nocheck
 import {userProfileV1} from './users';
 import {clearV1} from './other';
 import {authLoginV1, authRegisterV1} from './auth';
-
-
 
 describe('Test for userProfileV1', () => {
     let user_id1, user_id2;
