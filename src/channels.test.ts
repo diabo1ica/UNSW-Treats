@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { channelInviteV1, channelJoinV1 } from './channel';
 import { authRegisterV1, authLoginV1 } from './auth';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';

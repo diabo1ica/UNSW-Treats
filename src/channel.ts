@@ -13,7 +13,7 @@ import { getData, setData, dataStr, channel, member, user } from './dataStore';
 //    }
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
-function channelDetailsV1(authUserId, channelId) {
+function channelDetailsV1(authUserId: number, channelId: number) {
   const data: dataStr = getData();
   if(!data.channels.some(obj => obj.channelId === channelId)){;
     return { error: 'error' };
@@ -65,7 +65,7 @@ Arguments:
 Return Value:
     Returns {} on joining channel
 */
-function channelJoinV1(authUserId, channelId) {
+function channelJoinV1(authUserId: number, channelId: number) {
   const data: dataStr = getData();
   let obj: user;
   
@@ -119,7 +119,7 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is
                              not a member
 */
-function channelInviteV1(authUserId, channelId, uId) {
+function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const data: dataStr = getData();
   for (let item of data.channels) {
     if (channelId !== item.channelId) {

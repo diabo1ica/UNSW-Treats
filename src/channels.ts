@@ -14,7 +14,7 @@ Return Value:
     Returns {error: 'error'} on name that is invalid (less than 1 or 
                              more than 20
 */
-function channelsCreateV1(authUserId, name, isPublic) {
+function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
     return {error: 'error'};
   }
