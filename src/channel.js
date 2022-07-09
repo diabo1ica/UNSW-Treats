@@ -119,21 +119,18 @@ Return Value:
 */
 function channelInviteV1(authUserId, channelId, uId) {
   const data = getData();
-  for (let item of data.channels) {
-    if (channelId !== item.channelId) {
-      return {error: 'error'};
-    }
-    for (let member of item.members) {
-      if (uId === member.uId) {
-        return {error: 'error'};
-      }
-      if (channelId === item.channelId && authUserId !== member.uId) {
-        return {error: 'error'};
-      }
-    }
+
+  if (getChannel(channelId) === false) {
+    return {error: 'error'};
+  }
+  if (isMember(uId, data.channels) === false) {
+    return {error: 'error'};
+  }
+  if (getChannel(channelId) !== false && isMember(authUserId, data.channels) === false) {
+    return {error: 'error'};
   }
   
-  if (validateUserId(uId) == false) {
+  if (validateUserId(uId) === false) {
     return {error: 'error'};
   }
   
