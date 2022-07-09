@@ -71,7 +71,7 @@ Return Value:
     Returns {error: 'error'} on email is invalid
     Returns {error: 'error'} on password is incorrect
 */
-function authLoginV1(email, password) {
+function authLoginV1(email: string, password: string) {
   if (validator.isEmail(email) === false) {
     return {
       error: 'error',
@@ -79,12 +79,10 @@ function authLoginV1(email, password) {
   }
   const data: dataStr = getData();
   for (let item of data.users) {
-    if (email === item.email) {
-      if (password === item.password) {
-        return {
-          authUserId: item.userId,
-        };
-      }
+    if (email === item.email && password === item.password) {
+      return {
+        authUserId: item.userId,
+      };
     }
   }
   return {
@@ -92,7 +90,7 @@ function authLoginV1(email, password) {
   };
 }
 
-function validName(name){
+function validName(name: string){
   if(name.length < 1 || name.length > 50) return false;
   return true;
 }

@@ -46,51 +46,70 @@ test('Testing ChannelsCreate (no error)', () => {
 describe('Test suite for channelsListallV1', () => {
   let user_id1, user_id2, user_id3, user_id4;
   let channel_id1, channel_id2, channel_id3, channel_id4;
-  beforeEach(() => {
-    user_id1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
-    user_id2 = authRegisterV1('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
-    user_id3 = authRegisterV1('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
-    user_id4 = authRegisterV1('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;    
-    channel_id1 = channelsCreateV1(user_id1, 'Aero', true).channelId;
-    channel_id2 = channelsCreateV1(user_id2, 'Aero1', true).channelId;
-    channel_id3 = channelsCreateV1(user_id3, 'Aero2', false).channelId;
-    channel_id4 = channelsCreateV1(user_id4, 'Aero3', false).channelId;
   
-  });
+  describe('Error cases', () => {
+    beforeEach(() => {
+      clearV1();
+    })
+    
+    afterEach(() => {
+      clearV1();
+    })
+    test('No channels were created', () => {
+      user_id1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
+      expect(channelsListallV1(user_id1).channels).toStrictEqual([]);
+    });
 
 
-  afterEach(() => {
-    clearV1();
+    
+    test('Invalid authUserId', () => {
+      user_id4 = authRegisterV1('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
+      expect(channelsListallV1(-user_id4)).toStrictEqual({error: 'error'});
+    
+    });
   });
+  describe('Working cases', () => {
+    beforeEach(() => {
   
-  test('Invalid authUserId', () => {
+      user_id1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
+      user_id2 = authRegisterV1('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
+      user_id3 = authRegisterV1('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
+      user_id4 = authRegisterV1('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;    
+      channel_id1 = channelsCreateV1(user_id1, 'Aero', true).channelId;
+      channel_id2 = channelsCreateV1(user_id2, 'Aero1', true).channelId;
+      channel_id3 = channelsCreateV1(user_id3, 'Aero2', false).channelId;
+      channel_id4 = channelsCreateV1(user_id4, 'Aero3', false).channelId;
+    
+    });
   
-    expect(channelsListallV1(-user_id4)).toStrictEqual({error: 'error'});
+    afterEach(() => {
+      clearV1();
+    });
   
-  });
-  
-  test('Correct return type (list 4 channels)', () => {
-    expect(channelsListallV1(user_id1)).toStrictEqual(expect.objectContaining(
-    {
-      channels: expect.arrayContaining([
-        {
-          channelId: channel_id1,
-          name: 'Aero',
-        }, 
-        {
-          channelId: channel_id2,
-          name: 'Aero1',
-        },
-        {
-          channelId: channel_id3,
-          name: 'Aero2',
-        },
-        {
-          channelId: channel_id4,
-          name: 'Aero3',
-        }
-         ])
-   }));
+    
+    test('Correct return type (list 4 channels)', () => {
+      expect(channelsListallV1(user_id1)).toStrictEqual(expect.objectContaining(
+      {
+        channels: expect.arrayContaining([
+          {
+            channelId: channel_id1,
+            name: 'Aero',
+          }, 
+          {
+            channelId: channel_id2,
+            name: 'Aero1',
+          },
+          {
+            channelId: channel_id3,
+            name: 'Aero2',
+          },
+          {
+            channelId: channel_id4,
+            name: 'Aero3',
+          }
+           ])
+     }));
+    });
   });
 });
 

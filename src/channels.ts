@@ -61,7 +61,7 @@ Return Value:
     Returns { channels } on authUserId is valid
 */
 
-function channelsListV1(authUserId) {
+function channelsListV1(authUserId: number) {
   const data: dataStr = getData();
   const userchannels = [];
   
@@ -89,7 +89,7 @@ Return Value:
     Returns { channels } on authUserId is valid
     Returns {error: 'error'} on authUserId is invalid 
 */
-function channelsListallV1(authUserId) {
+function channelsListallV1(authUserId: number) {
   const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
     return {
@@ -109,7 +109,14 @@ function channelsListallV1(authUserId) {
     channels: allChannels // see interface for contents
   };
 }
+/*
+Creates a channel template for new channels
 
+Arguments:
+
+Return Value:
+    Returns {channel}
+*/
 function channelsTemplate() {
   const channel: channel = {
     channelId: 0,
@@ -121,8 +128,18 @@ function channelsTemplate() {
   
   return channel;
 }
+/*
+Checks if the given userId is valid
 
-function validateUserId(UserId) {
+Arguments:
+    UserId (integer)   - Identification number of the user to be 
+                         validated.
+
+Return Value:
+    Returns {true} on userId was found in the dataStore's users array
+    Returns {false} on userId was not found in the dataStore's users array
+*/
+function validateUserId(UserId: number) {
   const data: dataStr = getData();
   for (let item of data.users) {
     if (item.userId === UserId) {

@@ -185,7 +185,7 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is not a
     member of the channel
 */
-function channelMessagesV1(authUserId, channelId, start) {
+function channelMessagesV1(authUserId: number, channelId: number, start: number) {
   const data: dataStr = getData(); 
   
   const channel_obj = getChannel(channelId);
@@ -219,8 +219,19 @@ function channelMessagesV1(authUserId, channelId, start) {
     end: end,
   };
 }
+/*
+Finds the channel described by the given channelId by iterating over the dataStore's
+channels array.
 
-function getChannel(channelId) {
+Arguments:
+    channelId (integer)    - Identification number of the channel whose info is to
+                             be returned.
+
+Return Value:
+    Returns {channel object} on channel.Id matches channelId
+    Returns {false} on no channels whose channelId matches the given channelId
+*/
+function getChannel(channelId: number) {
   const data: dataStr = getData();
   for (let item of data.channels) {
     if (item.channelId === channelId) {
@@ -229,8 +240,21 @@ function getChannel(channelId) {
   }
   return false;
 }
+/*
+Checks if the given userId belongs to a user that is a member of the channel described
+by the given channelId
 
-function isMember(userId, channel_obj) {
+Arguments:
+    UserId (integer)       - Identification number of the user assumed to be a member of 
+                             the given channel.
+    channel_obj (integer)  - The channel object whose members array will be analysed to check
+                             if the given user is a member. 
+
+Return Value:
+    Returns {true} on userId found in the members array of channel_obj
+    Returns {false} on no userId found in the members array of channel_obj
+*/
+function isMember(userId: number, channel_obj:channel) {
   const data: dataStr = getData();
   for (let item of channel_obj.members) {
     if (userId === item.uId) {
@@ -239,8 +263,18 @@ function isMember(userId, channel_obj) {
   }
   return false;
 }
+/*
+Checks if the given userId is valid
 
-function validateUserId(UserId) {
+Arguments:
+    UserId (integer)   - Identification number of the user to be 
+                         validated.
+
+Return Value:
+    Returns {true} on userId was found in the dataStore's users array
+    Returns {false} on userId was not found in the dataStore's users array
+*/
+function validateUserId(UserId: number) {
   const data: dataStr = getData();
   for (let item of data.users) {
     if (item.userId === UserId) {
@@ -249,7 +283,14 @@ function validateUserId(UserId) {
   }
   return false;
 }
+/*
+Creates a channel template for new channels
 
+Arguments:
+
+Return Value:
+    Returns {channel}
+*/
 function channelsTemplate() {
   const channel: channel = {
     channelId: 0,
