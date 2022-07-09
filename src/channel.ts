@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getData, setData, dataStr, channel, member, user } from './dataStore';
 
 // Display channel details of channel with channelId

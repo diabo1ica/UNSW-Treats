@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getData, setData, dataStr, channel } from './dataStore'
 
 /*

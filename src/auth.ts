@@ -1,3 +1,4 @@
+// @ts-nocheck
 import validator from 'validator';
 import { getData, setData, user, dataStr } from './dataStore';
 

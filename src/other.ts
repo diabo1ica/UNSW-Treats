@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getData, dataStr } from './dataStore';
 
 // Clears the dataStore 

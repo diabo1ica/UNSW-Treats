@@ -1,3 +1,4 @@
+// @ts-nocheck
 // YOU SHOULD MODIFY THIS OBJECT BELOW
 interface user {
     nameFirst: string,
