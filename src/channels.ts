@@ -1,4 +1,4 @@
-import { getData, setData } from './dataStore.js'
+import { getData, setData, dataStr, channel } from './dataStore'
 
 /*
 Create a channel with given name and whether it is public or private.
@@ -14,12 +14,12 @@ Return Value:
     Returns {error: 'error'} on name that is invalid (less than 1 or 
                              more than 20
 */
-function channelsCreateV1(authUserId, name, isPublic) {
+function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
     return {error: 'error'};
   }
-  const data = getData();
-  const channels = channelsTemplate();
+  const data: dataStr = getData();
+  const channels: channel = channelsTemplate();
   if (data.channelIdCounter === 0) {
     channels.channelId = 1;
     data.channelIdCounter++;
@@ -61,8 +61,8 @@ Return Value:
     Returns { channels } on authUserId is valid
 */
 
-function channelsListV1(authUserId) {
-  const data = getData();
+function channelsListV1(authUserId: number) {
+  const data: dataStr = getData();
   const userchannels = [];
   
   for (let channel of data.channels) {
@@ -89,8 +89,8 @@ Return Value:
     Returns { channels } on authUserId is valid
     Returns {error: 'error'} on authUserId is invalid 
 */
-function channelsListallV1(authUserId) {
-  const data = getData();
+function channelsListallV1(authUserId: number) {
+  const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
     return {
       error: 'error'
@@ -109,21 +109,38 @@ function channelsListallV1(authUserId) {
     channels: allChannels // see interface for contents
   };
 }
+/*
+Creates a channel template for new channels
 
+Arguments:
+
+Return Value:
+    Returns {channel}
+*/
 function channelsTemplate() {
-  const channel = {
-    channelId:' ',
+  const channel: channel = {
+    channelId: 0,
     name: ' ',
-    isPublic: ' ',
+    isPublic: true,
     members: [],  
     messages: [] 
   }
   
   return channel;
 }
+/*
+Checks if the given userId is valid
 
-function validateUserId(UserId) {
-  const data = getData();
+Arguments:
+    UserId (integer)   - Identification number of the user to be 
+                         validated.
+
+Return Value:
+    Returns {true} on userId was found in the dataStore's users array
+    Returns {false} on userId was not found in the dataStore's users array
+*/
+function validateUserId(UserId: number) {
+  const data: dataStr = getData();
   for (let item of data.users) {
     if (item.userId === UserId) {
       return true;

@@ -1,8 +1,8 @@
-import { getData } from './dataStore.js';
+import { getData, dataStr } from './dataStore';
 
 // Clears the dataStore 
 function clearV1() {
-  let data = getData();
+  let data: dataStr = getData();
   data.users = [];
   data.channels = [];
   data.userIdCounter = 0;

@@ -1,5 +1,6 @@
-import { authRegisterV1, authLoginV1 } from './auth.js';
-import { clearV1 } from './other.js';
+// @ts-nocheck
+import { authRegisterV1, authLoginV1 } from './auth';
+import { clearV1 } from './other';
 
 describe('authRegister tests', () => {
   beforeEach(() => {

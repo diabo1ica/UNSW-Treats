@@ -1,5 +1,5 @@
 import validator from 'validator';
-import { getData, setData } from './dataStore.js';
+import { getData, setData, user, dataStr } from './dataStore';
 
 // Creates a user and store it in dataStore
 // Arguments:
@@ -12,17 +12,17 @@ import { getData, setData } from './dataStore.js';
 //    Returns { error : 'error' } on email not valid (Already taken, argument not in email format
 //    Returns { error : 'error' } on password length not valid (< 6)
 //    Returns { error : 'error' } on nameFirst and/or nameLast length not valid
-function authRegisterV1(email, password, nameFirst, nameLast) {
+function authRegisterV1(email: string, password: string, nameFirst: string, nameLast: string) {
   if(!validator.isEmail(email) 
   || password.length < 6
   || !validName(nameFirst)
   || !validName(nameLast)){
     return {error : 'error'};
   }
-  const data = getData();
+  const data: dataStr = getData();
   if(data.users.some(obj => obj.email === email)) return {error : 'error'};
   
-  const user = userTemplate();
+  const user: user = userTemplate();
   if(data.userIdCounter === 0){
     user.userId = 1;
     data.userIdCounter++;
@@ -38,11 +38,12 @@ function authRegisterV1(email, password, nameFirst, nameLast) {
   user.password = password;
   
   // Generate handle
-  let handle = nameFirst + nameLast;
+  let handle: string = nameFirst + nameLast;
+  handle = handle.replace(/[^A-Za-z0-9]/gi, '');
   if(handle.length > 20) handle = handle.slice(0, 20);
   if(data.users.some(obj => obj.handleStr === handle)){
-    for(const i = 0; i <= 9; i++){
-      let numStr = i.toString();
+    for(let i = 0; i <= 9; i++){
+      let numStr: string = i.toString();
       if(!data.users.some(obj => obj.handleStr === (handle + numStr))){
         handle = handle + numStr;
         break;
@@ -70,20 +71,18 @@ Return Value:
     Returns {error: 'error'} on email is invalid
     Returns {error: 'error'} on password is incorrect
 */
-function authLoginV1(email, password) {
+function authLoginV1(email: string, password: string) {
   if (validator.isEmail(email) === false) {
     return {
       error: 'error',
     }
   }
-  const data = getData();
+  const data: dataStr = getData();
   for (let item of data.users) {
-    if (email === item.email) {
-      if (password === item.password) {
-        return {
-          authUserId: item.userId,
-        };
-      }
+    if (email === item.email && password === item.password) {
+      return {
+        authUserId: item.userId,
+      };
     }
   }
   return {
@@ -91,14 +90,14 @@ function authLoginV1(email, password) {
   };
 }
 
-function validName(name){
+function validName(name: string){
   if(name.length < 1 || name.length > 50) return false;
   return true;
 }
 
 // Creates an empty user template
 function userTemplate(){
-  const user = {
+  const user: user = {
     nameFirst: '',
     nameLast:'',
     handleStr: '',

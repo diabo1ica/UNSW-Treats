@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {userProfileV1} from './users';
 import {clearV1} from './other';
 import {authLoginV1, authRegisterV1} from './auth';
