@@ -1,4 +1,4 @@
-import { getData, setData } from './dataStore.js';
+import { getData, setData, dataStr, channel, member, user } from './dataStore';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -14,11 +14,11 @@ import { getData, setData } from './dataStore.js';
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
 function channelDetailsV1(authUserId, channelId) {
-  const data = getData();
+  const data: dataStr = getData();
   if(!data.channels.some(obj => obj.channelId === channelId)){;
     return { error: 'error' };
   }
-  let object;
+  let object: channel;
   for(const channel of data.channels){
     if(channel.channelId === channelId){
       object = channel;
@@ -30,7 +30,7 @@ function channelDetailsV1(authUserId, channelId) {
   }  
   // Filter owmer members in members array
   let owner = [];
-  let members = []
+  let members = [];
   for(let user of object.members){
     let member = {
       uId: user.uId,
@@ -39,10 +39,12 @@ function channelDetailsV1(authUserId, channelId) {
       nameLast: user.nameLast,
       handleStr: user.handleStr
     };
-    members.push(member);
     if(user.channelPermsId === 1){            
       owner.push(member);
     }   
+    else {
+      members.push(member);
+    }
   }
   setData(data);
   return {
@@ -64,8 +66,8 @@ Return Value:
     Returns {} on joining channel
 */
 function channelJoinV1(authUserId, channelId) {
-  const data = getData();
-  let obj;
+  const data: dataStr = getData();
+  let obj: user;
   
   for (let new_member of data.users) {
     if (new_member.userId === authUserId) {
@@ -118,7 +120,7 @@ Return Value:
                              not a member
 */
 function channelInviteV1(authUserId, channelId, uId) {
-  const data = getData();
+  const data: dataStr = getData();
   for (let item of data.channels) {
     if (channelId !== item.channelId) {
       return {error: 'error'};
@@ -137,7 +139,7 @@ function channelInviteV1(authUserId, channelId, uId) {
     return {error: 'error'};
   }
   
-  const channeltemp = channelsTemplate();
+  const channeltemp: channel = channelsTemplate();
   for (let channel of data.channels) {
     if (channelId === channel.channelId) {
       channeltemp.name = channel.name;
@@ -184,14 +186,13 @@ Return Value:
     member of the channel
 */
 function channelMessagesV1(authUserId, channelId, start) {
-  const data = getData(); 
+  const data: dataStr = getData(); 
   
   const channel_obj = getChannel(channelId);
   if (channel_obj === false) {
     return {
       error: 'error',
-    }
-   
+    }   
   } else if (start > channel_obj.messages.length) {
     return {
       error: 'error'
@@ -201,8 +202,8 @@ function channelMessagesV1(authUserId, channelId, start) {
       error: 'error'
     }
   }
-  let end;
-  const messagesArray = [];
+  let end: number;
+  const messagesArray: string[] = [];
   if (start + 50 > channel_obj.messages.length) {
     end = -1;
   } else {
@@ -220,7 +221,7 @@ function channelMessagesV1(authUserId, channelId, start) {
 }
 
 function getChannel(channelId) {
-  const data = getData();
+  const data: dataStr = getData();
   for (let item of data.channels) {
     if (item.channelId === channelId) {
       return item;
@@ -230,7 +231,7 @@ function getChannel(channelId) {
 }
 
 function isMember(userId, channel_obj) {
-  const data = getData();
+  const data: dataStr = getData();
   for (let item of channel_obj.members) {
     if (userId === item.uId) {
       return true;
@@ -240,7 +241,7 @@ function isMember(userId, channel_obj) {
 }
 
 function validateUserId(UserId) {
-  const data = getData();
+  const data: dataStr = getData();
   for (let item of data.users) {
     if (item.userId === UserId) {
       return true;
@@ -250,14 +251,13 @@ function validateUserId(UserId) {
 }
 
 function channelsTemplate() {
-  const channel = {
-    channelId:' ',
+  const channel: channel = {
+    channelId: 0,
     name: ' ',
-    isPublic: ' ',
+    isPublic: true,
     members: [],  
     messages: [], 
-  }
-  
+  }  
   return channel;
 }
 

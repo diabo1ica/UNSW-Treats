@@ -1,7 +1,7 @@
-import { channelInviteV1, channelJoinV1 } from './channel.js';
-import { authRegisterV1, authLoginV1 } from './auth.js';
-import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels.js';
-import { clearV1 } from './other.js'
+import { channelInviteV1, channelJoinV1 } from './channel';
+import { authRegisterV1, authLoginV1 } from './auth';
+import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
+import { clearV1 } from './other'
 
 test('Testing ChannelsCreate (error)', () => {
   clearV1();

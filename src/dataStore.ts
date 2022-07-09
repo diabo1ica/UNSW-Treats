@@ -1,5 +1,39 @@
 // YOU SHOULD MODIFY THIS OBJECT BELOW
-let data = {
+interface user {
+    nameFirst: string,
+    nameLast: string,
+    handleStr: string,
+    email: string,
+    password: string,
+    userId: number,
+    globalPermsId: number
+}
+
+interface member {
+  uId: number,
+  email: string,
+  nameFirst: string,
+  nameLast: string,
+  handleStr: string,
+  channelPermsId: number
+}
+
+interface channel {
+  channelId: number,
+  name: string,
+  isPublic: boolean,
+  members: member[],  
+  messages: string[], 
+}
+
+interface dataStr {
+  users: user[],
+  channels: channel[],
+  userIdCounter: number,
+  channelIdCounter: number
+};
+
+let data: dataStr = {
   users: [],
   channels: [],
   userIdCounter: 0,
@@ -32,4 +66,4 @@ function setData(newData) {
   data = newData;
 }
 
-export { getData, setData };
+export { getData, setData, user, member, channel, dataStr };

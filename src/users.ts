@@ -1,4 +1,4 @@
-import {getData} from './dataStore';
+import {getData, dataStr} from './dataStore';
 
 /*
 Provide userId, email, first name, last name and handle for a valid user.
@@ -12,7 +12,7 @@ Return Value:
     return {error: 'error'} on invalud uId
 */
 function userProfileV1(authUserId, uId) {
-  let data = getData();
+  let data: dataStr = getData();
   
   for (let item of data.users) {
     if (item.userId === uId) {

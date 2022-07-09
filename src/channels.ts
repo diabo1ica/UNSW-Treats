@@ -1,4 +1,4 @@
-import { getData, setData } from './dataStore.js'
+import { getData, setData, dataStr, channel } from './dataStore'
 
 /*
 Create a channel with given name and whether it is public or private.
@@ -18,8 +18,8 @@ function channelsCreateV1(authUserId, name, isPublic) {
   if (name.length < 1 || name.length > 20) {
     return {error: 'error'};
   }
-  const data = getData();
-  const channels = channelsTemplate();
+  const data: dataStr = getData();
+  const channels: channel = channelsTemplate();
   if (data.channelIdCounter === 0) {
     channels.channelId = 1;
     data.channelIdCounter++;
@@ -62,7 +62,7 @@ Return Value:
 */
 
 function channelsListV1(authUserId) {
-  const data = getData();
+  const data: dataStr = getData();
   const userchannels = [];
   
   for (let channel of data.channels) {
@@ -90,7 +90,7 @@ Return Value:
     Returns {error: 'error'} on authUserId is invalid 
 */
 function channelsListallV1(authUserId) {
-  const data = getData();
+  const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
     return {
       error: 'error'
@@ -111,10 +111,10 @@ function channelsListallV1(authUserId) {
 }
 
 function channelsTemplate() {
-  const channel = {
-    channelId:' ',
+  const channel: channel = {
+    channelId: 0,
     name: ' ',
-    isPublic: ' ',
+    isPublic: true,
     members: [],  
     messages: [] 
   }
@@ -123,7 +123,7 @@ function channelsTemplate() {
 }
 
 function validateUserId(UserId) {
-  const data = getData();
+  const data: dataStr = getData();
   for (let item of data.users) {
     if (item.userId === UserId) {
       return true;
