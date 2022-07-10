@@ -1,41 +1,59 @@
 // YOU SHOULD MODIFY THIS OBJECT BELOW
 interface user {
-    nameFirst: string,
-    nameLast: string,
-    handleStr: string,
-    email: string,
-    password: string,
-    userId: number,
-    globalPermsId: number
-}
-
-interface member {
-  uId: number,
-  email: string,
   nameFirst: string,
   nameLast: string,
   handleStr: string,
-  channelPermsId: number
+  email: string,
+  password: string,
+  userId: number,
+  globalPermsId: number,
+  tokenArray: string[]
+}
+
+interface member {
+uId: number,
+email: string,
+nameFirst: string,
+nameLast: string,
+handleStr: string,
+channelPermsId: number
 }
 
 interface channel {
-  channelId: number,
-  name: string,
-  isPublic: boolean,
-  members: member[],
-  messages: string[],
+channelId: number,
+name: string,
+isPublic: boolean,
+members: member[],  
+messages: message[], 
+}
+
+interface dm {
+  userIds: number[],
+  messages: message[],
+  dmId: number,
+  ownerId: number,
+  name: string
+}
+
+interface message {
+  messageId: number,
+  uId: number,
+  message: string,
+  timeSent: number,
 }
 
 interface dataStr {
-  users: user[],
-  channels: channel[],
-  userIdCounter: number,
-  channelIdCounter: number
-}
+users: user[],
+channels: channel[],
+dms: dm[],
+userIdCounter: number,
+channelIdCounter: number
+};
 
 let data: dataStr = {
   users: [],
   channels: [],
+  dms: [],
   userIdCounter: 0,
   channelIdCounter: 0,
 };
@@ -66,4 +84,4 @@ function setData(newData: dataStr) {
   data = newData;
 }
 
-export { getData, setData, user, member, channel, dataStr };
+export { getData, setData, user, member, channel, dataStr, dm, message };

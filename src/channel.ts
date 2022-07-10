@@ -1,4 +1,4 @@
-import { getData, setData, dataStr, channel, user } from './dataStore';
+import { getData, setData, dataStr, channel, user, message } from './dataStore';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -181,7 +181,7 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
     };
   }
   let end: number;
-  const messagesArray: string[] = [];
+  const messagesArray: message[] = [];
   if (start + 50 > channelObj.messages.length) {
     end = -1;
   } else {
