@@ -7,6 +7,7 @@ function clearV1() {
   data.channels = [];
   data.userIdCounter = 0;
   data.channelIdCounter = 0;
+  data.dms = [];
   return {};
 }
 
