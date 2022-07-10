@@ -119,45 +119,36 @@ Return Value:
 */
 function channelInviteV1(authUserId, channelId, uId) {
   const data = getData();
-  for (let item of data.channels) {
-    if (channelId !== item.channelId) {
-      return {error: 'error'};
-    }
-    for (let member of item.members) {
-      if (uId === member.uId) {
-        return {error: 'error'};
-      }
-      if (channelId === item.channelId && authUserId !== member.uId) {
-        return {error: 'error'};
-      }
-    }
-  }
   
-  if (validateUserId(uId) == false) {
+  if (getChannel(channelId) === false) {
+    return {error: 'error'};
+  }
+  if (validateUserId(uId) === false || validateUserId(authUserId) === false) {
+    return {error: 'error'};
+  }
+  const channel_obj = getChannel(channelId);
+  if (isMember(uId, channel_obj)) {
     return {error: 'error'};
   }
   
-  const channeltemp = channelsTemplate();
-  for (let channel of data.channels) {
-    if (channelId === channel.channelId) {
-      channeltemp.name = channel.name;
-      channeltemp.isPublic = channel.isPublic;  
-      for (let item of data.users) {
-        if (item.userId === uId) {
-          channeltemp.members.push({
-            uId: uId,
-            email: item.email,
-            nameFirst: item.nameFirst,
-            nameLast: item.nameLast,
-            handleStr: item.handleStr,
-            channelPermsId: 2,
-          });
-        }
-      }  
-    }
+  if (getChannel(channelId) === true && isMember(authUserId, channel_obj) === false) {
+    return {error: 'error'};
   }
   
-  data.channels.push(channeltemp);
+
+  for (let item of data.users) {
+    if (item.userId === uId) {
+      channel_obj.members.push({
+        uId: uId,
+        email: item.email,
+        nameFirst: item.nameFirst,
+        nameLast: item.nameLast,
+        handleStr: item.handleStr,
+        channelPermsId: 2,
+      });
+    }
+  }  
+    
   setData(data);
   
   return {};
@@ -240,7 +231,7 @@ function isMember(userId, channel_obj) {
 }
 
 function validateUserId(UserId) {
-  const data = getData();
+  const data = getData(); 
   for (let item of data.users) {
     if (item.userId === UserId) {
       return true;
