@@ -1,4 +1,4 @@
-import { getData, setData } from './dataStore.js';
+import { getData, setData, dataStr, channel, member, user } from './dataStore';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -13,12 +13,12 @@ import { getData, setData } from './dataStore.js';
 //    }
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
-function channelDetailsV1(authUserId, channelId) {
-  const data = getData();
+function channelDetailsV1(authUserId: number, channelId: number) {
+  const data: dataStr = getData();
   if(!data.channels.some(obj => obj.channelId === channelId)){;
     return { error: 'error' };
   }
-  let object;
+  let object: channel;
   for(const channel of data.channels){
     if(channel.channelId === channelId){
       object = channel;
@@ -30,7 +30,7 @@ function channelDetailsV1(authUserId, channelId) {
   }  
   // Filter owmer members in members array
   let owner = [];
-  let members = []
+  let members = [];
   for(let user of object.members){
     let member = {
       uId: user.uId,
@@ -39,10 +39,12 @@ function channelDetailsV1(authUserId, channelId) {
       nameLast: user.nameLast,
       handleStr: user.handleStr
     };
-    members.push(member);
     if(user.channelPermsId === 1){            
       owner.push(member);
     }   
+    else {
+      members.push(member);
+    }
   }
   setData(data);
   return {
@@ -63,9 +65,9 @@ Arguments:
 Return Value:
     Returns {} on joining channel
 */
-function channelJoinV1(authUserId, channelId) {
-  const data = getData();
-  let obj;
+function channelJoinV1(authUserId: number, channelId: number) {
+  const data: dataStr = getData();
+  let obj: user;
   
   for (let new_member of data.users) {
     if (new_member.userId === authUserId) {
@@ -117,8 +119,26 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is
                              not a member
 */
+<<<<<<< HEAD:src/channel.js
 function channelInviteV1(authUserId, channelId, uId) {
   const data = getData();
+=======
+function channelInviteV1(authUserId: number, channelId: number, uId: number) {
+  const data: dataStr = getData();
+  for (let item of data.channels) {
+    if (channelId !== item.channelId) {
+      return {error: 'error'};
+    }
+    for (let member of item.members) {
+      if (uId === member.uId) {
+        return {error: 'error'};
+      }
+      if (channelId === item.channelId && authUserId !== member.uId) {
+        return {error: 'error'};
+      }
+    }
+  }
+>>>>>>> 5053c28240e4d2f668bbbbbd3986647aa75983d7:src/channel.ts
   
   if (getChannel(channelId) === false) {
     return {error: 'error'};
@@ -131,8 +151,29 @@ function channelInviteV1(authUserId, channelId, uId) {
     return {error: 'error'};
   }
   
+<<<<<<< HEAD:src/channel.js
   if (getChannel(channelId) === true && isMember(authUserId, channel_obj) === false) {
     return {error: 'error'};
+=======
+  const channeltemp: channel = channelsTemplate();
+  for (let channel of data.channels) {
+    if (channelId === channel.channelId) {
+      channeltemp.name = channel.name;
+      channeltemp.isPublic = channel.isPublic;  
+      for (let item of data.users) {
+        if (item.userId === uId) {
+          channeltemp.members.push({
+            uId: uId,
+            email: item.email,
+            nameFirst: item.nameFirst,
+            nameLast: item.nameLast,
+            handleStr: item.handleStr,
+            channelPermsId: 2,
+          });
+        }
+      }  
+    }
+>>>>>>> 5053c28240e4d2f668bbbbbd3986647aa75983d7:src/channel.ts
   }
   
 
@@ -174,15 +215,14 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is not a
     member of the channel
 */
-function channelMessagesV1(authUserId, channelId, start) {
-  const data = getData(); 
+function channelMessagesV1(authUserId: number, channelId: number, start: number) {
+  const data: dataStr = getData(); 
   
   const channel_obj = getChannel(channelId);
   if (channel_obj === false) {
     return {
       error: 'error',
-    }
-   
+    }   
   } else if (start > channel_obj.messages.length) {
     return {
       error: 'error'
@@ -192,8 +232,8 @@ function channelMessagesV1(authUserId, channelId, start) {
       error: 'error'
     }
   }
-  let end;
-  const messagesArray = [];
+  let end: number;
+  const messagesArray: string[] = [];
   if (start + 50 > channel_obj.messages.length) {
     end = -1;
   } else {
@@ -209,9 +249,20 @@ function channelMessagesV1(authUserId, channelId, start) {
     end: end,
   };
 }
+/*
+Finds the channel described by the given channelId by iterating over the dataStore's
+channels array.
 
-function getChannel(channelId) {
-  const data = getData();
+Arguments:
+    channelId (integer)    - Identification number of the channel whose info is to
+                             be returned.
+
+Return Value:
+    Returns {channel object} on channel.Id matches channelId
+    Returns {false} on no channels whose channelId matches the given channelId
+*/
+function getChannel(channelId: number) {
+  const data: dataStr = getData();
   for (let item of data.channels) {
     if (item.channelId === channelId) {
       return item;
@@ -219,9 +270,22 @@ function getChannel(channelId) {
   }
   return false;
 }
+/*
+Checks if the given userId belongs to a user that is a member of the channel described
+by the given channelId
 
-function isMember(userId, channel_obj) {
-  const data = getData();
+Arguments:
+    UserId (integer)       - Identification number of the user assumed to be a member of 
+                             the given channel.
+    channel_obj (integer)  - The channel object whose members array will be analysed to check
+                             if the given user is a member. 
+
+Return Value:
+    Returns {true} on userId found in the members array of channel_obj
+    Returns {false} on no userId found in the members array of channel_obj
+*/
+function isMember(userId: number, channel_obj:channel) {
+  const data: dataStr = getData();
   for (let item of channel_obj.members) {
     if (userId === item.uId) {
       return true;
@@ -229,9 +293,24 @@ function isMember(userId, channel_obj) {
   }
   return false;
 }
+/*
+Checks if the given userId is valid
 
+Arguments:
+    UserId (integer)   - Identification number of the user to be 
+                         validated.
+
+<<<<<<< HEAD:src/channel.js
 function validateUserId(UserId) {
   const data = getData(); 
+=======
+Return Value:
+    Returns {true} on userId was found in the dataStore's users array
+    Returns {false} on userId was not found in the dataStore's users array
+*/
+function validateUserId(UserId: number) {
+  const data: dataStr = getData();
+>>>>>>> 5053c28240e4d2f668bbbbbd3986647aa75983d7:src/channel.ts
   for (let item of data.users) {
     if (item.userId === UserId) {
       return true;
@@ -239,16 +318,22 @@ function validateUserId(UserId) {
   }
   return false;
 }
+/*
+Creates a channel template for new channels
 
+Arguments:
+
+Return Value:
+    Returns {channel}
+*/
 function channelsTemplate() {
-  const channel = {
-    channelId:' ',
+  const channel: channel = {
+    channelId: 0,
     name: ' ',
-    isPublic: ' ',
+    isPublic: true,
     members: [],  
     messages: [], 
-  }
-  
+  }  
   return channel;
 }
 

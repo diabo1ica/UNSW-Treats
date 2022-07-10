@@ -53,8 +53,50 @@ function channelDetailsV1(authUserId, channelId) {
   };
 }
 
+/*
+The authorised user joins the channel using channelId given.
+
+Arguments:
+    authUserId (integer) - Id of user that is joining the channel
+    channelId  (integer) - Id of channel that user wants to joining
+    
+Return Value:
+    Returns {} on joining channel
+*/
 function channelJoinV1(authUserId, channelId) {
-  return {};
+  const data = getData();
+  let obj;
+  
+  for (let new_member of data.users) {
+    if (new_member.userId === authUserId) {
+      obj = new_member;
+      break;
+    }
+  }
+
+  for (let channel of data.channels) {
+    if (channel.channelId === channelId) {
+      if (channel.isPublic === false) {
+        return {error: 'error'};
+      }
+      for (let item of channel.members) {
+        if (item.uId === authUserId) {
+          return {error: 'error'};
+        }
+      }
+      channel.members.push({
+          uId: authUserId,
+          email: obj.email,
+          nameFirst: obj.nameFirst,
+          nameLast: obj.nameLast,
+          handleStr: obj.handleStr,
+          channelPermsId: 2,
+        });
+      data.channels.push();
+      return {}; 
+    }
+  }
+  return {error: 'error'};
 }
 
 /*
@@ -68,51 +110,45 @@ Arguments:
     uId (integer)         - the user id of user that will be invited.
                            
 Return Value:
-    Returns authUserId on email is valid and password is correct
-    Returns {error: 'error'} on email is invalid
-    Returns {error: 'error'} on password is incorrect
+    Returns {} on valid uId, authUserId and channelId
+    Returns {error: 'error'} on channelId is invalid
+    Returns {error: 'error'} on uId is invalid
+    Returns {error: 'error'} on uId is already a member
+    Returns {error: 'error'} on channelId is valid but authUserId is
+                             not a member
 */
 function channelInviteV1(authUserId, channelId, uId) {
   const data = getData();
-  for (let item of data.channels) {
-    if (channelId !== item.channelId) {
-      return {error: 'error'};
-    }
-    for (let member of item.members) {
-      if (uId === member.uId) {
-        return {error: 'error'};
-      }
-      if (channelId === item.channelId && authUserId !== member.uId) {
-        return {error: 'error'};
-      }
-    }
-  }
   
-  if (validateUserId(uId) == false) {
+  if (getChannel(channelId) === false) {
+    return {error: 'error'};
+  }
+  if (validateUserId(uId) === false || validateUserId(authUserId) === false) {
+    return {error: 'error'};
+  }
+  const channel_obj = getChannel(channelId);
+  if (isMember(uId, channel_obj)) {
     return {error: 'error'};
   }
   
-  const channeltemp = channelsTemplate();
-  for (let channel of data.channels) {
-    if (channelId === channel.channelId) {
-      channeltemp.name = channel.name;
-      channeltemp.isPublic = channel.isPublic;  
-      for (let item of data.users) {
-        if (item.userId === uId) {
-          channeltemp.members.push({
-            uId: uId,
-            email: item.email,
-            nameFirst: item.nameFirst,
-            nameLast: item.nameLast,
-            handleStr: item.handleStr,
-            channelPermsId: 2,
-          });
-        }
-      }  
-    }
+  if (getChannel(channelId) === true && isMember(authUserId, channel_obj) === false) {
+    return {error: 'error'};
   }
   
-  data.channels.push(channeltemp);
+
+  for (let item of data.users) {
+    if (item.userId === uId) {
+      channel_obj.members.push({
+        uId: uId,
+        email: item.email,
+        nameFirst: item.nameFirst,
+        nameLast: item.nameLast,
+        handleStr: item.handleStr,
+        channelPermsId: 2,
+      });
+    }
+  }  
+    
   setData(data);
   
   return {};
@@ -195,7 +231,7 @@ function isMember(userId, channel_obj) {
 }
 
 function validateUserId(UserId) {
-  const data = getData();
+  const data = getData(); 
   for (let item of data.users) {
     if (item.userId === UserId) {
       return true;
@@ -217,4 +253,3 @@ function channelsTemplate() {
 }
 
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
-
