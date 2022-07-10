@@ -19,12 +19,19 @@ handleStr: string,
 channelPermsId: number
 }
 
+interface message {
+  messageId: number,
+  uId: number,
+  message: string,
+  timeSent: number,
+}
+
 interface channel {
 channelId: number,
 name: string,
 isPublic: boolean,
-members: member[],  
-messages: message[], 
+members: member[],
+messages: message[],
 }
 
 interface dm {
@@ -35,20 +42,13 @@ interface dm {
   name: string
 }
 
-interface message {
-  messageId: number,
-  uId: number,
-  message: string,
-  timeSent: number,
-}
-
 interface dataStr {
 users: user[],
 channels: channel[],
 dms: dm[],
 userIdCounter: number,
 channelIdCounter: number
-};
+}
 
 let data: dataStr = {
   users: [],
