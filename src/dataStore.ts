@@ -22,8 +22,8 @@ interface channel {
   channelId: number,
   name: string,
   isPublic: boolean,
-  members: member[],  
-  messages: string[], 
+  members: member[],
+  messages: string[],
 }
 
 interface dataStr {
@@ -31,7 +31,7 @@ interface dataStr {
   channels: channel[],
   userIdCounter: number,
   channelIdCounter: number
-};
+}
 
 let data: dataStr = {
   users: [],
