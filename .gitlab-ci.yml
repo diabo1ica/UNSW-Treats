@@ -24,3 +24,4 @@ typecheck:
   stage: checks
   script:
     - npm run tsc
+    - npm run lint

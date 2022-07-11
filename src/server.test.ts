@@ -5,7 +5,7 @@ const OK = 200;
 const port = config.port;
 const url = config.url;
 
-function registerAuth(email: string, password: string, nameFirst: string, nameLast: string){
+function registerAuth(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
           `${url}:${port}/auth/login/v2`,
@@ -30,7 +30,7 @@ describe('auth path tests', () => {
         qs: {}
       }
     );
-  })
+  });
 
   test('Test successful auth register', () => {
     const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
@@ -48,7 +48,7 @@ describe('auth path tests', () => {
       authUserId: expect.any(Number)
     });
   });
-  
+
   test('Test logout', () => {
     const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
     const bodyObj = JSON.parse(res.body as string);
@@ -103,7 +103,7 @@ describe('dm path tests', () => {
     // const bodyObj = JSON.parse(res.body as string);
     expect(res.statusCode).toBe(OK);
   });
-  
+
   test('Test dm remove', () => {
     const res = request(
       'GET',
@@ -118,5 +118,5 @@ describe('dm path tests', () => {
     const bodyObj = JSON.parse(res.body as string);
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toStrictEqual({});
-  })
+  });
 });

@@ -1,9 +1,8 @@
-// @ts-nocheck
 import { getData, dataStr } from './dataStore';
 
-// Clears the dataStore 
+// Clears the dataStore
 function clearV1() {
-  let data: dataStr = getData();
+  const data: dataStr = getData();
   data.users = [];
   data.channels = [];
   data.userIdCounter = 0;
@@ -12,4 +11,3 @@ function clearV1() {
 }
 
 export { clearV1 };
-

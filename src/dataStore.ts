@@ -1,44 +1,52 @@
-// @ts-nocheck
-// YOU SHOULD MODIFY THIS OBJECT BELOW
 interface user {
-    nameFirst: string,
-    nameLast: string,
-    handleStr: string,
-    email: string,
-    password: string,
-    userId: number,
-    globalPermsId: number
+  nameFirst: string,
+  nameLast: string,
+  handleStr: string,
+  email: string,
+  password: string,
+  userId: number,
+  globalPermsId: number,
+  tokenArray: string[]
 }
 
 interface member {
   uId: number,
-  email: string,
-  nameFirst: string,
-  nameLast: string,
-  handleStr: string,
   channelPermsId: number
+}
+
+interface message {
+  messageId: number,
+  uId: number,
+  message: string,
+  timeSent: number,
 }
 
 interface channel {
   channelId: number,
   name: string,
   isPublic: boolean,
-  members: member[],  
-  messages: string[], 
+  members: member[],
+  messages: message[],
+}
+
+interface dm {
+  userIds: number[],
+  messages: message[],
+  dmId: number,
+  ownerId: number,
+  name: string
 }
 
 interface dataStr {
   users: user[],
   channels: channel[],
-  userIdCounter: number,
-  channelIdCounter: number
-};
+  dms: dm[]
+}
 
 let data: dataStr = {
   users: [],
   channels: [],
-  userIdCounter: 0,
-  channelIdCounter: 0,
+  dms: []
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1
@@ -63,8 +71,8 @@ function getData() {
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData) {
+function setData(newData: dataStr) {
   data = newData;
 }
 
-export { getData, setData, user, member, channel, dataStr };
+export { getData, setData, user, member, channel, dataStr, dm, message };
