@@ -8,7 +8,7 @@ test('Testing ChannelsCreate (error)', () => {
   authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber');
   const a = authLoginV1('justinbieber@gmail.com', '1122334455');
   const user_authUserId = a.authUserId;
-  expect(channelsCreateV1(user_authUserId, '', 'true')).toStrictEqual({ error: 'error' });
+  expect(channelsCreateV1(user_authUserId, '', true)).toStrictEqual({ error: 'error' });
 });
 
 test('Testing ChannelsCreate (error)', () => {
@@ -16,7 +16,7 @@ test('Testing ChannelsCreate (error)', () => {
   authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber');
   const a = authLoginV1('justinbieber@gmail.com', '1122334455');
   const user_authUserId = a.authUserId;
-  expect(channelsCreateV1(user_authUserId, 'IamcurrrentlystudyingcomputerscienceinUNSW', 'true')).toStrictEqual({ error: 'error' });
+  expect(channelsCreateV1(user_authUserId, 'IamcurrrentlystudyingcomputerscienceinUNSW', true)).toStrictEqual({ error: 'error' });
 });
 
 test('Testing ChannelsCreate (no error)', () => {
@@ -24,7 +24,7 @@ test('Testing ChannelsCreate (no error)', () => {
   authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber');
   const a = authLoginV1('justinbieber@gmail.com', '1122334455');
   const user_authUserId = a.authUserId;
-  const b = channelsCreateV1(user_authUserId, 'Channel1', 'true');
+  const b = channelsCreateV1(user_authUserId, 'Channel1', true);
   const channel_id = b.channelId;
   expect(b).toStrictEqual(expect.objectContaining({
     channelId: expect.any(Number),
@@ -36,7 +36,7 @@ test('Testing ChannelsCreate (no error)', () => {
   authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber');
   const a = authLoginV1('justinbieber@gmail.com', '1122334455');
   const user_authUserId = a.authUserId;
-  const b = channelsCreateV1(user_authUserId, 'Channel2', 'false');
+  const b = channelsCreateV1(user_authUserId, 'Channel2', false);
   const channel_id = b.channelId;
   expect(b).toStrictEqual(expect.objectContaining({
     channelId: expect.any(Number),

@@ -92,7 +92,7 @@ test('Testing Invitation(exist)', () => {
   const user_authUserId = b.authUserId;
 
   // create Channel1 which isPublic
-  const c = channelsCreateV1(user_authUserId, 'Channel1', 'true');
+  const c = channelsCreateV1(user_authUserId, 'Channel1', true);
   const channel_id = c.channelId;
 
   expect(channelInviteV1(user_authUserId, channel_id, u_id)).toStrictEqual({});
@@ -109,7 +109,7 @@ test('Testing Invitation(do not exist (1))', () => {
   const user_authUserId = b.authUserId;
 
   // create Channel1 which isPublic
-  const c = channelsCreateV1(user_authUserId, 'Channel1', 'true');
+  const c = channelsCreateV1(user_authUserId, 'Channel1', true);
   const channel_id = c.channelId;
 
   expect(channelInviteV1(user_authUserId, '10000000', u_id)).toStrictEqual({ error: 'error' });
@@ -126,7 +126,7 @@ test('Testing Invitation(do not exist (2))', () => {
   const user_authUserId = b.authUserId;
 
   // create Channel1 which isPublic
-  const c = channelsCreateV1(user_authUserId, 'Channel1', 'true');
+  const c = channelsCreateV1(user_authUserId, 'Channel1', true);
   const channel_id = c.channelId;
 
   expect(channelInviteV1(user_authUserId, channel_id, 'Cool')).toStrictEqual({ error: 'error' });
@@ -143,7 +143,7 @@ test('Testing Invitation(do not exist (3))', () => {
   const user_authUserId = b.authUserId;
 
   // create Channel1 which isPublic
-  const c = channelsCreateV1(user_authUserId, 'Channel1', 'true');
+  const c = channelsCreateV1(user_authUserId, 'Channel1', true);
   const channel_id = c.channelId;
 
   expect(channelInviteV1(u_id, channel_id, user_authUserId)).toStrictEqual({ error: 'error' });

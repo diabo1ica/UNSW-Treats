@@ -23,7 +23,7 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   if (data.users.some(obj => obj.email === email)) return { error: 'error' };
 
   const user: user = userTemplate();
-  if (data.user.length === 0) {
+  if (data.users.length === 0) {
     user.userId = generateUserId();
     user.globalPermsId = 1;
   } else {
@@ -96,7 +96,7 @@ function validName(name: string) {
 function generateUserId() {
   let id = Math.floor(Math.random() * 1000000);
   const data = getData();
-  while (data.users.some((user) => user.userId === Id)) {
+  while (data.users.some((user) => user.userId === id)) {
     id = Math.floor(Math.random() * 1000000);
   }
   return id;

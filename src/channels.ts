@@ -60,11 +60,7 @@ Return Value:
     Returns { channels } on authUserId is valid
 */
 
-<<<<<<< HEAD:src/channels.ts
-function channelsListV1(authUserId) {
-=======
 function channelsListV1(authUserId: number) {
->>>>>>> 262f114641046fad1604ef3db9e4a2b86c899ad6:src/channels.js
   const data: dataStr = getData();
   const userchannels = [];
 
@@ -92,11 +88,7 @@ Return Value:
     Returns { channels } on authUserId is valid
     Returns {error: 'error'} on authUserId is invalid
 */
-<<<<<<< HEAD:src/channels.ts
-function channelsListallV1(authUserId) {
-=======
 function channelsListallV1(authUserId: number) {
->>>>>>> 262f114641046fad1604ef3db9e4a2b86c899ad6:src/channels.js
   const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
     return {
@@ -141,16 +133,11 @@ Checks if the given userId is valid
 Arguments:
     UserId (integer)   - Identification number of the user to be
                          validated.
-
-<<<<<<< HEAD:src/channels.ts
-function validateUserId(UserId) {
-=======
 Return Value:
     Returns {true} on userId was found in the dataStore's users array
     Returns {false} on userId was not found in the dataStore's users array
 */
 function validateUserId(UserId: number) {
->>>>>>> 262f114641046fad1604ef3db9e4a2b86c899ad6:src/channels.js
   const data: dataStr = getData();
   for (const item of data.users) {
     if (item.userId === UserId) {
