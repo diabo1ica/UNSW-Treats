@@ -1,10 +1,19 @@
 import { getData, setData, dataStr, channel } from './dataStore'
 
+function generateChannelId() {
+  let Id = Math.floor(Math.random() * 1000000)
+  const data = getData();
+  while (data.channels.some((channel) => channel.channelId === Id)) {
+    Id = Math.floor(Math.random() * 1000000)
+  }
+  return Id;
+}
+
 /*
 Create a channel with given name and whether it is public or private.
 
 Arguments:
-    authUserId (integer)  - author user id, the user that create the channel 
+    token (string)        - a specific string point to the user that create the channel 
                             and a member of channel.
     name (string)         - the name of the channel.
     isPublic (boolean)    - true if it is public and false for private.
@@ -14,40 +23,31 @@ Return Value:
     Returns {error: 'error'} on name that is invalid (less than 1 or 
                              more than 20
 */
-function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
+function channelsCreateV1(token: string, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
     return {error: 'error'};
   }
-  const data: dataStr = getData();
-  const channels: channel = channelsTemplate();
-  if (data.channelIdCounter === 0) {
-    channels.channelId = 1;
-    data.channelIdCounter++;
-  }
-  else {
-    channels.channelId = data.channelIdCounter + 1;
-    data.channelIdCounter++;
-  }
   
-  channels.name = name;
-  channels.isPublic = isPublic;
+  const data: dataStr = getData();
+  const channel = channelsTemplate();
+  
+  channel.name = name;
+  channel.isPublic = isPublic;
   
   for (let item of data.users) {
-    if (item.userId === authUserId) {
-      channels.members.push({
-        uId: authUserId,
-        email: item.email,
-        nameFirst: item.nameFirst,
-        nameLast: item.nameLast,
-        handleStr: item.handleStr,
-        channelPermsId: 1,
-      });
+    for (let tokens of item.tokenArray) {
+      if (tokens === token) {
+        channel.members.push({
+          uId: item.userId,
+          channelPermsId: 1,
+        });
+      }
     }
   }
-  data.channels.push(channels);
+  data.channels.push(channel);
   setData(data);
   return {
-    channelId: channels.channelId,
+    channelId: generateChannelId(),
   }
 }
 /*
@@ -61,19 +61,25 @@ Return Value:
     Returns { channels } on authUserId is valid
 */
 
-function channelsListV1(authUserId: number) {
+function channelsListV1(token: string) {
   const data: dataStr = getData();
   const userchannels = [];
   
-  for (let channel of data.channels) {
-    if(channel.members.some(obj => obj.uId === authUserId)) { 
-      userchannels.push({
-        channelId: channel.channelId,
-        name: channel.name,
-      });
+  for (let item of data.users) {
+    for (let tokens of item.tokenArray) {
+      if (tokens === token) {
+        for (let channel of data.channels) {
+          if (channel.members.some(obj => obj.uId === item.userId)) {
+            userchannels.push({
+              channelId: channel.channelId,
+              name: channel.name,
+            });
+          }
+        }
+      }   
     }
   }
-
+  
   return {
     channels: userchannels
   };

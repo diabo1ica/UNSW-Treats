@@ -6,15 +6,12 @@ interface user {
     email: string,
     password: string,
     userId: number,
-    globalPermsId: number
+    globalPermsId: number,
+    tokenArray: string[]
 }
 
 interface member {
   uId: number,
-  email: string,
-  nameFirst: string,
-  nameLast: string,
-  handleStr: string,
   channelPermsId: number
 }
 
@@ -24,6 +21,21 @@ interface channel {
   isPublic: boolean,
   members: member[],  
   messages: string[], 
+}
+
+interface message {
+  messageId: number,
+  uId: number,
+  message: string,
+  timeSent: number,
+}
+
+interface dm {
+  userIds: number[],
+  messages: message[],
+  dmId: number,
+  ownerId: number,
+  name: string,
 }
 
 interface dataStr {
@@ -38,6 +50,14 @@ let data: dataStr = {
   channels: [],
   userIdCounter: 0,
   channelIdCounter: 0,
+};
+
+let data: dataStr = {
+  users: [],
+  channels: [],
+  dms: [],
+  userIdCounter = 0,
+  channelIdCounter = 0,
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1

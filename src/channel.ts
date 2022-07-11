@@ -119,26 +119,8 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is
                              not a member
 */
-<<<<<<< HEAD:src/channel.js
+
 function channelInviteV1(authUserId, channelId, uId) {
-  const data = getData();
-=======
-function channelInviteV1(authUserId: number, channelId: number, uId: number) {
-  const data: dataStr = getData();
-  for (let item of data.channels) {
-    if (channelId !== item.channelId) {
-      return {error: 'error'};
-    }
-    for (let member of item.members) {
-      if (uId === member.uId) {
-        return {error: 'error'};
-      }
-      if (channelId === item.channelId && authUserId !== member.uId) {
-        return {error: 'error'};
-      }
-    }
-  }
->>>>>>> 5053c28240e4d2f668bbbbbd3986647aa75983d7:src/channel.ts
   
   if (getChannel(channelId) === false) {
     return {error: 'error'};
@@ -149,34 +131,14 @@ function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const channel_obj = getChannel(channelId);
   if (isMember(uId, channel_obj)) {
     return {error: 'error'};
-  }
-  
-<<<<<<< HEAD:src/channel.js
-  if (getChannel(channelId) === true && isMember(authUserId, channel_obj) === false) {
-    return {error: 'error'};
-=======
-  const channeltemp: channel = channelsTemplate();
-  for (let channel of data.channels) {
-    if (channelId === channel.channelId) {
-      channeltemp.name = channel.name;
-      channeltemp.isPublic = channel.isPublic;  
-      for (let item of data.users) {
-        if (item.userId === uId) {
-          channeltemp.members.push({
-            uId: uId,
-            email: item.email,
-            nameFirst: item.nameFirst,
-            nameLast: item.nameLast,
-            handleStr: item.handleStr,
-            channelPermsId: 2,
-          });
-        }
-      }  
-    }
->>>>>>> 5053c28240e4d2f668bbbbbd3986647aa75983d7:src/channel.ts
-  }
-  
+  } 
 
+  if (getChannel(channelId) === true) {
+    if (isMember(authUserId, channel_obj) === false) {
+      return {error: 'error'};
+    }
+  }
+  
   for (let item of data.users) {
     if (item.userId === uId) {
       channel_obj.members.push({
@@ -293,24 +255,9 @@ function isMember(userId: number, channel_obj:channel) {
   }
   return false;
 }
-/*
-Checks if the given userId is valid
 
-Arguments:
-    UserId (integer)   - Identification number of the user to be 
-                         validated.
-
-<<<<<<< HEAD:src/channel.js
-function validateUserId(UserId) {
-  const data = getData(); 
-=======
-Return Value:
-    Returns {true} on userId was found in the dataStore's users array
-    Returns {false} on userId was not found in the dataStore's users array
-*/
 function validateUserId(UserId: number) {
   const data: dataStr = getData();
->>>>>>> 5053c28240e4d2f668bbbbbd3986647aa75983d7:src/channel.ts
   for (let item of data.users) {
     if (item.userId === UserId) {
       return true;
