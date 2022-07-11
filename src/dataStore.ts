@@ -1,5 +1,5 @@
-// YOU SHOULD MODIFY THIS OBJECT BELOW
 interface user {
+<<<<<<< HEAD
     nameFirst: string,
     nameLast: string,
     handleStr: string,
@@ -8,6 +8,16 @@ interface user {
     userId: number,
     globalPermsId: number,
     tokenArray: string[]
+=======
+  nameFirst: string,
+  nameLast: string,
+  handleStr: string,
+  email: string,
+  password: string,
+  userId: number,
+  globalPermsId: number,
+  tokenArray: string[]
+>>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
 }
 
 interface member {
@@ -15,12 +25,27 @@ interface member {
   channelPermsId: number
 }
 
+interface message {
+  messageId: number,
+  uId: number,
+  message: string,
+  timeSent: number,
+}
+
 interface channel {
   channelId: number,
   name: string,
   isPublic: boolean,
-  members: member[],  
-  messages: string[], 
+  members: member[],
+  messages: message[],
+}
+
+interface dm {
+  userIds: number[],
+  messages: message[],
+  dmId: number,
+  ownerId: number,
+  name: string
 }
 
 interface message {
@@ -41,15 +66,13 @@ interface dm {
 interface dataStr {
   users: user[],
   channels: channel[],
-  userIdCounter: number,
-  channelIdCounter: number
-};
+  dms: dm[]
+}
 
 let data: dataStr = {
   users: [],
   channels: [],
-  userIdCounter: 0,
-  channelIdCounter: 0,
+  dms: []
 };
 
 let data: dataStr = {
@@ -86,4 +109,4 @@ function setData(newData: dataStr) {
   data = newData;
 }
 
-export { getData, setData, user, member, channel, dataStr };
+export { getData, setData, user, member, channel, dataStr, dm, message };

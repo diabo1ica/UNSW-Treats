@@ -13,59 +13,56 @@ import { getData, setData, user, dataStr } from './dataStore';
 //    Returns { error : 'error' } on password length not valid (< 6)
 //    Returns { error : 'error' } on nameFirst and/or nameLast length not valid
 function authRegisterV1(email: string, password: string, nameFirst: string, nameLast: string) {
-  if(!validator.isEmail(email) 
-  || password.length < 6
-  || !validName(nameFirst)
-  || !validName(nameLast)){
-    return {error : 'error'};
+  if (!validator.isEmail(email) ||
+  password.length < 6 ||
+  !validName(nameFirst) ||
+  !validName(nameLast)) {
+    return { error: 'error' };
   }
   const data: dataStr = getData();
-  if(data.users.some(obj => obj.email === email)) return {error : 'error'};
-  
+  if (data.users.some(obj => obj.email === email)) return { error: 'error' };
+
   const user: user = userTemplate();
-  if(data.userIdCounter === 0){
-    user.userId = 1;
-    data.userIdCounter++;
+  if (data.users.length === 0) {
+    user.userId = generateUserId();
     user.globalPermsId = 1;
-  }
-  else{
-    user.userId = data.userIdCounter + 1;
-    data.userIdCounter++;
+  } else {
+    user.userId = generateUserId();
   }
   user.email = email;
   user.nameFirst = nameFirst;
   user.nameLast = nameLast;
   user.password = password;
-  
+
   // Generate handle
   let handle: string = nameFirst + nameLast;
   handle = handle.replace(/[^A-Za-z0-9]/gi, '');
-  if(handle.length > 20) handle = handle.slice(0, 20);
-  if(data.users.some(obj => obj.handleStr === handle)){
-    for(let i = 0; i <= 9; i++){
-      let numStr: string = i.toString();
-      if(!data.users.some(obj => obj.handleStr === (handle + numStr))){
+  if (handle.length > 20) handle = handle.slice(0, 20);
+  if (data.users.some(obj => obj.handleStr === handle)) {
+    for (let i = 0; i <= 9; i++) {
+      const numStr: string = i.toString();
+      if (!data.users.some(obj => obj.handleStr === (handle + numStr))) {
         handle = handle + numStr;
         break;
       }
     }
   }
-  user.handleStr = handle;  
+  user.handleStr = handle;
   data.users.push(user);
   setData(data);
   return {
     authUserId: user.userId
-  }
+  };
 }
 /*
 Allows the user to login to their account and view their userId.
 
 Arguments:
-    email (string)    - the email which the user has used to register their 
+    email (string)    - the email which the user has used to register their
                         account with.
     password (string)    - The password which the user has used to register
                            their account with.
-                           
+
 Return Value:
     Returns authUserId on email is valid and password is correct
     Returns {error: 'error'} on email is invalid
@@ -75,10 +72,10 @@ function authLoginV1(email: string, password: string) {
   if (validator.isEmail(email) === false) {
     return {
       error: 'error',
-    }
+    };
   }
   const data: dataStr = getData();
-  for (let item of data.users) {
+  for (const item of data.users) {
     if (email === item.email && password === item.password) {
       return {
         authUserId: item.userId,
@@ -90,22 +87,33 @@ function authLoginV1(email: string, password: string) {
   };
 }
 
-function validName(name: string){
-  if(name.length < 1 || name.length > 50) return false;
+function validName(name: string) {
+  if (name.length < 1 || name.length > 50) return false;
   return true;
 }
 
+// Generates a valid userId
+function generateUserId() {
+  let id = Math.floor(Math.random() * 1000000);
+  const data = getData();
+  while (data.users.some((user) => user.userId === id)) {
+    id = Math.floor(Math.random() * 1000000);
+  }
+  return id;
+}
+
 // Creates an empty user template
-function userTemplate(){
+function userTemplate() {
   const user: user = {
     nameFirst: '',
-    nameLast:'',
+    nameLast: '',
     handleStr: '',
     email: '',
     password: '',
     userId: 0,
-    globalPermsId: 2
-  }
+    globalPermsId: 2,
+    tokenArray: []
+  };
   return user;
 }
 
