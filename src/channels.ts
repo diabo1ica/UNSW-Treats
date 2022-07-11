@@ -91,12 +91,10 @@ Return Value:
 function channelsListallV1(authUserId: number) {
   const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
-    return {
-      error: 'error'
-    };
+    throw new Error('Invalid authUserId');
   }
 
-  const allChannels = [];
+  const allChannels: any[] = [];
   for (const item of data.channels) {
     allChannels.push({
       channelId: item.channelId,

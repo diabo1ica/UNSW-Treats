@@ -167,18 +167,14 @@ Return Value:
 */
 function channelMessagesV1(authUserId: number, channelId: number, start: number) {
   const channelObj = getChannel(channelId);
-  if (channelObj === false) {
-    return {
-      error: 'error',
-    };
+  if (validateUserId(authUserId) === false) {
+    throw new Error('Invalid authUserId');
+  } else if (channelObj === false) {
+    throw new Error('Invalid channelId');
   } else if (start > channelObj.messages.length) {
-    return {
-      error: 'error'
-    };
+    throw new Error('Start is ahead of final message');
   } else if (isMember(authUserId, channelObj) === false) {
-    return {
-      error: 'error'
-    };
+    throw new Error('User is not a member of the channel');
   }
   let end: number;
   const messagesArray: message[] = [];
