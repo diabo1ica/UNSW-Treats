@@ -2,6 +2,7 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
+import { getData } from './dataStore';
 
 // Set up web app, use JSON
 const app = express();
@@ -25,5 +26,6 @@ app.use(morgan('dev'));
 
 // start server
 app.listen(PORT, HOST, () => {
+  getData(true);
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
 });
