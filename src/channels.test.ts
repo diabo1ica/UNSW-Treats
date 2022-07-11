@@ -59,7 +59,7 @@ describe('Test suite for channelsListallV1', () => {
 
     test('Invalid authUserId', () => {
       userId4 = authRegisterV1('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
-      expect(channelsListallV1(-userId4)).toStrictEqual({ error: 'error' });
+      expect(() => channelsListallV1(-userId4)).toThrow(Error);
     });
   });
   describe('Working cases', () => {
