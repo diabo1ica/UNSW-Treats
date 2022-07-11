@@ -14,7 +14,7 @@ Return Value:
     Returns {error: 'error'} on name that is invalid (less than 1 or
                              more than 20
 */
-function channelsCreateV1(authUserId, name, isPublic) {
+function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
     return { error: 'error' };
   }
@@ -60,7 +60,11 @@ Return Value:
     Returns { channels } on authUserId is valid
 */
 
+<<<<<<< HEAD:src/channels.ts
 function channelsListV1(authUserId) {
+=======
+function channelsListV1(authUserId: number) {
+>>>>>>> 262f114641046fad1604ef3db9e4a2b86c899ad6:src/channels.js
   const data: dataStr = getData();
   const userchannels = [];
 
@@ -88,7 +92,11 @@ Return Value:
     Returns { channels } on authUserId is valid
     Returns {error: 'error'} on authUserId is invalid
 */
+<<<<<<< HEAD:src/channels.ts
 function channelsListallV1(authUserId) {
+=======
+function channelsListallV1(authUserId: number) {
+>>>>>>> 262f114641046fad1604ef3db9e4a2b86c899ad6:src/channels.js
   const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
     return {
@@ -108,7 +116,14 @@ function channelsListallV1(authUserId) {
     channels: allChannels // see interface for contents
   };
 }
+/*
+Creates a channel template for new channels
 
+Arguments:
+
+Return Value:
+    Returns {channel}
+*/
 function channelsTemplate() {
   const channel: channel = {
     channelId: 0,
@@ -120,8 +135,22 @@ function channelsTemplate() {
 
   return channel;
 }
+/*
+Checks if the given userId is valid
 
+Arguments:
+    UserId (integer)   - Identification number of the user to be
+                         validated.
+
+<<<<<<< HEAD:src/channels.ts
 function validateUserId(UserId) {
+=======
+Return Value:
+    Returns {true} on userId was found in the dataStore's users array
+    Returns {false} on userId was not found in the dataStore's users array
+*/
+function validateUserId(UserId: number) {
+>>>>>>> 262f114641046fad1604ef3db9e4a2b86c899ad6:src/channels.js
   const data: dataStr = getData();
   for (const item of data.users) {
     if (item.userId === UserId) {

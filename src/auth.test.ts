@@ -40,16 +40,10 @@ describe('authRegister tests', () => {
 });
 
 describe('Test suite for authLoginV1', () => {
-  let user_id1;
-  let user_id2;
-  let user_id3;
-  let user_id4;
+  let userId1: number;
 
   beforeEach(() => {
-    user_id1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
-    user_id2 = authRegisterV1('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
-    user_id3 = authRegisterV1('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
-    user_id4 = authRegisterV1('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
+    userId1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
   });
 
   afterEach(() => {
@@ -66,7 +60,7 @@ describe('Test suite for authLoginV1', () => {
 
   test('Correct return type', () => {
     expect(authLoginV1('z5363495@unsw.edu.au', 'aero123')).toStrictEqual(expect.objectContaining({
-      authUserId: user_id1,
+      authUserId: userId1,
     }));
   });
 });
