@@ -34,13 +34,13 @@ members: member[],
 messages: message[],
 }
 
-interface dmUser {
+interface dmMember {
   uId: number,
   dmPermsId: number,
 }
 
 interface dm {
-  uIds: dmUser[],
+  members: dmMember[],
   messages: message[],
   dmId: number,
   creatorId: number,
