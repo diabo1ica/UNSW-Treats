@@ -1,0 +1,28 @@
+{
+    "users": [
+        {
+            "nameFirst": "Steve",
+            "nameLast": "Berrospi",
+            "handleStr": "SteveBerrospi",
+            "email": "z5363495@unsw.edu.au",
+            "password": "aero123",
+            "userId": 1,
+            "globalPermsId": 1,
+            "tokenArray": []
+        },
+        {
+            "nameFirst": "Gary",
+            "nameLast": "Ang",
+            "handleStr": "GaryAng",
+            "email": "z3329234@unsw.edu.au",
+            "password": "aero321",
+            "userId": 2,
+            "globalPermsId": 2,
+            "tokenArray": []
+        }
+    ],
+    "channels": [],
+    "dms": [],
+    "userIdCounter": 2,
+    "channelIdCounter": 0
+}

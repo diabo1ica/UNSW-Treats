@@ -1,3 +1,4 @@
+import fs from 'fs';
 // YOU SHOULD MODIFY THIS OBJECT BELOW
 interface user {
   nameFirst: string,
@@ -80,12 +81,20 @@ Example usage
 */
 
 // Use get() to access the data
-function getData() {
+function getData(load = false, name = './data.json') {
+  if (load === true && fs.existsSync(name)) {
+    const loadedData = JSON.parse(fs.readFileSync(name, { encoding: 'utf8' }));
+    data.users = loadedData.users;
+    data.channels = loadedData.channels;
+    data.dms = loadedData.dms;
+    console.log('\'data.json\' successfully loaded');
+  }
   return data;
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData: dataStr) {
+function setData(newData: dataStr, name = './data.json') {
+  fs.writeFileSync(name, JSON.stringify(newData, null, 4));
   data = newData;
 }
 
