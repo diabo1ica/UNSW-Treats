@@ -46,7 +46,7 @@ describe('channels path tests', () => {
             `${url}:${port}/channels/create/v2`,
             {
               json: {
-                token: 'one',
+                authUserId: bodyObj2.authUserId,
                 name: 'Channel1',
                 isPublic: true,
               }
@@ -71,7 +71,7 @@ describe('channels path tests', () => {
             `${url}:${port}/channels/create/v2`,
             {
               json: {
-                token: 'one',
+                authUserId: bodyObj.authUserId,
                 name: '',
                 isPublic: true,
               }
@@ -87,7 +87,7 @@ describe('channels path tests', () => {
             `${url}:${port}channels/list/v2`,
             {
               qs: {
-                token: '',
+                authUserId: '',
               }
             }
     );
@@ -163,35 +163,52 @@ describe('channel path tests', () => {
   });
   
   test('Test channel invite', () => {
-    const res = request(
-      'POST'
-            `${url}:${port}channel/invite/v2`,
+    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
+    const bodyObj = JSON.parse(res.body as string);
+    const res2 = request(
+      'POST',
+            `${url}:${port}/channels/invite/v2`,
             {
               json: {
-                token: 'one',
+                authUserId: bodyObj.authUserId,
                 channelId: '',
-                uId: '',
+                uId: true,
               }
             }
     );
-    const bodyObj = JSON.parse(res.body as string);
-    expect(bodyObj).toStrictEqual({error: 'error'});  
+    const bodyObj2 = JSON.parse(res2.body as string);
+    expect(bodyObj2).toStrictEqual({error: 'error'});  
     
   });
   
   test('Test remove owner', () => {
-    const res = request(
-      'POST'
-            `${url}:${port}channel/invite/v2`,
+    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
+    const bodyObj = JSON.parse(res.body as string);
+    const res2 = request (
+      'POST',
+            `${url}:${port}/channels/create/v2`,
             {
               json: {
-                token: 'one',
-                channelId: '',
-                uId: '',
+                authUserId: bodyObj.authUserId,
+                name: 'Channel1',
+                isPublic: true,
               }
             }
     );
-    const bodyObj = JSON.parse(res.body as string);
+    const bodyObj2 = JSON.parse(res2.body as string);
+
+    const res3 = request (
+      'POST',
+            `${url}:${port}/channels/removeowner/v2`,
+            {
+              json: {
+                token: '',
+                channelId: '',
+                uId: bodyObj.authUserId,
+              }
+            }
+    );
+    const bodyObj3 = JSON.parse(res3.body as string);
     expect(bodyObj).toStrictEqual({error: 'error'});           
    
   });
@@ -242,19 +259,22 @@ describe('user path tests', () => {
   });
   
   test('Test user profile', () => {
-    const res = request(
+    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
+    const bodyObj = JSON.parse(res.body as string);
+    const res2 = request(
       'GET',
             `${url}:${port}user/profile/v2`,
             {
               qs: {
-                token: 'one',
-                uId: 'error',
+                authUserId: '',
+                uId: bodyObj.authUserId,
               }
             }
     );
-    expect(res.statusCode).toBe(OK);
+    expect(res2.statusCode).toBe(OK);
   }); 
   
+  /*
   test('Test set Name', () => {
     const res = request(
       'PUT'
@@ -285,6 +305,7 @@ describe('user path tests', () => {
     const bodyObj = JSON.parse(res.body as string);
     expect(bodyObj).toStrictEqual({error: 'error'});     
   });
+  */
   
 });
 
