@@ -23,13 +23,11 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   if (data.users.some(obj => obj.email === email)) return { error: 'error' };
 
   const user: user = userTemplate();
-  if (data.userIdCounter === 0) {
-    user.userId = 1;
-    data.userIdCounter++;
+  if (data.users.length === 0) {
+    user.userId = generateUserId();
     user.globalPermsId = 1;
   } else {
-    user.userId = data.userIdCounter + 1;
-    data.userIdCounter++;
+    user.userId = generateUserId();
   }
   user.email = email;
   user.nameFirst = nameFirst;
@@ -93,6 +91,16 @@ function authLoginV1(email: string, password: string) {
 function validName(name: string) {
   if (name.length < 1 || name.length > 50) return false;
   return true;
+}
+
+// Generates a valid userId
+function generateUserId() {
+  let id = Math.floor(Math.random() * 1000000);
+  const data = getData();
+  while (data.users.some((user) => user.userId === id)) {
+    id = Math.floor(Math.random() * 1000000);
+  }
+  return id;
 }
 
 // Creates an empty user template

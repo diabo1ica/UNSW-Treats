@@ -1,5 +1,3 @@
-import fs from 'fs';
-// YOU SHOULD MODIFY THIS OBJECT BELOW
 interface user {
   nameFirst: string,
   nameLast: string,
@@ -12,12 +10,8 @@ interface user {
 }
 
 interface member {
-uId: number,
-email: string,
-nameFirst: string,
-nameLast: string,
-handleStr: string,
-channelPermsId: number
+  uId: number,
+  channelPermsId: number
 }
 
 interface message {
@@ -28,40 +22,31 @@ interface message {
 }
 
 interface channel {
-channelId: number,
-name: string,
-isPublic: boolean,
-members: member[],
-messages: message[],
-}
-
-interface dmMember {
-  uId: number,
-  dmPermsId: number,
+  channelId: number,
+  name: string,
+  isPublic: boolean,
+  members: member[],
+  messages: message[],
 }
 
 interface dm {
-  members: dmMember[],
+  userIds: number[],
   messages: message[],
   dmId: number,
-  creatorId: number,
+  ownerId: number,
   name: string
 }
 
 interface dataStr {
-users: user[],
-channels: channel[],
-dms: dm[],
-userIdCounter: number,
-channelIdCounter: number
+  users: user[],
+  channels: channel[],
+  dms: dm[]
 }
 
 let data: dataStr = {
   users: [],
   channels: [],
-  dms: [],
-  userIdCounter: 0,
-  channelIdCounter: 0,
+  dms: []
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1
@@ -81,21 +66,14 @@ Example usage
 */
 
 // Use get() to access the data
-function getData(load = false, name = './data.json') {
-  if (load === true && fs.existsSync(name)) {
-    const loadedData = JSON.parse(fs.readFileSync(name, { encoding: 'utf8' }));
-    data.users = loadedData.users;
-    data.channels = loadedData.channels;
-    data.dms = loadedData.dms;
-    console.log('\'data.json\' successfully loaded');
-  }
+function getData() {
   return data;
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData: dataStr, name = './data.json') {
-  fs.writeFileSync(name, JSON.stringify(newData, null, 4));
+function setData(newData: dataStr) {
   data = newData;
 }
 
 export { getData, setData, user, member, channel, dataStr, dm, message };
+

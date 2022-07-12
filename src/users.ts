@@ -11,6 +11,7 @@ Return Value:
     Return { user } on valid authUserId and uId
     return {error: 'error'} on invalud uId
 */
+
 function userProfileV1(authUserId: number, uId: number) {
   const data: dataStr = getData();
 
