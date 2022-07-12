@@ -13,7 +13,8 @@ import { getData, setData, dataStr, channel, member, user } from './dataStore';
 //    }
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
-function channelDetailsV1(authUserId, channelId) {
+
+function channelDetailsV1(token: string, channelId: number) {
   const data: dataStr = getData();
   if (!data.channels.some(obj => obj.channelId === channelId)) {
     return { error: 'error' };
@@ -122,14 +123,13 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is
                              not a member
 */
-<<<<<<< HEAD
 
-function channelInviteV1(authUserId, channelId, uId) {
-  
+function channelInviteV1(token: string, channelId: number, uId: number) {
+  const data: dataStr = getData();
   if (getChannel(channelId) === false) {
     return {error: 'error'};
   }
-  if (validateUserId(uId) === false || validateUserId(authUserId) === false) {
+  if (validateUserId(uId) === false) {
     return {error: 'error'};
   }
   const channel_obj = getChannel(channelId);
@@ -137,72 +137,30 @@ function channelInviteV1(authUserId, channelId, uId) {
     return {error: 'error'};
   } 
 
-  if (getChannel(channelId) === true) {
-    if (isMember(authUserId, channel_obj) === false) {
-      return {error: 'error'};
-    }
-  }
-  
   for (let item of data.users) {
-    if (item.userId === uId) {
-      channel_obj.members.push({
-        uId: uId,
-        email: item.email,
-        nameFirst: item.nameFirst,
-        nameLast: item.nameLast,
-        handleStr: item.handleStr,
-        channelPermsId: 2,
-      });
-    }
-  }  
-    
-=======
-function channelInviteV1(authUserId, channelId, uId) {
-  const data: dataStr = getData();
-  for (const item of data.channels) {
-    if (channelId !== item.channelId) {
-      return { error: 'error' };
-    }
-    for (const member of item.members) {
-      if (uId === member.uId) {
-        return { error: 'error' };
-      }
-      if (channelId === item.channelId && authUserId !== member.uId) {
-        return { error: 'error' };
-      }
-    }
-  }
-
-  if (validateUserId(uId) == false) {
-    return { error: 'error' };
-  }
-
-  const channeltemp: channel = channelsTemplate();
-  for (const channel of data.channels) {
-    if (channelId === channel.channelId) {
-      channeltemp.name = channel.name;
-      channeltemp.isPublic = channel.isPublic;
-      for (const item of data.users) {
-        if (item.userId === uId) {
-          channeltemp.members.push({
-            uId: uId,
-            email: item.email,
-            nameFirst: item.nameFirst,
-            nameLast: item.nameLast,
-            handleStr: item.handleStr,
-            channelPermsId: 2,
-          });
+    for (let tokens of item.tokenArray) {
+      if (tokens === token) {
+        for (let channel of data.channels) {
+          if (channel.members.some(obj => obj.uId === item.userId)) {
+            if (getChannel(channelId)) {
+              if (isMember(item.userId, channel_obj) === false) {
+                return {error: 'error'};
+              }
+            }
+            channel.members.push({
+              uId: uId,
+              channelPermsId: 2,
+            });
+          }
         }
       }
     }
   }
-
-  data.channels.push(channeltemp);
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
-  setData(data);
+  
 
   return {};
-}
+}    
+
 /*
 Displays the list of messages of a given channel, and indicates whether there
 are more messages to load or if it has loaded all least recent messages.
@@ -279,11 +237,8 @@ function isMember(userId, channel_obj) {
   return false;
 }
 
-<<<<<<< HEAD
+
 function validateUserId(UserId: number) {
-=======
-function validateUserId(UserId) {
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
   const data: dataStr = getData();
   for (const item of data.users) {
     if (item.userId === UserId) {
@@ -305,3 +260,4 @@ function channelsTemplate() {
 }
 
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
+
