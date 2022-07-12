@@ -6,7 +6,7 @@ import { authRegisterV1 } from './auth';
 import { channelDetailsV1 } from './channel';
 import { getData, setData, user, dataStr } from './dataStore';
 import { clearV1 } from './other';
-import * as jose from 'jose'
+import * as jose from 'jose';
 
 // Set up web app, use JSON
 const app = express();
@@ -29,7 +29,7 @@ app.post('/auth/register/v2', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   const data: dataStr = getData();
-  let token: string = '';
+  let token = '';
   for (const user of data.users) {
     if (id.authUserId === user.userId) {
       token = generateToken(id.authUserId);
@@ -61,7 +61,7 @@ app.get('/channel/details/v2', (req, res) => {
   const data: dataStr = getData();
   let userId = 0;
   for (const user of data.users) {
-    if (user.some(obj => obj.tokenArray === token)) { // TODO
+    if (user.some(obj => obj.userId === userId)) { // TODO
       userId = user.userId;
       break;
     }
@@ -84,8 +84,8 @@ app.get('/dm/list/v1', (req, res) => {
   for (const dm of data.dms) {
     if (dm.some(obj => obj.userIds === uId)) { // TODO
       const dmObj = {
-        dmId: dmId, // TODO
-        name: name
+        dmId: dm.dmId, // TODO
+        name: dm.name
       };
       dmArray.push(dmObj);
     }
@@ -109,4 +109,3 @@ app.use(morgan('dev'));
 app.listen(PORT, HOST, () => {
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
 });
-
