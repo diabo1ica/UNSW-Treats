@@ -8,7 +8,6 @@ interface user {
   password: string,
   userId: number,
   globalPermsId: number,
-  tokenArray: string[]
 }
 
 interface member {
@@ -33,6 +32,7 @@ name: string,
 isPublic: boolean,
 members: member[],
 messages: message[],
+messageIdCounter: number,
 }
 
 interface dmMember {
@@ -45,6 +45,7 @@ interface dm {
   messages: message[],
   dmId: number,
   creatorId: number,
+  messageIdCounter: number,
   name: string
 }
 
@@ -53,7 +54,8 @@ users: user[],
 channels: channel[],
 dms: dm[],
 userIdCounter: number,
-channelIdCounter: number
+channelIdCounter: number,
+dmIdCounter: number
 }
 
 let data: dataStr = {
@@ -62,22 +64,23 @@ let data: dataStr = {
   dms: [],
   userIdCounter: 0,
   channelIdCounter: 0,
+  dmIdCounter: 0
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1
 
 /*
 Example usage
-    let store = getData()
-    console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Rando'] }
+  let store = getData()
+  console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Rando'] }
 
-    names = store.names
+  names = store.names
 
-    names.pop()
-    names.push('Jake')
+  names.pop()
+  names.push('Jake')
 
-    console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Jake'] }
-    setData(store)
+  console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Jake'] }
+  setData(store)
 */
 
 // Use get() to access the data
@@ -98,4 +101,4 @@ function setData(newData: dataStr, name = './data.json') {
   data = newData;
 }
 
-export { getData, setData, user, member, channel, dataStr, dm, message };
+export { getData, setData, user, member, channel, dataStr, dm, message, dmMember };

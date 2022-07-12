@@ -24,5 +24,6 @@
     "channels": [],
     "dms": [],
     "userIdCounter": 2,
-    "channelIdCounter": 0
+    "channelIdCounter": 0,
+    "dmIdCounter": 0
 }

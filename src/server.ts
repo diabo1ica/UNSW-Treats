@@ -3,7 +3,9 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { getData } from './dataStore';
-
+import * as jose from 'jose';
+const generateToken = (uId: number):string => new jose.UnsecuredJWT({uId: uId}).encode();
+const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 // Set up web app, use JSON
 const app = express();
 app.use(express.json());
@@ -16,7 +18,7 @@ app.get('/echo', (req, res, next) => {
   try {
     const data = req.query.echo as string;
     return res.json(echo(data));
-  } catch (err) {
+  } catch (err) { 
     next(err);
   }
 });
