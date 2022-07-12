@@ -93,7 +93,7 @@ describe('channel path tests', () => {
         nameFirst: 'Jingisu',
         nameLast: 'Kan',
         handleStr: 'JingisuKan'
-    }],
+      }],
       allMembers: []
     });
   });
@@ -129,4 +129,4 @@ describe('dm path tests', () => {
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toStrictEqual({});
   });
-});*/
+}); */

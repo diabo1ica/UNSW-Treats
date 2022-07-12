@@ -180,22 +180,17 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is not a
     member of the channel
 */
-function channelMessagesV1(authUserId, channelId, start) {
-  const data: dataStr = getData();
 
-  const channel_obj = getChannel(channelId);
-  if (channel_obj === false) {
-    return {
-      error: 'error',
-    };
-  } else if (start > channel_obj.messages.length) {
-    return {
-      error: 'error'
-    };
-  } else if (isMember(authUserId, channel_obj) === false) {
-    return {
-      error: 'error'
-    };
+function channelMessagesV1(authUserId: number, channelId: number, start: number) {
+  const channelObj = getChannel(channelId);
+  if (validateUserId(authUserId) === false) {
+    throw new Error('Invalid authUserId');
+  } else if (channelObj === false) {
+    throw new Error('Invalid channelId');
+  } else if (start > channelObj.messages.length) {
+    throw new Error('Start is ahead of final message');
+  } else if (isMember(authUserId, channelObj) === false) {
+    throw new Error('User is not a member of the channel');
   }
   let end: number;
   const messagesArray: message[] = [];

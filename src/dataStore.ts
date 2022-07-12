@@ -1,3 +1,4 @@
+import fs from 'fs';
 interface user {
   nameFirst: string,
   nameLast: string,
@@ -6,7 +7,6 @@ interface user {
   password: string,
   userId: number,
   globalPermsId: number,
-  tokenArray: string[]
 }
 
 interface member {
@@ -22,18 +22,25 @@ interface message {
 }
 
 interface channel {
-  channelId: number,
+channelId: number,
   name: string,
   isPublic: boolean,
   members: member[],
   messages: message[],
+  messageIdCounter: number,
+}
+
+interface dmMember {
+  uId: number,
+  dmPermsId: number,
 }
 
 interface dm {
-  userIds: number[],
+  members: dmMember[],
   messages: message[],
   dmId: number,
-  ownerId: number,
+  creatorId: number,
+  messageIdCounter: number,
   name: string
 }
 
@@ -52,33 +59,41 @@ let data: dataStr = {
   dms: [],
   userIdCounter: 0,
   channelIdCounter: 0,
-  dmsIdCounter: 0
+  dmIdCounter: 0
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1
 
 /*
 Example usage
-    let store = getData()
-    console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Rando'] }
+  let store = getData()
+  console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Rando'] }
 
-    names = store.names
+  names = store.names
 
-    names.pop()
-    names.push('Jake')
+  names.pop()
+  names.push('Jake')
 
-    console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Jake'] }
-    setData(store)
+  console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Jake'] }
+  setData(store)
 */
 
 // Use get() to access the data
-function getData() {
+function getData(load = false, name = './data.json') {
+  if (load === true && fs.existsSync(name)) {
+    const loadedData = JSON.parse(fs.readFileSync(name, { encoding: 'utf8' }));
+    data.users = loadedData.users;
+    data.channels = loadedData.channels;
+    data.dms = loadedData.dms;
+    console.log('\'data.json\' successfully loaded');
+  }
   return data;
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData: dataStr) {
+function setData(newData: dataStr, name = './data.json') {
+  fs.writeFileSync(name, JSON.stringify(newData, null, 4));
   data = newData;
 }
 
-export { getData, setData, user, member, channel, dataStr, dm, message };
+export { getData, setData, user, member, channel, dataStr, dm, message, dmMember };

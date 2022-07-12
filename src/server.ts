@@ -7,6 +7,8 @@ import { channelDetailsV1 } from './channel';
 import { getData, setData, user, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
+const generateToken = (uId: number):string => new jose.UnsecuredJWT({uId: uId}).encode();
+const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 
 // Set up web app, use JSON
 const app = express();
@@ -20,7 +22,7 @@ app.get('/echo', (req, res, next) => {
   try {
     const data = req.query.echo as string;
     return res.json(echo(data));
-  } catch (err) {
+  } catch (err) { 
     next(err);
   }
 });
@@ -107,5 +109,6 @@ app.use(morgan('dev'));
 
 // start server
 app.listen(PORT, HOST, () => {
+  getData(true);
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
 });

@@ -60,15 +60,15 @@ describe('Test suite for channelMessagesV1', () => {
   });
 
   test('Invalid channelId', () => {
-    expect(channelMessagesV1(user_id1, -channel_id1, 0)).toStrictEqual({ error: 'error' });
+    expect(() => channelMessagesV1(userId1, -channelId1, 0)).toThrow(Error);
   });
 
   test('Start is greater than total number messages', () => {
-    expect(channelMessagesV1(user_id1, channel_id1, 10000000)).toStrictEqual({ error: 'error' });
+    expect(() => channelMessagesV1(userId1, channelId1, 10000000)).toThrow(Error);
   });
 
   test('User is not a member of valid channel', () => {
-    expect(channelMessagesV1(user_id3, channel_id1, 0)).toStrictEqual({ error: 'error' });
+    expect(() => channelMessagesV1(userId3, channelId1, 0)).toThrow(Error);
   });
 
   test('Correct return type', () => {
