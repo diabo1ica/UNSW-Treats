@@ -3,28 +3,39 @@ import { authRegisterV1, authLoginV1 } from './auth';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
 import { clearV1 } from './other';
 
-test('Testing ChannelsCreate (error)', () => {
+
+test('Testing ChannelsCreate (true)', () => {
   clearV1();
-  authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber');
-  const a = authLoginV1('justinbieber@gmail.com', '1122334455');
-  const user_authUserId = a.authUserId;
-<<<<<<< HEAD
-  expect(channelsCreateV1(user_authUserId, '', true)).toStrictEqual({error: 'error'}); 
-=======
-  expect(channelsCreateV1(user_authUserId, '', true)).toStrictEqual({ error: 'error' });
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
+  const a = authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber').authUserId;
+  expect(channelsCreateV1(a, 'Channel1', true)).toStrictEqual({ channelId: expect.any(Number) });
+
 });
 
+test('Testing ChannelList', () => {
+  clearV1();
+  const a = authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber').authUserId;
+  const b = channelsCreateV1(a, 'Channel1', true);
+  expect(channelsListV1(a)).toStrictEqual(expect.objectContaining(
+    {
+      channels: expect.arrayContaining([
+        {
+          channelId: expect.any(Number),
+          name: 'Channel1',
+        },
+      ])
+    }));
+});
+
+
+
+
+/*
 test('Testing ChannelsCreate (error)', () => {
   clearV1();
   authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber');
   const a = authLoginV1('justinbieber@gmail.com', '1122334455');
   const user_authUserId = a.authUserId;
-<<<<<<< HEAD
-  expect(channelsCreateV1(user_authUserId, 'IamcurrrentlystudyingcomputerscienceinUNSW', true)).toStrictEqual({error: 'error'}); 
-=======
   expect(channelsCreateV1(user_authUserId, 'IamcurrrentlystudyingcomputerscienceinUNSW', true)).toStrictEqual({ error: 'error' });
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
 });
 
 test('Testing ChannelsCreate (no error)', () => {
@@ -101,20 +112,6 @@ describe('Test suite for channelsListallV1', () => {
 describe('Testing channelslist', () => {
   test('return all channles involved for userid', () => {
     clearV1();
-
-<<<<<<< HEAD
-   expect(channelsListV1( user_id1 )).toStrictEqual(expect.objectContaining(
-   {
-   channels: expect.arrayContaining([
-   {
-   channelId: channel_air,
-    name: 'air',
-    }, 
-   ])
-   }));   
-   });
- });
-=======
     const user_id1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve',
       'Berrospi').authUserId;
     const channel_air = channelsCreateV1(user_id1, 'air', true).channelId;
@@ -130,4 +127,4 @@ describe('Testing channelslist', () => {
       }));
   });
 });
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
+*/
