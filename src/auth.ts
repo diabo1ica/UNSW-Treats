@@ -24,11 +24,10 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
 
   const user: user = userTemplate();
   if (data.users.length === 0) {
-    user.userId = generateUserId();
     user.globalPermsId = 1;
-  } else {
-    user.userId = generateUserId();
   }
+  data.userIdCounter++;
+  user.userId = data.userIdCounter;
   user.email = email;
   user.nameFirst = nameFirst;
   user.nameLast = nameLast;

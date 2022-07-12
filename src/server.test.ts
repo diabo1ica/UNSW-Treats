@@ -1,5 +1,6 @@
 import request from 'sync-request';
 import config from './config.json';
+import { channelsCreateV1 } from './channels';
 
 const OK = 200;
 const port = config.port;
@@ -37,14 +38,14 @@ describe('auth path tests', () => {
     const bodyObj = JSON.parse(res.body as string);
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toEqual({
-      token: '',
+      token: expect.any(String),
       authUserId: expect.any(Number)
     });
     const res2 = registerAuth('hero@gmail.com', 'Coursehero', 'Hiiro', 'Heroe');
     const bodyObj2 = JSON.parse(res2.body as string);
     expect(res2.statusCode).toBe(OK);
     expect(bodyObj2).toEqual({
-      token: '',
+      token: expect.any(String),
       authUserId: expect.any(Number)
     });
   });
@@ -68,27 +69,36 @@ describe('auth path tests', () => {
 
 describe('channel path tests', () => {
   test('Test channel details', () => {
+    const userRes = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
+    const user = JSON.parse(userRes.body as string);
+    const channel = channelsCreateV1(user.authUserId, 'Xhorhas', true);
     const res = request(
       'GET',
             `${url}:${port}channel/details/v2`,
             {
               qs: {
-                token: '',
-                channelId: ''
+                token: user.token,
+                channelId: channel.channelId
               }
             }
     );
-    // const bodyObj = JSON.parse(res.body as string);
+    const bodyObj = JSON.parse(res.body as string);
     expect(res.statusCode).toBe(OK);
-    /* expect(bodyObj).toEqual({
-      name: '',
+    expect(bodyObj).toEqual({
+      name: 'Xhorhas',
       isPublic: true,
-      ownerMembers: [],
+      ownerMembers: [{
+        uId: expect.any(Number),
+        email: 'Alalalyeehoo@gmail.com',
+        nameFirst: 'Jingisu',
+        nameLast: 'Kan',
+        handleStr: 'JingisuKan'
+    }],
       allMembers: []
-    }); */
+    });
   });
 });
-
+/*
 describe('dm path tests', () => {
   test('Test dm list', () => {
     const res = request(
@@ -119,4 +129,4 @@ describe('dm path tests', () => {
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toStrictEqual({});
   });
-});
+});*/

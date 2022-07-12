@@ -35,10 +35,6 @@ function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
     if (item.userId === authUserId) {
       channels.members.push({
         uId: authUserId,
-        email: item.email,
-        nameFirst: item.nameFirst,
-        nameLast: item.nameLast,
-        handleStr: item.handleStr,
         channelPermsId: 1,
       });
     }

@@ -1,4 +1,4 @@
-import { getData, dataStr } from './dataStore';
+import { getData, dataStr, setData } from './dataStore';
 
 // Clears the dataStore
 function clearV1() {
@@ -6,6 +6,10 @@ function clearV1() {
   data.users = [];
   data.channels = [];
   data.dms = [];
+  data.userIdCounter = 0;
+  data.channelIdCounter = 0;
+  data.dmsIdCounter = 0;
+  setData(data);
   return {};
 }
 

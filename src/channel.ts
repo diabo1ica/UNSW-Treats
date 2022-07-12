@@ -1,4 +1,4 @@
-import { getData, setData, dataStr, channel, member, user } from './dataStore';
+import { getData, setData, dataStr, channel, member, user, message } from './dataStore';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -91,10 +91,6 @@ function channelJoinV1(authUserId, channelId) {
       }
       channel.members.push({
         uId: authUserId,
-        email: obj.email,
-        nameFirst: obj.nameFirst,
-        nameLast: obj.nameLast,
-        handleStr: obj.handleStr,
         channelPermsId: 2,
       });
       data.channels.push();
@@ -151,10 +147,6 @@ function channelInviteV1(authUserId, channelId, uId) {
         if (item.userId === uId) {
           channeltemp.members.push({
             uId: uId,
-            email: item.email,
-            nameFirst: item.nameFirst,
-            nameLast: item.nameLast,
-            handleStr: item.handleStr,
             channelPermsId: 2,
           });
         }
@@ -206,7 +198,7 @@ function channelMessagesV1(authUserId, channelId, start) {
     };
   }
   let end: number;
-  const messagesArray: string[] = [];
+  const messagesArray: message[] = [];
   if (start + 50 > channel_obj.messages.length) {
     end = -1;
   } else {

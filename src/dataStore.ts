@@ -40,13 +40,19 @@ interface dm {
 interface dataStr {
   users: user[],
   channels: channel[],
-  dms: dm[]
+  dms: dm[],
+  userIdCounter: number,
+  channelIdCounter: number,
+  dmsIdCounter: number
 }
 
 let data: dataStr = {
   users: [],
   channels: [],
-  dms: []
+  dms: [],
+  userIdCounter: 0,
+  channelIdCounter: 0,
+  dmsIdCounter: 0
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1
