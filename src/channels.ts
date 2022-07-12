@@ -13,11 +13,11 @@ function generateChannelId() {
 Create a channel with given name and whether it is public or private.
 
 Arguments:
-<<<<<<< HEAD
+
     token (string)        - a specific string point to the user that create the channel 
-=======
+
     authUserId (integer)  - author user id, the user that create the channel
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
+
                             and a member of channel.
     name (string)         - the name of the channel.
     isPublic (boolean)    - true if it is public and false for private.
@@ -27,62 +27,35 @@ Return Value:
     Returns {error: 'error'} on name that is invalid (less than 1 or
                              more than 20
 */
-function channelsCreateV1(token: string, name: string, isPublic: boolean) {
+export function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
     return { error: 'error' };
   }
   
   const data: dataStr = getData();
-<<<<<<< HEAD
+
   const channel = channelsTemplate();
   
+  const channelIdTemp = generateChannelId();
+
+  channel.channelId = channelIdTemp;
   channel.name = name;
   channel.isPublic = isPublic;
   
-  for (let item of data.users) {
-    for (let tokens of item.tokenArray) {
-      if (tokens === token) {
-        channel.members.push({
-          uId: item.userId,
-          channelPermsId: 1,
-        });
-      }
-=======
-  const channels: channel = channelsTemplate();
-  if (data.channelIdCounter === 0) {
-    channels.channelId = 1;
-    data.channelIdCounter++;
-  } else {
-    channels.channelId = data.channelIdCounter + 1;
-    data.channelIdCounter++;
+for (let item of data.users) {
+  if (item.userId === authUserId) {
+    channel.members.push({
+      uId: authUserId,
+      channelPermsId: 1,
+    });
   }
+}
 
-  channels.name = name;
-  channels.isPublic = isPublic;
-
-  for (const item of data.users) {
-    if (item.userId === authUserId) {
-      channels.members.push({
-        uId: authUserId,
-        email: item.email,
-        nameFirst: item.nameFirst,
-        nameLast: item.nameLast,
-        handleStr: item.handleStr,
-        channelPermsId: 1,
-      });
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
-    }
-  }
   data.channels.push(channel);
   setData(data);
   return {
-<<<<<<< HEAD
-    channelId: generateChannelId(),
+    channelId: channelIdTemp,
   }
-=======
-    channelId: channels.channelId,
-  };
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
 }
 /*
 Provide a list of channels and it's details that the authorised user is a part of.
@@ -95,24 +68,9 @@ Return Value:
     Returns { channels } on authUserId is valid
 */
 
-function channelsListV1(token: string) {
+export function channelsListV1(authUserId: number) {
   const data: dataStr = getData();
   const userchannels = [];
-<<<<<<< HEAD
-  
-  for (let item of data.users) {
-    for (let tokens of item.tokenArray) {
-      if (tokens === token) {
-        for (let channel of data.channels) {
-          if (channel.members.some(obj => obj.uId === item.userId)) {
-            userchannels.push({
-              channelId: channel.channelId,
-              name: channel.name,
-            });
-          }
-        }
-      }   
-=======
 
   for (const channel of data.channels) {
     if (channel.members.some(obj => obj.uId === authUserId)) {
@@ -120,10 +78,9 @@ function channelsListV1(token: string) {
         channelId: channel.channelId,
         name: channel.name,
       });
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
     }
   }
-  
+      
   return {
     channels: userchannels
   };
@@ -139,7 +96,7 @@ Return Value:
     Returns { channels } on authUserId is valid
     Returns {error: 'error'} on authUserId is invalid
 */
-function channelsListallV1(authUserId: number) {
+export function channelsListallV1(authUserId: number) {
   const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
     return {
@@ -197,5 +154,3 @@ function validateUserId(UserId: number) {
   }
   return false;
 }
-
-export { channelsCreateV1, channelsListV1, channelsListallV1 };
