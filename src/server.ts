@@ -30,17 +30,6 @@ app.get('/echo', (req, res, next) => {
 });
 
 
-app.post('/channels/create/v2', (req, res) => {
-  const { name, isPublic } = req.body;
-  const token = req.query.token as string;
-  const user_authUserId = decodeToken(token);
-  const channelId = channelsCreateV1(user_authUserId, name, isPublic);
-  res.json({
-    channelId: channelId,
-  }); 
-});
-
-
 app.post('/auth/register/v2', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
@@ -73,9 +62,10 @@ app.post('/auth/logout/v1', (req, res) => {
 });
 
 app.post('/channels/create/v2', (req, res) => {
-  const { token, name, isPublic } = req.body;
-  if ()
-  const channelId = channelsCreateV1(token, name, isPublic);
+  const { name, isPublic } = req.body;
+  const token = req.query.token as string;
+  const authUserId = decodeToken(token);
+  const channelId = channelsCreateV1(authUserId, name, isPublic);
   res.json({
     channelId: channelId,
   }); 
