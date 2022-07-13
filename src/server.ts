@@ -2,7 +2,7 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { authRegisterV1 } from './auth';
+import { authRegisterV1, authLoginV1 } from './auth';
 import { channelDetailsV1 } from './channel';
 import { getData, setData, user, dataStr } from './dataStore';
 import { clearV1 } from './other';
@@ -12,6 +12,7 @@ const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).p
 
 // Set up web app, use JSON
 const app = express();
+const generateToken = (uId: number):string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 app.use(express.json());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
@@ -111,6 +112,40 @@ app.delete('/dm/remove/v1', (req, res) => {
 });
 
 app.delete('clear/v1', (req, res) => {
+  try {
+    const { email, password, nameFirst, nameLast } = req.body;
+    const userId = authRegisterV1(email, password, nameFirst, nameLast).authUserId;
+    const token = generateToken(userId);
+    const data = getData();
+    data.tokenArray.push(token);
+    setData(data);
+    res.json({
+      token: token,
+      authUserId: userId
+    });
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.post('/auth/login/v2', (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userId = authLoginV1(email, password).authUserId;
+    const token = generateToken(userId);
+    const data = getData();
+    data.tokenArray.push(token);
+    setData(data);
+    res.json({
+      token: token,
+      authUserId: userId
+    });
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.delete('/clear/v1', (req, res) => {
   clearV1();
   res.json({});
 });

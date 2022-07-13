@@ -22,7 +22,7 @@ interface message {
 }
 
 interface channel {
-channelId: number,
+  channelId: number,
   name: string,
   isPublic: boolean,
   members: member[],
@@ -48,7 +48,7 @@ interface dataStr {
   users: user[],
   channels: channel[],
   dms: dm[],
-  tokenArray: string[];
+  tokenArray: string[],
   userIdCounter: number,
   channelIdCounter: number,
   dmIdCounter: number

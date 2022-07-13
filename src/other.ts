@@ -8,7 +8,8 @@ function clearV1() {
   data.dms = [];
   data.userIdCounter = 0;
   data.channelIdCounter = 0;
-  data.dmsIdCounter = 0;
+  data.dmIdCounter = 0;
+  data.tokenArray = [];
   setData(data);
   return {};
 }

@@ -72,15 +72,10 @@ function authLoginV1(email: string, password: string) {
     throw new Error('email is invalid');
   }
   const data: dataStr = getData();
-  let token: string;
   for (const item of data.users) {
     if (email === item.email && password === item.password) {
-      token = generateToken();
-      data.users[data.users.indexOf(item)].tokenArray.push(token);
-      setData(data);
       return {
         authUserId: item.userId,
-        token: token
       };
     }
   }
@@ -90,16 +85,6 @@ function authLoginV1(email: string, password: string) {
 function validName(name: string) {
   if (name.length < 1 || name.length > 50) return false;
   return true;
-}
-
-// Generates a valid userId
-function generateUserId() {
-  let id = Math.floor(Math.random() * 1000000);
-  const data = getData();
-  while (data.users.some((user) => user.userId === id)) {
-    id = Math.floor(Math.random() * 1000000);
-  }
-  return id;
 }
 
 // Creates an empty user template
