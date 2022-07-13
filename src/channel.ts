@@ -194,12 +194,12 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
   }
   let end: number;
   const messagesArray: message[] = [];
-  if (start + 50 > channel_obj.messages.length) {
+  if (start + 50 > channelObj.messages.length) {
     end = -1;
   } else {
     end = start + 50;
   }
-  for (const item of channel_obj.messages.slice(start, start + 50)) {
+  for (const item of channelObj.messages.slice(start, start + 50)) {
     messagesArray.push(item);
   }
 
@@ -247,6 +247,7 @@ function channelsTemplate() {
     isPublic: true,
     members: [],
     messages: [],
+    messageIdCounter: 0
   };
   return channel;
 }
