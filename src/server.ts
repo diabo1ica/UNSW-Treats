@@ -3,9 +3,11 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { getData } from './dataStore';
-
+import * as jose from 'jose';
 // Set up web app, use JSON
 const app = express();
+const generateToken = (uId: number):string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
+const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 app.use(express.json());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
