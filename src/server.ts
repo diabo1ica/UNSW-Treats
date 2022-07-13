@@ -2,7 +2,8 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { getData } from './dataStore';
+import { getData, setData } from './dataStore';
+import { authRegisterV1, authLoginV1 } from './auth';
 import * as jose from 'jose';
 // Set up web app, use JSON
 const app = express();
@@ -20,6 +21,25 @@ app.get('/echo', (req, res, next) => {
     return res.json(echo(data));
   } catch (err) {
     next(err);
+  }
+});
+
+
+
+app.post('/auth/login/v2', (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userId = authLoginV1(email, password).authUserId;
+    const token = generateToken(userId);
+    const data = getData();
+    data.tokenArray.push(token);
+    setData(data);
+    res.json({
+      token: token,
+      authUserId: userId
+    });
+  } catch (err) {
+    res.json({ error: 'error' });
   }
 });
 
