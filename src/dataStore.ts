@@ -23,7 +23,7 @@ interface message {
 }
 
 interface channel {
-channelId: number,
+  channelId: number,
   name: string,
   isPublic: boolean,
   members: member[],
@@ -52,7 +52,7 @@ interface dataStr {
   tokenArray: string[],
   userIdCounter: number,
   channelIdCounter: number,
-  dmsIdCounter: number
+  dmIdCounter: number
 }
 
 let data: dataStr = {
@@ -62,7 +62,7 @@ let data: dataStr = {
   tokenArray: [],
   userIdCounter: 0,
   channelIdCounter: 0,
-  dmsIdCounter: 0
+  dmIdCounter: 0
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1

@@ -68,4 +68,3 @@ const requestLogin = (email: string, password: string) => {
   if (res.statusCode !== OK) return { error: 'error' };
   return JSON.parse(res.getBody() as string);
 };
-

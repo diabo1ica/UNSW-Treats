@@ -50,6 +50,10 @@ describe('Test suite for authLoginV1', () => {
     clearV1();
   });
 
+  test('Invalid Email', () => {
+    expect(() => authLoginV1('z5363394521', 'aero123')).toThrow(Error);
+  });
+
   test('Email doesn\'t belong to a user', () => {
     expect(() => authLoginV1('z32132132@gmail.com', 'aero123')).toThrow(Error);
   });
@@ -61,7 +65,6 @@ describe('Test suite for authLoginV1', () => {
   test('Correct return type', () => {
     expect(authLoginV1('z5363495@unsw.edu.au', 'aero123')).toStrictEqual(expect.objectContaining({
       authUserId: userId1,
-      token: expect.any(String)
     }));
   });
 });

@@ -5,10 +5,10 @@ import config from './config.json';
 import { getData, setData } from './dataStore';
 import { authRegisterV1, authLoginV1 } from './auth';
 import * as jose from 'jose';
+import { clearV1 } from './other';
 // Set up web app, use JSON
 const app = express();
 const generateToken = (uId: number):string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
-const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 app.use(express.json());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
@@ -24,7 +24,22 @@ app.get('/echo', (req, res, next) => {
   }
 });
 
-
+app.post('/auth/register/v2', (req, res) => {
+  try {
+    const { email, password, nameFirst, nameLast } = req.body;
+    const userId = authRegisterV1(email, password, nameFirst, nameLast).authUserId;
+    const token = generateToken(userId);
+    const data = getData();
+    data.tokenArray.push(token);
+    setData(data);
+    res.json({
+      token: token,
+      authUserId: userId
+    });
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
 
 app.post('/auth/login/v2', (req, res) => {
   try {
@@ -41,6 +56,11 @@ app.post('/auth/login/v2', (req, res) => {
   } catch (err) {
     res.json({ error: 'error' });
   }
+});
+
+app.delete('/clear/v1', (req, res) => {
+  clearV1();
+  res.json({});
 });
 
 // for logging errors
