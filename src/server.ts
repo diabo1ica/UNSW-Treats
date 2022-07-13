@@ -31,13 +31,13 @@ app.post('/auth/register/v2', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   const data: dataStr = getData();
-  let token = '';
   for (const user of data.users) {
     if (id.authUserId === user.userId) {
       token = generateToken(id.authUserId);
-      user.tokenArray.push(token);
+      data.tokenArray.push(token);
     }
   }
+  setData(data);
   res.json({
     token: token,
     authUserId: id.authUserId
@@ -46,19 +46,24 @@ app.post('/auth/register/v2', (req, res) => {
 
 app.post('/auth/logout/v1', (req, res) => {
   const { token } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  }
   const data: dataStr = getData();
-  for (const user of data.users) {
-    for (const i in user.tokenArray) {
-      if (token === user.tokenArray[parseInt(i)]) {
-        user.tokenArray.slice(0, parseInt(i));
-      }
+  for (let i: number = 0; i < data.tokenArray.length; i++){
+    if (token === data.tokenArray[i]){
+      data.tokenArray = data.tokenArray.slice(0, i);
     }
   }
+  setData(data);
   res.json({});
 });
 
 app.get('/channel/details/v2', (req, res) => {
   const token = req.query.token as string;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  }
   const chId = parseInt(req.query.channelId as string);
   const data: dataStr = getData();
   let userId = 0;
@@ -73,18 +78,14 @@ app.get('/channel/details/v2', (req, res) => {
 
 app.get('/dm/list/v1', (req, res) => {
   const token = req.query.token as string;
-  const data: dataStr = getData();
-  let uId:number;
-  for (const user of data.users) {
-    for (const i in user.tokenArray) {
-      if (token === user.tokenArray[parseInt(i)]) {
-        uId = user.userId;
-      }
-    }
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
   }
+  const data: dataStr = getData();
+  let uId: number = decodeToken(token);
   const dmArray = [];
   for (const dm of data.dms) {
-    if (dm.some(obj => obj.userIds === uId)) { // TODO
+    if (dm.members.some(obj => obj.uId === uId)) { // TODO
       const dmObj = {
         dmId: dm.dmId, // TODO
         name: dm.name
@@ -96,13 +97,31 @@ app.get('/dm/list/v1', (req, res) => {
 });
 
 app.delete('/dm/remove/v1', (req, res) => {
-
+  const token = req.query.token as string;
+  const dmId = parseInt(req.query.dmId as string);
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  }
+  const data: dataStr = getData();
+  for(let i = 0; i < data.dms.length; i++){
+    if(data.dms[i].dmId === dmId) {
+      data.dms = data.dm.slice(0, i);
+    }
+  }
 });
 
 app.delete('clear/v1', (req, res) => {
   clearV1();
   res.json({});
 });
+
+function validToken(token: string){
+  let data: dataStr = getData();
+  for (const tokenObj of data.tokenArray){
+    if (token === tokenObj) return true;
+  }
+  return false;
+}
 
 // for logging errors
 app.use(morgan('dev'));

@@ -48,15 +48,17 @@ interface dataStr {
   users: user[],
   channels: channel[],
   dms: dm[],
+  tokenArray: string[];
   userIdCounter: number,
   channelIdCounter: number,
-  dmsIdCounter: number
+  dmIdCounter: number
 }
 
 let data: dataStr = {
   users: [],
   channels: [],
   dms: [],
+  tokenArray: [],
   userIdCounter: 0,
   channelIdCounter: 0,
   dmIdCounter: 0

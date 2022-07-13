@@ -111,25 +111,9 @@ function userTemplate() {
     email: '',
     password: '',
     userId: 0,
-    globalPermsId: 2,
-    tokenArray: []
+    globalPermsId: 2
   };
   return user;
-}
-
-function generateToken(): string {
-  const token: number = Math.floor(Math.random() * 100000);
-  const tokenStr: string = token.toString();
-  const data: dataStr = getData();
-  for (const user of data.users) {
-    // Loop to find duplicate
-    for (const userToken of user.tokenArray) {
-      if (tokenStr === userToken) {
-        return generateToken(); // Recursion
-      }
-    }
-  }
-  return tokenStr;
 }
 
 export { authLoginV1, authRegisterV1 };
