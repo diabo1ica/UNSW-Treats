@@ -1,311 +1,154 @@
 import request from 'sync-request';
 import config from './config.json';
-
+const PORT: number = parseInt(process.env.PORT || config.port);
+const HOST: string = process.env.IP || config.url;
+const SERVER_URL = `${HOST}:${PORT}`;
 const OK = 200;
-const port = config.port;
-const url = config.url;
 
-function registerAuth(email: string, password: string, nameFirst: string, nameLast: string) {
+const requestRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request(
     'POST',
-          `${url}:${port}/auth/login/v2`,
-          {
-            json: {
-              email: email,
-              password: password,
-              nameFirst: nameFirst,
-              nameLast: nameLast
-            }
-          }
+    SERVER_URL + '/auth/register/v2',
+    {
+      json: {
+        email: email,
+        password: password,
+        nameFirst: nameFirst,
+        nameLast: nameLast,
+      }
+    }
   );
-  return res;
-}
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestClear = () => {
+  const res = request(
+    'DELETE',
+    SERVER_URL + '/clear/v1'
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestChannelsCreate = (authUserId: number, name: string, isPublic: boolean) => {
+  const res = request(
+    'POST',
+    SERVER_URL + '/channels/create/v2',
+    {
+      json: {
+        authUserId: authUserId,
+        name: name,
+        isPublic: isPublic,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestChannelList = (authUserId: number) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/channels/list/v2',
+    {
+      qs: {
+        authUserId: authUserId, 
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestChannelInvite = (authUserId: number, channelId: number, uId: number) => {
+  const res = request(
+    'POST',
+    SERVER_URL + '/channel/invite/v2',
+    {
+      json: {
+        authUserId: authUserId, 
+        channelId: channelId,
+        uId: uId,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestUserProfile = (authUserId: number, uId: number) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/user/profile/v2',
+    {
+      qs: {
+        authUserId: authUserId, 
+        uId: uId,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
 
 
 describe('channels path tests', () => {
+  let userID : number;
   beforeEach(() => {
-    request(
-      'DELETE',
-      `${url}:${port}/clear/v1`,
-      {
-        qs: {}
-      }
-    );
-  });
-  
-  test('Test successful channels Create', () => {
-    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const bodyObj = JSON.parse(res.body as string);
-    bodyObj.token = 'one';
-    expect(res.statusCode).toBe(OK);
-    const res2 = registerAuth('hero@gmail.com', 'Coursehero', 'Hiiro', 'Heroe');
-    const bodyObj2 = JSON.parse(res2.body as string);
-    expect(res2.statusCode).toBe(OK);
-    const res3 = request(
-      'POST',
-            `${url}:${port}/channels/create/v2`,
-            {
-              json: {
-                authUserId: bodyObj2.authUserId,
-                name: 'Channel1',
-                isPublic: true,
-              }
-            }
-    );
-    const bodyObj3 = JSON.parse(res3.body as string);
-    expect(bodyObj3).toEqual({
-      channelId: expect.any(Number)
-    });
-  });
-  
-  test('Test unsuccessful channels Create', () => {
-    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const bodyObj = JSON.parse(res.body as string);
-    bodyObj.token = 'one';
-    expect(res.statusCode).toBe(OK);
-    const res2 = registerAuth('hero@gmail.com', 'Coursehero', 'Hiiro', 'Heroe');
-    const bodyObj2 = JSON.parse(res2.body as string);
-    expect(res2.statusCode).toBe(OK);
-    const res3 = request(
-      'POST',
-            `${url}:${port}/channels/create/v2`,
-            {
-              json: {
-                authUserId: bodyObj.authUserId,
-                name: '',
-                isPublic: true,
-              }
-            }
-    );
-    const bodyObj3 = JSON.parse(res3.body as string);
-    expect(bodyObj3).toEqual({error: 'error'});
-  });
-  
-  test('Test fail channels Lists', () => {
-    const res = request(
-      'GET',
-            `${url}:${port}channels/list/v2`,
-            {
-              qs: {
-                authUserId: '',
-              }
-            }
-    );
-    expect(res.statusCode).toBe(OK);
-  });
-});
-
-describe('auth path tests', () => {
-  beforeEach(() => {
-    request(
-      'DELETE',
-      `${url}:${port}/clear/v1`,
-      {
-        qs: {}
-      }
-    );
+    requestClear();
+    userID = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan').authUserId;
   });
 
-  test('Test successful auth register', () => {
-    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const bodyObj = JSON.parse(res.body as string);
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toEqual({
-      token: '',
-      authUserId: expect.any(Number)
-    });
-    const res2 = registerAuth('hero@gmail.com', 'Coursehero', 'Hiiro', 'Heroe');
-    const bodyObj2 = JSON.parse(res2.body as string);
-    expect(res2.statusCode).toBe(OK);
-    expect(bodyObj2).toEqual({
-      token: '',
-      authUserId: expect.any(Number)
-    });
+  test('ChannelsCreate Successfull', () => {
+    expect(requestChannelsCreate(userID, 'Channel1', true)).toStrictEqual({});
   });
 
-  test('Test logout', () => {
-    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const bodyObj = JSON.parse(res.body as string);
-    const res2 = request(
-      'POST',
-            `${url}:${port}/auth/logout/v1`,
-            {
-              json: {
-                token: bodyObj.token
-              }
-            }
-    );
-    const bodyObj2 = JSON.parse(res2.body as string);
-    expect(bodyObj2).toStrictEqual({});
+  test('ChannelsCreate Unsuccessfull', () => {
+    expect(requestChannelsCreate(userID, 'Iloveyoubabyandwillmarryyouchannel', true)).toStrictEqual({ error: 'error'});
+  });
+
+  test('ChannelsList Successfull', () => {
+    const channelID = requestChannelsCreate(userID, 'Channel1', true).channelId;
+    expect(requestChannelList(userID)).toStrictEqual({});
+  });
+
+  test('ChannelsList Unsuccessfull', () => {
+    const channelID = requestChannelsCreate(userID, 'Channel1', true).channelId;
+    expect(requestChannelList(-123)).toStrictEqual({ error: 'error' });
   });
 });
 
 describe('channel path tests', () => {
-  test('Test channel details', () => {
-    const res = request(
-      'GET',
-            `${url}:${port}channel/details/v2`,
-            {
-              qs: {
-                token: '',
-                channelId: ''
-              }
-            }
-    );
-    // const bodyObj = JSON.parse(res.body as string);
-    expect(res.statusCode).toBe(OK);
-    /* expect(bodyObj).toEqual({
-      name: '',
-      isPublic: true,
-      ownerMembers: [],
-      allMembers: []
-    }); */
-  });
-  
-  test('Test channel invite', () => {
-    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const bodyObj = JSON.parse(res.body as string);
-    const res2 = request(
-      'POST',
-            `${url}:${port}/channels/invite/v2`,
-            {
-              json: {
-                authUserId: bodyObj.authUserId,
-                channelId: '',
-                uId: true,
-              }
-            }
-    );
-    const bodyObj2 = JSON.parse(res2.body as string);
-    expect(bodyObj2).toStrictEqual({error: 'error'});  
-    
-  });
-  
-  test('Test remove owner', () => {
-    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const bodyObj = JSON.parse(res.body as string);
-    const res2 = request (
-      'POST',
-            `${url}:${port}/channels/create/v2`,
-            {
-              json: {
-                authUserId: bodyObj.authUserId,
-                name: 'Channel1',
-                isPublic: true,
-              }
-            }
-    );
-    const bodyObj2 = JSON.parse(res2.body as string);
-
-    const res3 = request (
-      'POST',
-            `${url}:${port}/channels/removeowner/v2`,
-            {
-              json: {
-                token: '',
-                channelId: '',
-                uId: bodyObj.authUserId,
-              }
-            }
-    );
-    const bodyObj3 = JSON.parse(res3.body as string);
-    expect(bodyObj).toStrictEqual({error: 'error'});           
-   
-  });
-    
-});
-
-describe('dm path tests', () => {
-  test('Test dm list', () => {
-    const res = request(
-      'GET',
-            `${url}:${port}dm/list/v1`,
-            {
-              qs: {
-                token: ''
-              }
-            }
-    );
-    // const bodyObj = JSON.parse(res.body as string);
-    expect(res.statusCode).toBe(OK);
-  });
-
-  test('Test dm remove', () => {
-    const res = request(
-      'GET',
-            `${url}:${port}dm/remove/v1`,
-            {
-              qs: {
-                token: '',
-                dmId: 0,
-              }
-            }
-    );
-    const bodyObj = JSON.parse(res.body as string);
-    expect(res.statusCode).toBe(OK);
-    expect(bodyObj).toStrictEqual({});
-  });
-});
-
-describe('user path tests', () => {
+  let userID : number;
+  let userID2 : number;
+  let channelID : number;
   beforeEach(() => {
-    request(
-      'DELETE',
-      `${url}:${port}/clear/v1`,
-      {
-        qs: {}
-      }
-    );
+    requestClear();
+    userID = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan').authUserId;
+    userID2 = requestRegister('Iloveyou@gmail.com', 'Disney123', 'Kanoi', 'Senpai').authUserId;
+    channelID = requestChannelsCreate(userID, 'Channel1', true).channelId;
   });
-  
-  test('Test user profile', () => {
-    const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const bodyObj = JSON.parse(res.body as string);
-    const res2 = request(
-      'GET',
-            `${url}:${port}user/profile/v2`,
-            {
-              qs: {
-                authUserId: '',
-                uId: bodyObj.authUserId,
-              }
-            }
-    );
-    expect(res2.statusCode).toBe(OK);
-  }); 
-  
-  /*
-  test('Test set Name', () => {
-    const res = request(
-      'PUT'
-            `${url}:${port}channel/invite/v2`,
-            {
-              json: {
-                token: 'one',
-                nameFirst: '',
-                nameLast: 'Iknowyouwantmeyouknowiwantyouiknowyouwantmeeee'
-              }
-            }
-    );
-    const bodyObj = JSON.parse(res.body as string);
-    expect(bodyObj).toStrictEqual({error: 'error'});     
+
+  test('ChannelInvite Successfull', () => {
+    expect(requestChannelInvite(userID, channelID, userID2)).toStrictEqual({});
   });
-  
-  test('Test set Email', () => {
-    const res = request(
-      'PUT'
-            `${url}:${port}channel/invite/v2`,
-            {
-              json: {
-                token: 'one',
-                email: '',
-              }
-            }
-    );
-    const bodyObj = JSON.parse(res.body as string);
-    expect(bodyObj).toStrictEqual({error: 'error'});     
+
+  test('ChannelInvite Unsuccessfull', () => {
+    expect(requestChannelInvite(userID, channelID, -123)).toStrictEqual({ error: 'error' });
   });
-  */
   
 });
 
+describe('users path tests', () => {
+  let userID : number;
+  beforeEach(() => {
+    requestClear();
+    userID = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan').authUserId;
+  });
+
+  test('ChannelInvite Unsuccessfull', () => {
+    expect(requestUserProfile(-123, -321)).toStrictEqual({ error: 'error' });
+  });
+
+});
