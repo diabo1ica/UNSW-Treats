@@ -6,17 +6,17 @@ import { getData, setData, dataStr, channel, member, user, message } from './dat
 //    channelId (number)    - Channel id of the channel that will be inspected
 // Return value:
 //    Returns {
-//      channelId: <number>,
 //      name: <string>,           on valid authUserId and channelId
 //      isPublic: <bool>,
-//      members: <array>
+//      ownerMembers: <array>,
+//      alMembers: <array>
 //    }
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
 function channelDetailsV1(authUserId, channelId) {
   const data: dataStr = getData();
   if (!data.channels.some(obj => obj.channelId === channelId)) {
-    return { error: 'error' };
+    return { error: 'error1' };
   }
   let object: channel;
   for (const channel of data.channels) {
@@ -26,7 +26,7 @@ function channelDetailsV1(authUserId, channelId) {
     }
   }
   if (!object.members.some(obj => obj.uId === authUserId)) {
-    return { error: 'error' };
+    return { error: 'error2' };
   }
   // Filter owmer members in members array
   const owner = [];

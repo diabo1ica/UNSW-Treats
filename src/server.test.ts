@@ -13,15 +13,15 @@ const OK = 200;
 function registerAuth(email: string, password: string, nameFirst: string, nameLast: string) {
   const res = request(
     'POST',
-          `${url}:${port}/auth/login/v2`,
-          {
-            json: {
-              email: email,
-              password: password,
-              nameFirst: nameFirst,
-              nameLast: nameLast
-            }
-          }
+    SERVER_URL + '/auth/register/v2',
+    {
+      json: {
+        email: email,
+        password: password,
+        nameFirst: nameFirst,
+        nameLast: nameLast
+      }
+    }
   );
   return res;
 }
@@ -30,7 +30,7 @@ describe('auth path tests', () => {
   beforeEach(() => {
     request(
       'DELETE',
-      `${url}:${port}/clear/v1`,
+      SERVER_URL + '/clear/v1',
       {
         qs: {}
       }
@@ -43,14 +43,14 @@ describe('auth path tests', () => {
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toEqual({
       token: expect.any(String),
-      authUserId: expect.any(Number)
+      authUserId: 1
     });
     const res2 = registerAuth('hero@gmail.com', 'Coursehero', 'Hiiro', 'Heroe');
     const bodyObj2 = JSON.parse(res2.body as string);
     expect(res2.statusCode).toBe(OK);
     expect(bodyObj2).toEqual({
       token: expect.any(String),
-      authUserId: expect.any(Number)
+      authUserId: 2
     });
   });
 
@@ -59,32 +59,39 @@ describe('auth path tests', () => {
     const bodyObj = JSON.parse(res.body as string);
     const res2 = request(
       'POST',
-            `${url}:${port}/auth/logout/v1`,
-            {
-              json: {
-                token: bodyObj.token
-              }
-            }
+      SERVER_URL + '/auth/logout/v1',
+      {
+        json: {
+          token: bodyObj.token
+        }
+      }
     );
     const bodyObj2 = JSON.parse(res2.body as string);
     expect(bodyObj2).toStrictEqual({});
   });
 });
-
+/*
 describe('channel path tests', () => {
+  beforeEach(() => {
+    requestClear();
+  });
+  
   test('Test channel details', () => {
     const userRes = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
     const user = JSON.parse(userRes.body as string);
     const channel = channelsCreateV1(user.authUserId, 'Xhorhas', true);
+    expect(channel).toEqual({
+      channelId: 1
+    });
     const res = request(
       'GET',
-            `${url}:${port}channel/details/v2`,
-            {
-              qs: {
-                token: user.token,
-                channelId: channel.channelId
-              }
-            }
+      SERVER_URL + '/channel/details/v2',
+      {
+        qs: {
+          token: user.token,
+          channelId: 1
+        }
+      }
     );
     const bodyObj = JSON.parse(res.body as string);
     expect(res.statusCode).toBe(OK);
@@ -101,7 +108,7 @@ describe('channel path tests', () => {
       allMembers: []
     });
   });
-});
+});*/
 /*
 describe('dm path tests', () => {
   test('Test dm list', () => {

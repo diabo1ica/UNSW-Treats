@@ -7,7 +7,6 @@ import { channelDetailsV1 } from './channel';
 import { getData, setData, user, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
-const generateToken = (uId: number):string => new jose.UnsecuredJWT({uId: uId}).encode();
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 
 // Set up web app, use JSON
@@ -32,12 +31,8 @@ app.post('/auth/register/v2', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   const data: dataStr = getData();
-  for (const user of data.users) {
-    if (id.authUserId === user.userId) {
-      token = generateToken(id.authUserId);
-      data.tokenArray.push(token);
-    }
-  }
+  let token: string = generateToken(id.authUserId);
+  data.tokenArray.push(token);
   setData(data);
   res.json({
     token: token,
@@ -61,21 +56,20 @@ app.post('/auth/logout/v1', (req, res) => {
 });
 
 app.get('/channel/details/v2', (req, res) => {
-  const token = req.query.token as string;
+  const token: string = req.query.token as string;
+  const chId: number = parseInt(req.query.channelId as string);
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    res.json({ error: 'error3' });
   }
-  const chId = parseInt(req.query.channelId as string);
-  const data: dataStr = getData();
-  let userId = 0;
-  for (const user of data.users) {
-    if (user.some(obj => obj.userId === userId)) { // TODO
-      userId = user.userId;
-      break;
-    }
+  else {
+    res.json(chDetailsV2(token, chId));
   }
-  res.json(channelDetailsV1(userId, chId));
 });
+
+function chDetailsV2(token: string, chId: number) {
+  let userId: number = decodeToken(token);
+  return channelDetailsV1(userId, chId);
+}
 
 app.get('/dm/list/v1', (req, res) => {
   const token = req.query.token as string;
@@ -86,9 +80,9 @@ app.get('/dm/list/v1', (req, res) => {
   let uId: number = decodeToken(token);
   const dmArray = [];
   for (const dm of data.dms) {
-    if (dm.members.some(obj => obj.uId === uId)) { // TODO
+    if (dm.members.some(obj => obj.uId === uId)) {
       const dmObj = {
-        dmId: dm.dmId, // TODO
+        dmId: dm.dmId,
         name: dm.name
       };
       dmArray.push(dmObj);
@@ -106,11 +100,14 @@ app.delete('/dm/remove/v1', (req, res) => {
   const data: dataStr = getData();
   for(let i = 0; i < data.dms.length; i++){
     if(data.dms[i].dmId === dmId) {
-      data.dms = data.dm.slice(0, i);
+      data.dms = data.dms.slice(0, i);
     }
   }
+  setData(data);
 });
 
+// Who wrote this ?
+/*
 app.delete('clear/v1', (req, res) => {
   try {
     const { email, password, nameFirst, nameLast } = req.body;
@@ -127,6 +124,7 @@ app.delete('clear/v1', (req, res) => {
     res.json({ error: 'error' });
   }
 });
+*/
 
 app.post('/auth/login/v2', (req, res) => {
   try {
