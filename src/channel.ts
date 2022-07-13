@@ -124,38 +124,27 @@ Return Value:
                              not a member
 */
 
-function channelInviteV1(token: string, channelId: number, uId: number) {
+function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const data: dataStr = getData();
+  const channelObj = getChannel(channelId);
   if (getChannel(channelId) === false) {
     return {error: 'error'};
   }
-  if (validateUserId(uId) === false) {
-    return {error: 'error'};
+  if (!validateUserId(uId) || channelObj === false) {
+    return { error: 'error' };
+  } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
+    return { error: 'error' };
   }
-  const channel_obj = getChannel(channelId);
-  if (isMember(uId, channel_obj)) {
-    return {error: 'error'};
-  } 
 
-  for (let item of data.users) {
-    for (let tokens of item.tokenArray) {
-      if (tokens === token) {
-        for (let channel of data.channels) {
-          if (channel.members.some(obj => obj.uId === item.userId)) {
-            if (getChannel(channelId)) {
-              if (isMember(item.userId, channel_obj) === false) {
-                return {error: 'error'};
-              }
-            }
-            channel.members.push({
-              uId: uId,
-              channelPermsId: 2,
-            });
-          }
-        }
-      }
-    }
+  for (const item of data.users) {
+    if (item.userId === uId) {
+      channelObj.members.push({
+        uId: uId,
+        channelPermsId: 2,
+      });
+    } 
   }
+
   
 
   return {};
