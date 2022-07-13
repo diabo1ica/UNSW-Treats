@@ -33,12 +33,14 @@ function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
 
   for (const item of data.users) {
     if (item.userId === authUserId) {
+      console.log('found');
       channels.members.push({
         uId: authUserId,
         channelPermsId: 1,
       });
     }
   }
+  console.log(data.users, authUserId);
   data.channels.push(channels);
   setData(data);
   return {

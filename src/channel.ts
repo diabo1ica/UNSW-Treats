@@ -19,14 +19,16 @@ function channelDetailsV1(authUserId, channelId) {
     return { error: 'error1' };
   }
   let object: channel;
-  for (const channel of data.channels) {
+  for (let channel of data.channels) {
     if (channel.channelId === channelId) {
       object = channel;
       break;
     }
   }
   if (!object.members.some(obj => obj.uId === authUserId)) {
-    return { error: 'error2' };
+    return { 
+      data: data,
+      error: 'error2' };
   }
   // Filter owmer members in members array
   const owner = [];

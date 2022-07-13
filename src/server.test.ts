@@ -1,6 +1,7 @@
 import request from 'sync-request';
 import config from './config.json';
 import { channelsCreateV1 } from './channels';
+
 const port = config.port;
 const url = config.url;
 
@@ -26,15 +27,24 @@ function registerAuth(email: string, password: string, nameFirst: string, nameLa
   return res;
 }
 
+function createChan(token: string, name: string, isPublic: boolean) {
+  const res = request(
+    'POST',
+    SERVER_URL + '/channels/create/v2',
+    {
+      json: {
+        token: token,
+        name: name,
+        isPublic: isPublic
+      }
+    }
+  );
+  return res;
+}
+
 describe('auth path tests', () => {
   beforeEach(() => {
-    request(
-      'DELETE',
-      SERVER_URL + '/clear/v1',
-      {
-        qs: {}
-      }
-    );
+    requestClear();
   });
 
   test('Test successful auth register', () => {
@@ -70,19 +80,20 @@ describe('auth path tests', () => {
     expect(bodyObj2).toStrictEqual({});
   });
 });
-/*
+
 describe('channel path tests', () => {
-  beforeEach(() => {
-    requestClear();
+  let userRes;
+  let user;
+  let channel;
+  let channelRes;
+  beforeEach(() =>{
+    userRes = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
+    user = JSON.parse(userRes.body as string);
+    channelRes = createChan(user.token, 'Xhorhas', true);
+    channel = JSON.parse(channelRes.body as string);
   });
-  
+
   test('Test channel details', () => {
-    const userRes = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const user = JSON.parse(userRes.body as string);
-    const channel = channelsCreateV1(user.authUserId, 'Xhorhas', true);
-    expect(channel).toEqual({
-      channelId: 1
-    });
     const res = request(
       'GET',
       SERVER_URL + '/channel/details/v2',
@@ -108,7 +119,7 @@ describe('channel path tests', () => {
       allMembers: []
     });
   });
-});*/
+});
 /*
 describe('dm path tests', () => {
   test('Test dm list', () => {

@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import config from './config.json';
 import { authRegisterV1, authLoginV1 } from './auth';
 import { channelDetailsV1 } from './channel';
+import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
 import { getData, setData, user, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
@@ -55,11 +56,29 @@ app.post('/auth/logout/v1', (req, res) => {
   res.json({});
 });
 
+app.post('/channels/create/v2', (req, res) => {
+  const { token, name, isPublic } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  }
+  else {
+    const authUserId = decodeToken(token);
+    const channelId = channelsCreateV1(authUserId, name, isPublic);
+    res.json({
+      channelId: channelId,
+    }); 
+  }
+});
+
+
 app.get('/channel/details/v2', (req, res) => {
   const token: string = req.query.token as string;
   const chId: number = parseInt(req.query.channelId as string);
   if (!validToken(token)) {
-    res.json({ error: 'error3' });
+    res.json({ 
+      error: 'error3',
+      token: token
+   });
   }
   else {
     res.json(chDetailsV2(token, chId));
@@ -67,7 +86,9 @@ app.get('/channel/details/v2', (req, res) => {
 });
 
 function chDetailsV2(token: string, chId: number) {
-  let userId: number = decodeToken(token);
+  let userId = decodeToken(token);
+  console.log(typeof token);
+  console.log(userId);
   return channelDetailsV1(userId, chId);
 }
 
