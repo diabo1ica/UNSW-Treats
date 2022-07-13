@@ -72,15 +72,10 @@ function authLoginV1(email: string, password: string) {
     throw new Error('email is invalid');
   }
   const data: dataStr = getData();
-  let token: string;
   for (const item of data.users) {
     if (email === item.email && password === item.password) {
-      token = generateToken();
-      data.users[data.users.indexOf(item)].tokenArray.push(token);
-      setData(data);
       return {
         authUserId: item.userId,
-        token: token
       };
     }
   }
@@ -102,24 +97,8 @@ function userTemplate() {
     password: '',
     userId: 0,
     globalPermsId: 2,
-    tokenArray: []
   };
   return user;
-}
-
-function generateToken(): string {
-  const token: number = Math.floor(Math.random() * 100000);
-  const tokenStr: string = token.toString();
-  const data: dataStr = getData();
-  for (const user of data.users) {
-    // Loop to find duplicate
-    for (const userToken of user.tokenArray) {
-      if (tokenStr === userToken) {
-        return generateToken(); // Recursion
-      }
-    }
-  }
-  return tokenStr;
 }
 
 export { authLoginV1, authRegisterV1 };
