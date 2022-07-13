@@ -23,14 +23,11 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   if (data.users.some(obj => obj.email === email)) return { error: 'error' };
 
   const user: user = userTemplate();
-  if (data.userIdCounter === 0) {
-    user.userId = 1;
-    data.userIdCounter++;
+  if (data.users.length === 0) {
     user.globalPermsId = 1;
-  } else {
-    user.userId = data.userIdCounter + 1;
-    data.userIdCounter++;
   }
+  data.userIdCounter++;
+  user.userId = data.userIdCounter;
   user.email = email;
   user.nameFirst = nameFirst;
   user.nameLast = nameLast;
