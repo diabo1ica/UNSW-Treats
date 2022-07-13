@@ -242,7 +242,6 @@ function channelsTemplate() {
     isPublic: true,
     members: [],
     messages: [],
-    messageIdCounter: 0
   };
   return channel;
 }
