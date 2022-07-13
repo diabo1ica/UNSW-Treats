@@ -3,9 +3,9 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 
-import { channelsCreateV1 } from './channels';
+import { channelsCreateV1, channelsListV1 } from './channels';
 import { authRegisterV1 } from './auth';
-import { channelDetailsV1 } from './channel';
+import { channelDetailsV1, channelInviteV1 } from './channel';
 import { getData, setData, user, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
@@ -62,53 +62,42 @@ app.post('/auth/logout/v1', (req, res) => {
 });
 
 app.post('/channels/create/v2', (req, res) => {
-  const { name, isPublic } = req.body;
-  const token = req.query.token as string;
-  const authUserId = decodeToken(token);
-  const channelId = channelsCreateV1(authUserId, name, isPublic);
-  res.json({
-    channelId: channelId,
-  }); 
+  try {
+    const { name, isPublic } = req.body;
+    const token: string = req.query.token as string;
+    const authUserId = decodeToken(token);
+    const channelId = channelsCreateV1(authUserId, name, isPublic);
+    res.json({
+      channelId: channelId,
+    }); 
+  } catch (err) {
+    res.json({ error:'error' });
+  }
 });
 
-
-app.get('/channel/details/v2', (req, res) => {
-  const token = req.query.token as string;
-  const chId = parseInt(req.query.channelId as string);
-  const data: dataStr = getData();
-  let userId = 0;
-  for (const user of data.users) {
-    if (user.some(obj => obj.tokenArray === token)) {
-      userId = user.userId;
-      break;
-    }
+app.get('channels/list/v2', (req, res) => {
+  try {
+    const token = req.query.token as string;
+    const authUserId = decodeToken(token);
+    res.json(channelsListV1(authUserId));
+  } catch (err) {
+    res.json({ error:'error' }); 
   }
-  res.json(channelDetailsV1(userId, chId));
 });
 
-app.get('/dm/list/v1', (req, res) => {
-  const token = req.query.token as string;
-  const data: dataStr = getData;
-  let uId:number;
-  for (const user of data.users) {
-    for (const i in user.tokenArray) {
-      if (token === user.tokenArray[parseInt(i)]) {
-        uId = user.userId;
-      }
-    }
+/*
+app.post('channel/invite/v2', (req,res) => {
+  try {
+    const { channelId, uId } = req.body;
+    const token = req.query.token as string;
+    const authUserId = decodeToken(token);
+    res.json(channelInviteV1(authUserId, channelId, uId));
+  } catch (err) {
+    res.json({ error:'error' }); 
   }
-  const dmArray = [];
-  for (const dm of data.dms) {
-    if (dm.some(obj => obj.userIds === uId)) {
-      const dmObj = {
-        dmId: dmId,
-        name: name
-      };
-      dmArray.push(dmObj);
-    }
-  }
-  res.json({ dms: dmArray });
 });
+*/
+
 
 app.delete('/dm/remove/v1', (req, res) => {
 
