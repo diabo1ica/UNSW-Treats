@@ -35,10 +35,6 @@ function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
     if (item.userId === authUserId) {
       channels.members.push({
         uId: authUserId,
-        email: item.email,
-        nameFirst: item.nameFirst,
-        nameLast: item.nameLast,
-        handleStr: item.handleStr,
         channelPermsId: 1,
       });
     }
@@ -120,7 +116,7 @@ function channelsTemplate() {
     name: ' ',
     isPublic: true,
     members: [],
-    messages: []
+    messages: [],
   };
 
   return channel;
@@ -131,7 +127,6 @@ Checks if the given userId is valid
 Arguments:
     UserId (integer)   - Identification number of the user to be
                          validated.
-
 Return Value:
     Returns {true} on userId was found in the dataStore's users array
     Returns {false} on userId was not found in the dataStore's users array
