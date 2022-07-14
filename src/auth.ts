@@ -55,7 +55,6 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   return {
     authUserId: user.userId
   };
-
 }
 /*
 Allows the user to login to their account and view their userId.
@@ -100,7 +99,6 @@ function generateUserId() {
   }
   return id;
 }
-
 
 // Creates an empty user template
 function userTemplate() {

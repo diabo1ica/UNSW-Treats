@@ -1,4 +1,4 @@
-import { getData, setData, dataStr, channel, member, user } from './dataStore';
+import { getData, setData, dataStr, channel } from './dataStore';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -59,7 +59,6 @@ function channelDetailsV1(authUserId: number, channelId: number) {
   };
 }
 
-
 /*
 The authorised user joins the channel using channelId given.
 
@@ -72,13 +71,9 @@ Return Value:
 */
 function channelJoinV1(authUserId: number, channelId: number) {
   const data: dataStr = getData();
-  let obj: user;
 
-  for (const new_member of data.users) {
-    if (new_member.userId === authUserId) {
-      obj = new_member;
-      break;
-    }
+  if (validateUserId(authUserId) === false) {
+    return { error: 'error' };
   }
 
   for (const channel of data.channels) {
@@ -125,7 +120,7 @@ function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const data: dataStr = getData();
   const channelObj = getChannel(channelId);
   if (getChannel(channelId) === false) {
-    return {error: 'error'};
+    return { error: 'error' };
   }
   if (!validateUserId(uId) || channelObj === false) {
     return { error: 'error' };
@@ -139,13 +134,11 @@ function channelInviteV1(authUserId: number, channelId: number, uId: number) {
         uId: uId,
         channelPermsId: 2,
       });
-    } 
+    }
   }
 
-  
-
   return {};
-}    
+}
 
 /*
 Displays the list of messages of a given channel, and indicates whether there
@@ -198,7 +191,6 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
   };
 }
 
-
 function getChannel(channelId: number) {
   const data: dataStr = getData();
   for (const item of data.channels) {
@@ -209,16 +201,14 @@ function getChannel(channelId: number) {
   return false;
 }
 
-function isMember(userId: number, channel_obj: channel) {
-  const data: dataStr = getData();
-  for (const item of channel_obj.members) {
+function isMember(userId: number, channelObj: channel) {
+  for (const item of channelObj.members) {
     if (userId === item.uId) {
       return true;
     }
   }
   return false;
 }
-
 
 function validateUserId(UserId: number) {
   const data: dataStr = getData();
@@ -230,6 +220,7 @@ function validateUserId(UserId: number) {
   return false;
 }
 
+/*
 function channelsTemplate() {
   const channel: channel = {
     channelId: 0,
@@ -239,10 +230,9 @@ function channelsTemplate() {
     messages: [],
   };
   return channel;
-}
+} */
 
 export function removeowner (authUserId: number, channelId: number, uId: number) {
-  const data: dataStr = getData();
   const channelObj = getChannel(channelId);
   if (!validateUserId(uId) || channelObj === false) {
     return { error: 'error' };
@@ -250,7 +240,7 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
     return { error: 'error' };
   }
 
-  let num: number = 0;
+  let num = 0;
   for (const member of channelObj.members) {
     if (member.channelPermsId === 1) {
       num++;
@@ -261,8 +251,7 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
     if (member.uId === uId) {
       if (member.channelPermsId === 2 || num === 1) {
         return { error: 'error' };
-      }
-      else {
+      } else {
         member.channelPermsId = 2;
       }
     }
@@ -272,4 +261,3 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
 }
 
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
-

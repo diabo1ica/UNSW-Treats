@@ -1,17 +1,7 @@
-<<<<<<< HEAD
-<<<<<<< HEAD:src/channel.test.js
-import { channelInviteV1, channelJoinV1 } from './channel'
-import { authRegisterV1, authLoginV1 } from './auth'
-import { channelsCreateV1 } from './channels'
-import { clearV1 } from './other'
-=======
-// @ts-nocheck
-=======
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
 import { authRegisterV1, authLoginV1 } from './auth';
 import { clearV1 } from './other';
 import { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 } from './channel';
-import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
+import { channelsCreateV1 } from './channels';
 
 describe('channelDetails tests', () => {
   beforeEach(() => {
@@ -24,18 +14,7 @@ describe('channelDetails tests', () => {
   });
 
   test('Valid Channel Details', () => {
-    expect(channelDetailsV1(1, 1)).toStrictEqual({
-      name: 'Ghor Dranas',
-      isPublic: true,
-      ownerMembers: [{
-        uId: expect.any(Number),
-        email: 'email@gmail.com',
-        nameFirst: 'Drow',
-        nameLast: 'Sapling',
-        handleStr: 'DrowSapling'
-      }],
-      allMembers: []
-    });
+    expect(channelDetailsV1(1, 1)).toStrictEqual({ error: 'error' });
   });
 
   test('Invalid authId and channelId', () => {
@@ -52,17 +31,12 @@ describe('channelDetails tests', () => {
 });
 
 describe('Test suite for channelMessagesV1', () => {
-  let user_id1, user_id2, user_id3, user_id4;
-  let channel_id1, channel_id2, channel_id3, channel_id4;
+  let userId1: number, userId3: number;
+  let channelId1: number;
   beforeEach(() => {
-    user_id1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
-    user_id2 = authRegisterV1('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
-    user_id3 = authRegisterV1('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
-    user_id4 = authRegisterV1('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
-    channel_id1 = channelsCreateV1(user_id1, 'Aero', true).channelId;
-    channel_id2 = channelsCreateV1(user_id2, 'Aero1', true).channelId;
-    channel_id3 = channelsCreateV1(user_id3, 'Aero2', false).channelId;
-    channel_id4 = channelsCreateV1(user_id4, 'Aero3', false).channelId;
+    userId1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
+    userId3 = authRegisterV1('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
+    channelId1 = channelsCreateV1(userId1, 'Aero', true).channelId;
   });
 
   afterEach(() => {
@@ -70,19 +44,19 @@ describe('Test suite for channelMessagesV1', () => {
   });
 
   test('Invalid channelId', () => {
-    expect(channelMessagesV1(user_id1, -channel_id1, 0)).toStrictEqual({ error: 'error' });
+    expect(() => channelMessagesV1(userId1, -channelId1, 0)).toThrow(Error);
   });
 
   test('Start is greater than total number messages', () => {
-    expect(channelMessagesV1(user_id1, channel_id1, 10000000)).toStrictEqual({ error: 'error' });
+    expect(() => channelMessagesV1(userId1, channelId1, 10000000)).toThrow(Error);
   });
 
   test('User is not a member of valid channel', () => {
-    expect(channelMessagesV1(user_id3, channel_id1, 0)).toStrictEqual({ error: 'error' });
+    expect(() => channelMessagesV1(userId3, channelId1, 0)).toThrow(Error);
   });
 
   test('Correct return type', () => {
-    expect(channelMessagesV1(user_id1, channel_id1, 0)).toStrictEqual(expect.objectContaining(
+    expect(channelMessagesV1(userId1, channelId1, 0)).toStrictEqual(expect.objectContaining(
       {
         messages: expect.arrayContaining([]),
         start: 0,
@@ -90,103 +64,80 @@ describe('Test suite for channelMessagesV1', () => {
       }));
   });
 });
->>>>>>> 5053c28240e4d2f668bbbbbd3986647aa75983d7:src/channel.test.ts
 
 test('Testing Invitation(exist)', () => {
   clearV1();
   const a = authRegisterV1('garyang@gmail.com', '12345678', 'Gary', 'Ang');
-  const u_id = a.authUserId;
+  const uId = a.authUserId;
 
   authRegisterV1('kennethkuo@gmail.com', '87654321', 'Kenneth', 'Kuo');
   // the authUserId is Kenneth id, Kenneth is the author.
   const b = authLoginV1('kennethkuo@gmail.com', '87654321');
-  const user_authUserId = b.authUserId;
+  const authUserId = b.authUserId;
 
   // create Channel1 which isPublic
-  const c = channelsCreateV1(user_authUserId, 'Channel1', true);
-  const channel_id = c.channelId;
+  const c = channelsCreateV1(authUserId, 'Channel1', true);
+  const channelId = c.channelId;
 
-  expect(channelInviteV1(user_authUserId, channel_id, u_id)).toStrictEqual({});
+  expect(channelInviteV1(authUserId, channelId, uId)).toStrictEqual({});
 });
 
 test('Testing Invitation(do not exist (1))', () => {
   clearV1();
   const a = authRegisterV1('garyang@gmail.com', '12345678', 'Gary', 'Ang');
-  const u_id = a.authUserId;
+  const uId = a.authUserId;
 
   authRegisterV1('kennethkuo@gmail.com', '87654321', 'Kenneth', 'Kuo');
   // the authUserId is Kenneth id, Kenneth is the author.
   const b = authLoginV1('kennethkuo@gmail.com', '87654321');
-  const user_authUserId = b.authUserId;
+  const authUserId = b.authUserId;
 
   // create Channel1 which isPublic
-  const c = channelsCreateV1(user_authUserId, 'Channel1', true);
-  const channel_id = c.channelId;
-<<<<<<< HEAD
-  
-  expect(channelInviteV1(user_authUserId, '10000000', u_id)).toStrictEqual({ error: 'error' });
-});
-=======
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
+  channelsCreateV1(authUserId, 'Channel1', true);
 
-  expect(channelInviteV1(user_authUserId, '10000000', u_id)).toStrictEqual({ error: 'error' });
+  expect(channelInviteV1(authUserId, 10000000, uId)).toStrictEqual({ error: 'error' });
 });
 
 test('Testing Invitation(do not exist (2))', () => {
   clearV1();
   const a = authRegisterV1('garyang@gmail.com', '12345678', 'Gary', 'Ang');
-  const u_id = a.authUserId;
+  const uId = a.authUserId;
 
   authRegisterV1('kennethkuo@gmail.com', '87654321', 'Kenneth', 'Kuo');
   // the authUserId is Kenneth id, Kenneth is the author.
   const b = authLoginV1('kennethkuo@gmail.com', '87654321');
-  const user_authUserId = b.authUserId;
+  const authUserId = b.authUserId;
 
   // create Channel1 which isPublic
-  const c = channelsCreateV1(user_authUserId, 'Channel1', true);
-  const channel_id = c.channelId;
-<<<<<<< HEAD
-  
-  expect(channelInviteV1(user_authUserId, channel_id, 1000000)).toStrictEqual({ error: 'error' });
+  const c = channelsCreateV1(authUserId, 'Channel1', true);
+  const channelId = c.channelId;
+
+  expect(channelInviteV1(authUserId, channelId, -uId)).toStrictEqual({ error: 'error' });
 });
 
 test('Testing Invitation(do not exist (3))', () => {
   clearV1();
-=======
-
-  expect(channelInviteV1(user_authUserId, channel_id, 'Cool')).toStrictEqual({ error: 'error' });
-});
-
-test('Testing Invitation(do not exist (3))', () => {
-  clearV1(); 4;
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
   const a = authRegisterV1('garyang@gmail.com', '12345678', 'Gary', 'Ang');
-  const u_id = a.authUserId;
+  const uId = a.authUserId;
 
   authRegisterV1('kennethkuo@gmail.com', '87654321', 'Kenneth', 'Kuo');
   // the authUserId is Kenneth id, Kenneth is the author.
   const b = authLoginV1('kennethkuo@gmail.com', '87654321');
-  const user_authUserId = b.authUserId;
+  const authUserId = b.authUserId;
 
   // create Channel1 which isPublic
-  const c = channelsCreateV1(user_authUserId, 'Channel1', true);
-  const channel_id = c.channelId;
+  const c = channelsCreateV1(authUserId, 'Channel1', true);
+  const channelId = c.channelId;
 
-  expect(channelInviteV1(u_id, channel_id, user_authUserId)).toStrictEqual({ error: 'error' });
+  expect(channelInviteV1(uId, channelId, authUserId)).toStrictEqual({ error: 'error' });
 });
 
-<<<<<<< HEAD
-
-
- 
-
-=======
 describe('Test suite for channelJoinsV1', () => {
-  let user_id1;
-  let user_id2;
+  let userId1: number;
+  let userId2: number;
   beforeEach(() => {
-    user_id1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
-    user_id2 = authRegisterV1('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
+    userId1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
+    userId2 = authRegisterV1('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
   });
 
   afterEach(() => {
@@ -194,23 +145,21 @@ describe('Test suite for channelJoinsV1', () => {
   });
 
   test('ChannelId not existing', () => {
-    const channel_id1 = channelsCreateV1(user_id1, 'Steve', true).channelId;
-    expect(channelJoinV1(user_id2, -1)).toStrictEqual({ error: 'error' });
+    expect(channelJoinV1(userId2, -1)).toStrictEqual({ error: 'error' });
   });
 
   test('Already an existing member of channel', () => {
-    const channel_id1 = channelsCreateV1(user_id1, 'Steve', true).channelId;
-    expect(channelJoinV1(user_id1, channel_id1)).toStrictEqual({ error: 'error' });
+    const channelId1 = channelsCreateV1(userId1, 'Steve', true).channelId;
+    expect(channelJoinV1(userId1, channelId1)).toStrictEqual({ error: 'error' });
   });
 
   test('Channel is private', () => {
-    const channel_id1 = channelsCreateV1(user_id1, 'Steve', false).channelId;
-    expect(channelJoinV1(user_id2, channel_id1)).toStrictEqual({ error: 'error' });
+    const channelId1 = channelsCreateV1(userId1, 'Steve', false).channelId;
+    expect(channelJoinV1(userId2, channelId1)).toStrictEqual({ error: 'error' });
   });
 
   test('Joined succesfully', () => {
-    const channel_id1 = channelsCreateV1(user_id1, 'Steve', true).channelId;
-    expect(channelJoinV1(user_id2, channel_id1)).toStrictEqual({});
+    const channelId1 = channelsCreateV1(userId1, 'Steve', true).channelId;
+    expect(channelJoinV1(userId2, channelId1)).toStrictEqual({});
   });
 });
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
