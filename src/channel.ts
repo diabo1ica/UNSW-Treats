@@ -1,4 +1,4 @@
-import { getData, setData, dataStr, channel } from './dataStore';
+import { getData, setData, dataStr, channel, message } from './dataStore';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -6,14 +6,13 @@ import { getData, setData, dataStr, channel } from './dataStore';
 //    channelId (number)    - Channel id of the channel that will be inspected
 // Return value:
 //    Returns {
-//      channelId: <number>,
 //      name: <string>,           on valid authUserId and channelId
 //      isPublic: <bool>,
-//      members: <array>
+//      ownerMembers: <array>,
+//      alMembers: <array>
 //    }
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
-
 function channelDetailsV1(authUserId: number, channelId: number) {
   const data: dataStr = getData();
   if (!data.channels.some(obj => obj.channelId === channelId)) {
@@ -115,7 +114,6 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is
                              not a member
 */
-
 function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const data: dataStr = getData();
   const channelObj = getChannel(channelId);
@@ -174,7 +172,7 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
     throw new Error('User is not a member of the channel');
   }
   let end: number;
-  const messagesArray = [];
+  const messagesArray: message[] = [];
   if (start + 50 > channelObj.messages.length) {
     end = -1;
   } else {
