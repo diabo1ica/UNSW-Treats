@@ -5,11 +5,11 @@ import config from './config.json';
 
 import { channelsCreateV1, channelsListV1 } from './channels';
 import { authRegisterV1, authLoginV1 } from './auth';
-import { channelDetailsV1, channelInviteV1 } from './channel';
-import { getData, setData, user, dataStr } from './dataStore';
+import { channelInviteV1, removeowner } from './channel';
+import { getData, setData, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
-import e from 'express';
+import { userProfileV1, userSetNameV1, userSetemailV1 } from './users';
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 
 // Set up web app, use JSON
@@ -20,9 +20,9 @@ app.use(express.json());
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
 
-function validToken(token: string){
-  let data: dataStr = getData();
-  for (const tokenObj of data.tokenArray){
+function validToken(token: string) {
+  const data: dataStr = getData();
+  for (const tokenObj of data.tokenArray) {
     if (token === tokenObj) return true;
   }
   return false;
@@ -37,7 +37,6 @@ app.get('/echo', (req, res, next) => {
     next(err);
   }
 });
-
 
 app.post('/auth/register/v2', (req, res) => {
   try {
@@ -77,42 +76,72 @@ app.post('/channels/create/v2', (req, res) => {
   const { token, name, isPublic } = req.body;
   if (!validToken(token)) {
     res.json({ error: 'error' });
-  }
-  else {
+  } else {
     const authUserId = decodeToken(token);
     res.json(channelsCreateV1(authUserId, name, isPublic));
   }
 });
 
 app.get('/channels/list/v2', (req, res) => {
-  let token: string = req.query.token as string;
+  const token = req.query.token as string;
   if (!validToken(token)) {
     res.json({ error: 'error' });
-  }
-  else {
+  } else {
     const authUserId = decodeToken(token);
     res.json(channelsListV1(authUserId));
   }
 });
 
-
-app.post('/channel/invite/v2', (req,res) => {
+app.post('/channel/invite/v2', (req, res) => {
   const { token, channelId, uId } = req.body;
   if (!validToken(token)) {
     res.json({ error: 'error' });
-  }
-  else {
+  } else {
     const authUserId = decodeToken(token);
-    res.json(channelInviteV1(authUserId, channelId, uId));  
+    res.json(channelInviteV1(authUserId, channelId, uId));
   }
 });
 
-
-
-app.delete('/dm/remove/v1', (req, res) => {
-
+app.get('/user/profile/v2', (req, res) => {
+  const token = req.query.token as string;
+  const uID: number = parseInt(req.query.uId as string);
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userProfileV1(authUserId, uID));
+  }
 });
 
+app.post('/channel/removeowner/v1', (req, res) => {
+  const { token, channelId, uId } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(removeowner(authUserId, channelId, uId));
+  }
+});
+
+app.put('/user/profile/setname/v1', (req, res) => {
+  const { token, nameFirst, nameLast } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userSetNameV1(authUserId, nameFirst, nameLast));
+  }
+});
+
+app.put('/user/profile/setemail/v1', (req, res) => {
+  const { token, email } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userSetemailV1(authUserId, email));
+  }
+});
 
 app.delete('clear/v1', (req, res) => {
   clearV1();
@@ -126,4 +155,3 @@ app.use(morgan('dev'));
 app.listen(PORT, HOST, () => {
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
 });
-
