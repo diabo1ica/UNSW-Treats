@@ -7,8 +7,8 @@ import { channelDetailsV1 } from './channel';
 import { channelsCreateV1 } from './channels';
 import { getData, setData, dataStr } from './dataStore';
 import { clearV1 } from './other';
-import { dmCreate } from './dm';
 import * as jose from 'jose';
+import { dmCreate, messageSendDm, dmDetails } from './dm';
 
 // Set up web app, use JSON
 const app = express();
@@ -18,6 +18,13 @@ const app = express();
 // decodeToken   - takes in a token string and reverts it to its original number
 const generateToken = (uId: number): string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
+function validToken(token: string) {
+  const data: dataStr = getData();
+  for (const tokenObj of data.tokenArray) {
+    if (token === tokenObj) return true;
+  }
+  return false;
+}
 
 app.use(express.json());
 
@@ -164,8 +171,30 @@ app.post('/auth/login/v2', (req, res) => {
 app.post('/dm/create/v1', (req, res) => {
   try {
     const { token, uIds } = req.body;
+    if (!validToken(token)) throw new Error('Invalid Token');
     const dmId = dmCreate(decodeToken(token), uIds).dmId;
     res.json({ dmId: dmId });
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.get('/dm/details/v1', (req, res) => {
+  try {
+    const token = req.query.token as string;
+    const dmId = JSON.parse(req.query.dmId as string);
+    if (!validToken(token)) throw new Error('Invalid Token');
+    res.json(dmDetails(decodeToken(token), dmId));
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.post('/message/senddm/v1', (req, res) => {
+  try {
+    const { token, dmId, message } = req.body;
+    if (!validToken(token)) throw new Error('Invalid Token');
+    res.json(messageSendDm(decodeToken(token), dmId, message));
   } catch (err) {
     res.json({ error: 'error' });
   }
