@@ -7,17 +7,17 @@ function channelAddownerV1(authUserId: number, channelId: number, uId: number) {
   
   // checking if uId or channelId is not valid
   if (!validateUserId(uId) || channelObj === false) {
-    return { error: 'error' };
+    return { error: 'error uid or channelid invalid' };
   } 
   // check if uId is a member of channel
   if (!isMember(uId, channelObj)) {
-    return { error: 'error' };
+    return { error: 'error not a member' };
   }
   // check if authuser is not owner of channel
   for(const item of channelObj.members) {
     if (item.uId === authUserId) {
       if (item.channelPermsId !== 1) {
-        return { error: 'error' };
+        return { error: 'error not a ownerr' };
       }
     }
   }
@@ -25,7 +25,7 @@ function channelAddownerV1(authUserId: number, channelId: number, uId: number) {
   for(const item1 of channelObj.members) {
     if (item1.uId === uId) {
       if (item1.channelPermsId === 1) {
-        return { error: 'error' };
+        return { error: 'error already owner' };
       }
     }
   }
@@ -50,15 +50,15 @@ function messageSendV1(authUserId: number, channelId: number, message: string) {
   const curr_time: number = parseInt(new Date().toISOString());
 
   if (message.length > 1000 || message.length < 1) {
-    return ({error: 'error'});
+    return ({error: 'error incorrect length'});
   }
   // check validity of channelId
   if (channelObj === false) {
-    return ({error: 'error'});
+    return ({error: 'error invalid channelid'});
   }
   // check if authuserId is member of channel
   if (isMember(authUserId, channelObj) === false) {
-    return ({error: 'error'});
+    return ({error: 'error not a member of channel'});
   }
   
   for (const channel of data.channels) {
@@ -70,30 +70,31 @@ function messageSendV1(authUserId: number, channelId: number, message: string) {
         message: message,
         timeSent: curr_time,
       })
+      setData(data);
+      return ({ messageId: data.messageIdCounter});
     }
   }
-  setData(data);
-  return ({ messageId: data.messageIdCounter});
+  return ({ error: 'error'});
 }
 
 function messageEditV1(authUserId: number, messageId: number, message?: string) {
   const data: dataStr = getData();
 
   if (message.length > 1000) {
-    return ({error: 'error'});
+    return ({error: 'error lenght too long'});
   }
   // check if messageId is in channel, if not check in dm
   for (const channel of data.channels) {
     if (channel.messages.some(obj => obj.messageId === messageId)) {
       // check if user is member in channel
       if (!isMember(authUserId, channel)) {
-        return ({error: 'error'});
+        return ({error: 'error not a member'});
       }
       if (isOwner(authUserId, channel)) {
         return editMessagechannel(authUserId, messageId, message);
       }
       if (!isSender(authUserId, messageId, channel)) {
-        return ({error: 'error'});
+        return ({error: 'errornot sender'});
       }
     }
   }
@@ -151,14 +152,14 @@ function channelJoinV1(authUserId: number, channelId: number) {
         channelPermsId: 2,
       });
       data.channels.push();
-      return {};
+      return ({});
       }
       if (channel.isPublic === false) {
-        return { error: 'error' };
+        return { error: 'error channel is private' };
       }
       for (const item of channel.members) {
         if (item.uId === authUserId) {
-          return { error: 'error' };
+          return { error: 'error already a member' };
         }
       }
       channel.members.push({
