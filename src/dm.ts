@@ -1,4 +1,4 @@
-import { getData, setData, dataStr, dm, dmMember } from './dataStore';
+import { getData, setData, dataStr, dm, dmMember, message } from './dataStore';
 
 function dmCreate(creatorId: number, uIds: number[]) {
   const data: dataStr = getData();
@@ -39,6 +39,25 @@ function dmCreate(creatorId: number, uIds: number[]) {
     dmId: newDm.dmId
   };
 }
+
+function messageSendDm(authUserId: number, dmId: number, message: string) {
+  const data = getData();
+  const dmObj = getDm(dmId);
+  if (dmObj === false || message.length < 1 || message.length > 1000 || !isDmMember(authUserId, dmObj)) throw new Error('error');
+  const newMessage = messageTemplate();
+  newMessage.messageId = generateMessageId();
+  newMessage.uId = authUserId;
+  newMessage.message = message;
+  newMessage.timeSent = Math.floor((new Date()).getTime() / 1000 );
+  data.dms[data.dms.findIndex((dm) => dm.dmId === dmId)].messages.unshift(newMessage);
+  setData(data);
+  return {
+    messageId: newMessage.messageId
+  };
+}
+
+
+
 const dmTemplate = (): dm => {
   return {
     members: [],
@@ -46,6 +65,15 @@ const dmTemplate = (): dm => {
     dmId: 0,
     creatorId: 0,
     name: '',
+  };
+};
+
+const messageTemplate = (): message => {
+  return {
+    messageId: 0,
+    uId: 0,
+    message: '',
+    timeSent: 0,
   };
 };
 
@@ -70,6 +98,31 @@ const isDuplicateUserId = (userIds: number[]) => {
   }
   return false;
 };
+
+function getDm(dmId: number) {
+  const data: dataStr = getData();
+  for (const item of data.dms) {
+    if (item.dmId === dmId) return item;
+  }
+  return false;
+}
+
+function isDmMember(uId: number, dmObj: dm) {
+  if (dmObj.members.some((member) => member.uId === uId)) {
+    return true;
+  }
+  return false;
+}
+
+function generateMessageId() {
+  let messageId: number;
+  const data = getData();
+  if (data.messageIdCounter === 0) messageId = 1 
+  else messageId = data.messageIdCounter + 1;
+  data.messageIdCounter++;
+  setData(data);
+  return messageId;
+}
 
 function generatedmId() {
   const data = getData();
