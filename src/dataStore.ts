@@ -1,14 +1,6 @@
+import fs from 'fs';
+// YOU SHOULD MODIFY THIS OBJECT BELOW
 interface user {
-<<<<<<< HEAD
-    nameFirst: string,
-    nameLast: string,
-    handleStr: string,
-    email: string,
-    password: string,
-    userId: number,
-    globalPermsId: number,
-    tokenArray: string[]
-=======
   nameFirst: string,
   nameLast: string,
   handleStr: string,
@@ -16,8 +8,6 @@ interface user {
   password: string,
   userId: number,
   globalPermsId: number,
-  tokenArray: string[]
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
 }
 
 interface member {
@@ -40,47 +30,39 @@ interface channel {
   messages: message[],
 }
 
-interface dm {
-  userIds: number[],
-  messages: message[],
-  dmId: number,
-  ownerId: number,
-  name: string
-}
-
-interface message {
-  messageId: number,
+interface dmMember {
   uId: number,
-  message: string,
-  timeSent: number,
+  dmPermsId: number,
 }
 
 interface dm {
-  userIds: number[],
+  members: dmMember[],
   messages: message[],
   dmId: number,
-  ownerId: number,
-  name: string,
+  creatorId: number,
+  name: string
 }
 
 interface dataStr {
   users: user[],
   channels: channel[],
-  dms: dm[]
+  dms: dm[],
+  tokenArray: string[],
+  userIdCounter: number,
+  channelIdCounter: number,
+  dmIdCounter: number,
+  messageIdCounter: number,
 }
 
 let data: dataStr = {
   users: [],
   channels: [],
-  dms: []
-};
-
-let data: dataStr = {
-  users: [],
-  channels: [],
   dms: [],
-  userIdCounter = 0,
-  channelIdCounter = 0,
+  tokenArray: [],
+  userIdCounter: 0,
+  channelIdCounter: 0,
+  dmIdCounter: 0,
+  messageIdCounter: 0,
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1
@@ -100,12 +82,20 @@ Example usage
 */
 
 // Use get() to access the data
-function getData() {
+function getData(load = false, name = './data.json') {
+  if (load === true && fs.existsSync(name)) {
+    const loadedData = JSON.parse(fs.readFileSync(name, { encoding: 'utf8' }));
+    data.users = loadedData.users;
+    data.channels = loadedData.channels;
+    data.dms = loadedData.dms;
+    console.log('\'data.json\' successfully loaded');
+  }
   return data;
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData: dataStr) {
+function setData(newData: dataStr, name = './data.json') {
+  fs.writeFileSync(name, JSON.stringify(newData, null, 4));
   data = newData;
 }
 

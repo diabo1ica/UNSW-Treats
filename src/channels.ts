@@ -146,4 +146,3 @@ function validateUserId(UserId: number) {
   }
   return false;
 }
-
