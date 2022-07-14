@@ -57,7 +57,6 @@ describe('Test suite for /dm/create/v1', () => {
   });
 });
 
-
 const requestClear = () => {
   const res = request(
     'DELETE',
