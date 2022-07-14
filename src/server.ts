@@ -164,6 +164,15 @@ app.listen(PORT, HOST, () => {
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
 });
 
+/*
+Checks if the token received is a valid token or not by
+performing a loop on the tokenArray stored in the dataStore
+Arguements :
+    - token (string)      - The token that will be checked
+Return values :
+    - Returns true if the token is found on the array
+    - Returns false if the token is not found on the array
+*/
 function validToken(token: string) {
   const data: dataStr = getData();
   for (const tokenObj of data.tokenArray) {
@@ -172,6 +181,14 @@ function validToken(token: string) {
   return false;
 }
 
+/*
+Wrapper function for the /auth/register/v2 implementation
+Takes in an id, creates a token out of the id and save to to the dataStore
+Arguements :
+    - id (number)       - The id of the user
+Return values :
+    - Returns an object containing the user's id and token
+*/
 function registerAuthV2(id: number) {
   const data: dataStr = getData();
   const token: string = generateToken(id);
@@ -183,11 +200,28 @@ function registerAuthV2(id: number) {
   };
 }
 
+/*
+Wrapper function for the /channel/details/v2 implementation
+Calls and returns channelDetailsV1 from './channel'
+Arguements :
+    - token (string)      - The token of the user that is trying to access the channel details
+    - chId (number)       - The channel id of the channel to be inspected
+Return values :
+    - Returns the values that will be returned by channelDetailsV1
+*/
 function chDetailsV2(token: string, chId: number) {
   const userId = decodeToken(token);
   return channelDetailsV1(userId, chId);
 }
 
+/*
+Wrappper function for the /dm/list/v1 implementation
+Takes in a token, decodes it to a uid then lists all dms with that uid
+Argurments :
+    - token (string)      - The token of the user that is trying to access the list
+Return values :
+    - Returns an array of objects where each object contains dmId and the name of the dm
+*/
 function dmList(token: string) {
   const data: dataStr = getData();
   const uId: number = decodeToken(token);
@@ -204,6 +238,14 @@ function dmList(token: string) {
   return { dms: dmArray };
 }
 
+/*
+Wrapper function for the /dm/remove/v1 implementation
+Arguements :
+    - token (string)      - A token of the user doing the removal
+    - dmId (number)       - The id of the dm that will be removed
+Return values :
+    - Returns {} once removal is done
+*/
 function dmRemove(token: string, dmId: number) {
   const data: dataStr = getData();
   for (let i = 0; i < data.dms.length; i++) {
