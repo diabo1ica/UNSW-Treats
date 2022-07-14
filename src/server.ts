@@ -2,12 +2,14 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { authRegisterV1, authLoginV1 } from './auth';
-import { channelDetailsV1 } from './channel';
-import { channelsCreateV1 } from './channels';
+import { channelsCreateV1, channelsListV1 } from './channels';
+import { channelInviteV1, removeowner } from './channel';
 import { getData, setData, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
+import { userProfileV1, userSetNameV1, userSetemailV1 } from './users';
+import { authRegisterV1, authLoginV1 } from './auth';
+import { channelDetailsV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails } from './dm';
 
 // Set up web app, use JSON
@@ -18,7 +20,6 @@ const app = express();
 // decodeToken   - takes in a token string and reverts it to its original number
 const generateToken = (uId: number): string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
-
 app.use(express.json());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
@@ -44,6 +45,26 @@ app.post('/auth/register/v2', (req, res) => {
   }
 });
 
+app.post('/channels/create/v2', (req, res) => {
+  const { token, name, isPublic } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(channelsCreateV1(authUserId, name, isPublic));
+  }
+});
+
+app.get('/channels/list/v2', (req, res) => {
+  const token = req.query.token as string;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(channelsListV1(authUserId));
+  }
+});
+
 app.post('/auth/logout/v1', (req, res) => {
   const { token } = req.body;
   if (!validToken(token)) {
@@ -59,19 +80,6 @@ app.post('/auth/logout/v1', (req, res) => {
   res.json({});
 });
 
-app.post('/channels/create/v2', (req, res) => {
-  const { token, name, isPublic } = req.body;
-  if (!validToken(token)) {
-    res.json({ error: 'error' });
-  } else {
-    const authUserId = decodeToken(token);
-    const channelId = channelsCreateV1(authUserId, name, isPublic);
-    res.json({
-      channelId: channelId.channelId,
-    });
-  }
-});
-
 app.get('/channel/details/v2', (req, res) => {
   const token: string = req.query.token as string;
   const chId: number = parseInt(req.query.channelId as string);
@@ -79,6 +87,57 @@ app.get('/channel/details/v2', (req, res) => {
     res.json({ error: 'error' });
   } else {
     res.json(chDetailsV2(token, chId));
+  }
+});
+
+app.post('/channel/invite/v2', (req, res) => {
+  const { token, channelId, uId } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(channelInviteV1(authUserId, channelId, uId));
+  }
+});
+
+app.get('/user/profile/v2', (req, res) => {
+  const token = req.query.token as string;
+  const uID: number = parseInt(req.query.uId as string);
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userProfileV1(authUserId, uID));
+  }
+});
+
+app.post('/channel/removeowner/v1', (req, res) => {
+  const { token, channelId, uId } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(removeowner(authUserId, channelId, uId));
+  }
+});
+
+app.put('/user/profile/setname/v1', (req, res) => {
+  const { token, nameFirst, nameLast } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userSetNameV1(authUserId, nameFirst, nameLast));
+  }
+});
+
+app.put('/user/profile/setemail/v1', (req, res) => {
+  const { token, email } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userSetemailV1(authUserId, email));
   }
 });
 

@@ -116,45 +116,28 @@ Return Value:
 */
 function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const data: dataStr = getData();
-  for (const item of data.channels) {
-    if (channelId !== item.channelId) {
-      return { error: 'error' };
-    }
-    for (const member of item.members) {
-      if (uId === member.uId) {
-        return { error: 'error' };
-      }
-      if (channelId === item.channelId && authUserId !== member.uId) {
-        return { error: 'error' };
-      }
-    }
+  const channelObj = getChannel(channelId);
+  if (getChannel(channelId) === false) {
+    return { error: 'error' };
   }
-
-  if (validateUserId(uId) === false) {
+  if (!validateUserId(uId) || channelObj === false) {
+    return { error: 'error' };
+  } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
     return { error: 'error' };
   }
 
-  const channeltemp: channel = channelsTemplate();
-  for (const channel of data.channels) {
-    if (channelId === channel.channelId) {
-      channeltemp.name = channel.name;
-      channeltemp.isPublic = channel.isPublic;
-      for (const item of data.users) {
-        if (item.userId === uId) {
-          channeltemp.members.push({
-            uId: uId,
-            channelPermsId: 2,
-          });
-        }
-      }
+  for (const item of data.users) {
+    if (item.userId === uId) {
+      channelObj.members.push({
+        uId: uId,
+        channelPermsId: 2,
+      });
     }
   }
 
-  data.channels.push(channeltemp);
-  setData(data);
-
   return {};
 }
+
 /*
 Displays the list of messages of a given channel, and indicates whether there
 are more messages to load or if it has loaded all least recent messages.
@@ -235,6 +218,7 @@ function validateUserId(UserId: number) {
   return false;
 }
 
+/*
 function channelsTemplate() {
   const channel: channel = {
     channelId: 0,
@@ -244,6 +228,34 @@ function channelsTemplate() {
     messages: [],
   };
   return channel;
+} */
+
+export function removeowner (authUserId: number, channelId: number, uId: number) {
+  const channelObj = getChannel(channelId);
+  if (!validateUserId(uId) || channelObj === false) {
+    return { error: 'error' };
+  } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
+    return { error: 'error' };
+  }
+
+  let num = 0;
+  for (const member of channelObj.members) {
+    if (member.channelPermsId === 1) {
+      num++;
+    }
+  }
+
+  for (const member of channelObj.members) {
+    if (member.uId === uId) {
+      if (member.channelPermsId === 2 || num === 1) {
+        return { error: 'error' };
+      } else {
+        member.channelPermsId = 2;
+      }
+    }
+  }
+
+  return {};
 }
 
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
