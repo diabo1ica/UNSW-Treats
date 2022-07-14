@@ -15,7 +15,7 @@ Return Value:
 
 export function userProfileV1(authUserId: number, uId: number) {
   const data: dataStr = getData();
-  
+
   for (const item of data.users) {
     if (item.userId === uId) {
       return {
@@ -30,7 +30,6 @@ export function userProfileV1(authUserId: number, uId: number) {
     }
   }
 
-
   return { error: 'error' };
 }
 
@@ -42,10 +41,10 @@ function validName(name: string) {
 export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: string) {
   const data: dataStr = getData();
   if (!validName(nameFirst) || !validName(nameLast)) {
-    return {error: 'error'};
+    return { error: 'error' };
   }
- 
-  for (let item of data.users) {
+
+  for (const item of data.users) {
     if (item.userId === authUserId) {
       item.nameFirst = nameFirst;
       item.nameLast = nameLast;
@@ -58,10 +57,10 @@ export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: s
 export function userSetemailV1(authUserId: number, email: string) {
   const data: dataStr = getData();
   if (!validator.isEmail(email)) {
-    return {error: 'error'};
+    return { error: 'error' };
   }
-  
-  for (let item of data.users) {
+
+  for (const item of data.users) {
     if (item.userId === authUserId) {
       item.email = email;
     }
@@ -69,4 +68,3 @@ export function userSetemailV1(authUserId: number, email: string) {
   setData(data);
   return {};
 }
-
