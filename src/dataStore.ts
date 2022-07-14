@@ -99,4 +99,4 @@ function setData(newData: dataStr, name = './data.json') {
   data = newData;
 }
 
-export { getData, setData, user, member, channel, dataStr, dm, message };
+export { getData, setData, user, member, channel, dataStr, dm, message, dmMember };
