@@ -1,4 +1,4 @@
-import { getData, dataStr } from './dataStore';
+import { getData, dataStr, user, setData } from './dataStore';
 
 /*
 Provide userId, email, first name, last name and handle for a valid user.
@@ -32,4 +32,44 @@ function userProfileV1(authUserId: number, uId: number) {
   return { error: 'error' };
 }
 
-export { userProfileV1 };
+function userProfileSethandleV1(authUserId:number, handleStr: string) {
+  const data: dataStr = getData();
+
+  if (handleStr.length > 20 || handleStr.length < 3) {
+    return {error: 'error'};
+  };
+
+  for (const item of data.users) {
+    if (item.handleStr === handleStr) {
+      return {error: 'error'};
+    };
+  };
+
+  if (!isAlphaNumeric(handleStr)) {
+    return {error: 'error'};
+  }
+  
+  for (const user of data.users) {
+    if (user.userId === authUserId) {
+      user.handleStr = handleStr;
+    };
+  };
+
+  setData(data);
+}
+
+function usersAllV1(authUserId: number) {
+  const data: dataStr = getData();
+  let userarray: user[];
+
+  for (const item of data.users) {
+    userarray.push(item);
+  }
+
+  return ({users: userarray});
+}
+
+const isAlphaNumeric = str => /^[A-Za-z0-9]+$/gi.test(str);
+
+
+export { userProfileV1, usersAllV1, userProfileSethandleV1 };

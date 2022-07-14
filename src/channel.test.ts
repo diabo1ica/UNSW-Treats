@@ -161,6 +161,11 @@ describe('Test suite for channelJoinsV1', () => {
     clearV1();
   });
 
+  test('global owner joining channel', () => {
+    const channel_id1 = channelsCreateV1(user_id2, 'Gary', false).channelId;
+    expect(channelJoinV1(user_id1, channel_id1)).toStrictEqual({});
+  });
+  
   test('ChannelId not existing', () => {
     const channel_id1 = channelsCreateV1(user_id1, 'Steve', true).channelId;
     expect(channelJoinV1(user_id2, -1)).toStrictEqual({ error: 'error' });

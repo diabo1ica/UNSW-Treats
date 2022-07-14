@@ -1,61 +1,125 @@
-import { getData, setData, dataStr, channel, member, user } from './dataStore';
+import { getData, setData, dataStr, channel, member, user, message, dm } from './dataStore';
 
-// Display channel details of channel with channelId
-// Arguements:
-//    authUserId (number)   - User id of user trying to access channel details
-//    channelId (number)    - Channel id of the channel that will be inspected
-// Return value:
-//    Returns {
-//      channelId: <number>,
-//      name: <string>,           on valid authUserId and channelId
-//      isPublic: <bool>,
-//      members: <array>
-//    }
-//    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
-//    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
-function channelDetailsV1(authUserId, channelId) {
+
+function channelAddownerV1(authUserId: number, channelId: number, uId: number) {
   const data: dataStr = getData();
-  if (!data.channels.some(obj => obj.channelId === channelId)) {
+  const channelObj = getChannel(channelId);
+  
+  // checking if uId or channelId is not valid
+  if (!validateUserId(uId) || channelObj === false) {
+    return { error: 'error' };
+  } 
+  // check if uId is a member of channel
+  if (!isMember(uId, channelObj)) {
     return { error: 'error' };
   }
-  let object: channel;
-  for (const channel of data.channels) {
-    if (channel.channelId === channelId) {
-      object = channel;
-      break;
+  // check if authuser is not owner of channel
+  for(const item of channelObj.members) {
+    if (item.uId === authUserId) {
+      if (item.channelPermsId !== 1) {
+        return { error: 'error' };
+      }
     }
   }
-  if (!object.members.some(obj => obj.uId === authUserId)) {
-    return { error: 'error' };
+  // check if uId is already of owner of channel
+  for(const item1 of channelObj.members) {
+    if (item1.uId === uId) {
+      if (item1.channelPermsId === 1) {
+        return { error: 'error' };
+      }
+    }
   }
-  // Filter owmer members in members array
-  const owner = [];
-  const members = [];
-  for (const memberObj of object.members) {
-    for (const user of data.users) {
-      if (user.userId === memberObj.uId) {
-        const member = {
-          uId: user.userId,
-          email: user.email,
-          nameFirst: user.nameFirst,
-          nameLast: user.nameLast,
-          handleStr: user.handleStr
-        };
-        if (memberObj.channelPermsId === 1) {
-          owner.push(member);
-        } else {
-          members.push(member);
+
+  // add owner
+  for(const channel of data.channels) {
+    for (const item2 of channel.members) {
+      if (item2.uId === uId) {
+        item2.channelPermsId = 1;
+      }
+    }
+  }
+
+  setData(data);
+  return ({error: 'error'});
+
+};
+
+function messageSendV1(authUserId: number, channelId: number, message: string) {
+  const data: dataStr = getData();
+  const channelObj = getChannel(channelId);
+  const curr_time: number = parseInt(new Date().toISOString());
+
+  if (message.length > 1000 || message.length < 1) {
+    return ({error: 'error'});
+  }
+  // check validity of channelId
+  if (channelObj === false) {
+    return ({error: 'error'});
+  }
+  // check if authuserId is member of channel
+  if (isMember(authUserId, channelObj) === false) {
+    return ({error: 'error'});
+  }
+  
+  for (const channel of data.channels) {
+    if (channel.channelId === channelId) {
+      data.messageIdCounter += 1;
+      channel.messages.push({
+        messageId: data.messageIdCounter,
+        uId: authUserId,
+        message: message,
+        timeSent: curr_time,
+      })
+    }
+  }
+  setData(data);
+  return ({ messageId: data.messageIdCounter});
+}
+
+function messageEditV1(authUserId: number, messageId: number, message?: string) {
+  const data: dataStr = getData();
+
+  if (message.length > 1000) {
+    return ({error: 'error'});
+  }
+  // check if messageId is in channel, if not check in dm
+  for (const channel of data.channels) {
+    if (channel.messages.some(obj => obj.messageId === messageId)) {
+      // check if user is member in channel
+      if (!isMember(authUserId, channel)) {
+        return ({error: 'error'});
+      }
+      if (isOwner(authUserId, channel)) {
+        return editMessagechannel(authUserId, messageId, message);
+      }
+      if (!isSender(authUserId, messageId, channel)) {
+        return ({error: 'error'});
+      }
+    }
+  }
+  for (const dm of data.dms) {
+    if (dm.messages.some(obj => obj.messageId === messageId)) {
+      for (const item of dm.members) {
+        if (item.uId === authUserId && item.dmPermsId === 1) {
+          return editMessagechannel(authUserId, messageId, message);
+        }
+      }
+      // check if user is in channel
+      for (const item1 of dm.members) {
+        if (item1.uId !== authUserId) {
+          return ({error: 'error'});
+        }
+      }
+      // check if is original sender
+      for (const item2 of dm.messages) {
+        if (item2.messageId === messageId && item2.uId !== authUserId) {
+          return ({error: 'error'});
         }
       }
     }
   }
-  setData(data);
-  return {
-    name: object.name,
-    isPublic: object.isPublic,
-    ownerMembers: owner,
-    allMembers: members
-  };
+
+  
 }
 
 /*
@@ -68,7 +132,7 @@ Arguments:
 Return Value:
     Returns {} on joining channel
 */
-function channelJoinV1(authUserId, channelId) {
+function channelJoinV1(authUserId: number, channelId: number) {
   const data: dataStr = getData();
   let obj: user;
 
@@ -81,6 +145,14 @@ function channelJoinV1(authUserId, channelId) {
 
   for (const channel of data.channels) {
     if (channel.channelId === channelId) {
+      if (obj.globalPermsId === 1) {
+        channel.members.push({
+        uId: authUserId,
+        channelPermsId: 2,
+      });
+      data.channels.push();
+      return {};
+      }
       if (channel.isPublic === false) {
         return { error: 'error' };
       }
@@ -91,10 +163,6 @@ function channelJoinV1(authUserId, channelId) {
       }
       channel.members.push({
         uId: authUserId,
-        email: obj.email,
-        nameFirst: obj.nameFirst,
-        nameLast: obj.nameLast,
-        handleStr: obj.handleStr,
         channelPermsId: 2,
       });
       data.channels.push();
@@ -104,126 +172,8 @@ function channelJoinV1(authUserId, channelId) {
   return { error: 'error' };
 }
 
-/*
-Invite other uId to join channel with specified channelId
 
-Arguments:
-    authUserId (integer)  - author user id, the user that create the channel
-                            and a member of channel.
-    channelId (integer)   - the channelId of the channel where other user will
-                            be invited to join.
-    uId (integer)         - the user id of user that will be invited.
-
-Return Value:
-    Returns {} on valid uId, authUserId and channelId
-    Returns {error: 'error'} on channelId is invalid
-    Returns {error: 'error'} on uId is invalid
-    Returns {error: 'error'} on uId is already a member
-    Returns {error: 'error'} on channelId is valid but authUserId is
-                             not a member
-*/
-function channelInviteV1(authUserId, channelId, uId) {
-  const data: dataStr = getData();
-  for (const item of data.channels) {
-    if (channelId !== item.channelId) {
-      return { error: 'error' };
-    }
-    for (const member of item.members) {
-      if (uId === member.uId) {
-        return { error: 'error' };
-      }
-      if (channelId === item.channelId && authUserId !== member.uId) {
-        return { error: 'error' };
-      }
-    }
-  }
-
-  if (validateUserId(uId) == false) {
-    return { error: 'error' };
-  }
-
-  const channeltemp: channel = channelsTemplate();
-  for (const channel of data.channels) {
-    if (channelId === channel.channelId) {
-      channeltemp.name = channel.name;
-      channeltemp.isPublic = channel.isPublic;
-      for (const item of data.users) {
-        if (item.userId === uId) {
-          channeltemp.members.push({
-            uId: uId,
-            email: item.email,
-            nameFirst: item.nameFirst,
-            nameLast: item.nameLast,
-            handleStr: item.handleStr,
-            channelPermsId: 2,
-          });
-        }
-      }
-    }
-  }
-
-  data.channels.push(channeltemp);
-  setData(data);
-
-  return {};
-}
-/*
-Displays the list of messages of a given channel, and indicates whether there
-are more messages to load or if it has loaded all least recent messages.
-
-Arguments:
-    authUserId (integer)   - Identification number of the user calling the
-                             function.
-    channelId (integer)    - Identification number of the channel whose messages
-                             are to be viewed.
-    start (integer)        - The starting index of which the user wants to start
-                             looking at the messages from.
-
-Return Value:
-    Returns {messages, start, end} on correct input
-    Returns {error: 'error'} on authUserId is invalid
-    Returns {error: 'error'} on start is greater than the total amount of
-    messages
-    Returns {error: 'error'} on channelId is invalid
-    Returns {error: 'error'} on channelId is valid but authUserId is not a
-    member of the channel
-*/
-function channelMessagesV1(authUserId, channelId, start) {
-  const data: dataStr = getData();
-
-  const channel_obj = getChannel(channelId);
-  if (channel_obj === false) {
-    return {
-      error: 'error',
-    };
-  } else if (start > channel_obj.messages.length) {
-    return {
-      error: 'error'
-    };
-  } else if (isMember(authUserId, channel_obj) === false) {
-    return {
-      error: 'error'
-    };
-  }
-  let end: number;
-  const messagesArray: string[] = [];
-  if (start + 50 > channel_obj.messages.length) {
-    end = -1;
-  } else {
-    end = start + 50;
-  }
-  for (const item of channel_obj.messages.slice(start, start + 50)) {
-    messagesArray.push(item);
-  }
-
-  return {
-    messages: messagesArray,
-    start: start,
-    end: end,
-  };
-}
-
-function getChannel(channelId) {
+function getChannel(channelId: number) {
   const data: dataStr = getData();
   for (const item of data.channels) {
     if (item.channelId === channelId) {
@@ -233,7 +183,7 @@ function getChannel(channelId) {
   return false;
 }
 
-function isMember(userId, channel_obj) {
+function isMember(userId: number, channel_obj: channel) {
   const data: dataStr = getData();
   for (const item of channel_obj.members) {
     if (userId === item.uId) {
@@ -243,11 +193,96 @@ function isMember(userId, channel_obj) {
   return false;
 }
 
-function validateUserId(UserId) {
+function isOwner(userId: number, channel_obj: channel) {
+  //if (dm_obj === undefined) {
+    for (const item of channel_obj.members) {
+      if (item.uId === userId && item.channelPermsId === 1) {
+        return true;
+      }
+    }
+ // }
+  //if (channel_obj === undefined) {
+   // for (const item of dm_obj.members) {
+     // if (item.uId === userId && item.dmPermsId === 1) {
+      //  return true;
+    //  }
+   // }
+  //}
+  return false;
+}
+
+function editMessagechannel(authUserId: number, messageId, message?: string) {
+  const data: dataStr = getData();
+  let index: number = 0;
+
+  for (const channel of data.channels) {
+    if (channel.messages.some(obj => obj.messageId === messageId)) {
+      // delete message
+      if (message === undefined || message === '') {
+        for (const item of channel.messages) {
+          if (item.messageId === messageId) {
+            channel.messages.splice(index, 1);
+          }
+          index++;
+        }
+      }
+      else {
+        for (const item of channel.messages) {
+          if (item.messageId === messageId) {
+            item.message = message;
+          }
+        }
+      }
+    }
+  }
+  setData(data);
+  return ({});
+}
+
+function editMessagedm(authUserId: number, messageId, message?: string) {
+  const data: dataStr = getData();
+  let index: number = 0;
+
+  for (const dm of data.dms) {
+    if (dm.messages.some(obj => obj.messageId === messageId)) {
+      // delete message
+      if (message === undefined || message === '') {
+        for (const item of dm.messages) {
+          if (item.messageId === messageId) {
+            dm.messages.splice(index, 1);
+          }
+          index++;
+        }
+      }
+      else {
+        for (const item of dm.messages) {
+          if (item.messageId === messageId) {
+            item.message = message;
+          }
+        }
+      }
+    }
+  }
+  setData(data);
+  return ({});
+}
+
+function validateUserId(UserId: number) {
   const data: dataStr = getData();
   for (const item of data.users) {
     if (item.userId === UserId) {
       return true;
+    }
+  }
+  return false;
+}
+
+function isSender(userId: number, messageId: number, channel_obj: channel,) {
+  for (const item of channel_obj.messages) {
+    if (item.messageId === messageId) {
+      if (item.uId === userId) {
+        return true;
+      }
     }
   }
   return false;
@@ -264,5 +299,5 @@ function channelsTemplate() {
   return channel;
 }
 
-export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
+export { channelJoinV1, channelAddownerV1, messageEditV1, messageSendV1 };
 
