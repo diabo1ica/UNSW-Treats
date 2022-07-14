@@ -380,6 +380,103 @@ describe('Test suite for /dm/details/v1', () => {
   });
 });
 
+describe('Test suite for /dm/messages/v1', () => {
+  let userId2: number, userId3: number, userId4: number;
+  let dmId1: number;
+  let token1: string, token2: string, token3: string, token4:string;
+
+  beforeEach(() => {
+    requestClear();
+    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+    userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
+    userId3 = requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
+    userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
+    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
+    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
+    token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
+    token4 = requestLogin('z4234824@unsw.edu.au', 'aero654').token;
+    dmId1 = requestDmCreate(token1, [userId2, userId4, userId3]).dmId;
+  });
+
+  test('Invalid token', () => {
+    expect(requestDmMessages('-' + token1, dmId1, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Invalid dmId', () => {
+    expect(requestDmMessages(token1, -dmId1, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('start is greater than total messages', () => {
+    sendMessages(token2, dmId1, 30, 10);
+    expect(requestDmMessages(token1, dmId1, 31)).toStrictEqual({ error: 'error' });
+  });
+
+  test('dmId is valid but authorised user is not a member', () => {
+    const dmId2 = requestDmCreate(token1, [userId2, userId4]).dmId;
+    sendMessages(token1, dmId2, 60, 5);
+    expect(requestDmMessages(token3, dmId2, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Correct Output (start = 0)(59 messages sent)', () => {
+    sendMessages(token1, dmId1, 15, 5);
+    sendMessages(token2, dmId1, 15, 10);
+    sendMessages(token3, dmId1, 10, 5);
+    sendMessages(token4, dmId1, 19, 8);
+    const res = requestDmMessages(token2, dmId1, 0)
+    expect(res).toStrictEqual(expect.objectContaining(
+      {
+        messages: expect.arrayContaining([expect.objectContaining(
+          {
+            messageId: expect.any(Number),
+            uId: expect.any(Number),
+            message: expect.any(String),
+            timeSent: expect.any(Number)
+          }
+        )]),
+        start: 0,
+        end: 50,
+      }
+    ));
+    for (let i = 0; i < res.messages.length - 2; i++) {
+      expect(res.messages[i].timeSent).toBeGreaterThanOrEqual(res.messages[i].timeSent);
+    }
+  });
+
+  test('Correct Output (start = 45)(59 messages sent)', () => {
+    sendMessages(token1, dmId1, 15, 5);
+    sendMessages(token2, dmId1, 15, 10);
+    sendMessages(token3, dmId1, 10, 5);
+    sendMessages(token4, dmId1, 19, 8);
+    const res = requestDmMessages(token2, dmId1, 45);
+    expect(res).toStrictEqual(expect.objectContaining(
+      {
+        messages: expect.arrayContaining([expect.objectContaining(
+          {
+            messageId: expect.any(Number),
+            uId: expect.any(Number),
+            message: expect.any(String),
+            timeSent: expect.any(Number)
+          }
+        )]),
+        start: 45,
+        end: -1
+      }
+    ));
+    for (let i = 0; i < res.messages.length - 2; i++) {
+      expect(res.messages[i].timeSent).toBeGreaterThanOrEqual(res.messages[i].timeSent);
+    }
+  });
+  
+  test('Correct Output (start = 50)(50 messages sent)', () => {
+    sendMessages(token1, dmId1, 50, 2);
+    expect(requestDmMessages(token3, dmId1, 50)).toStrictEqual(expect.objectContaining({
+      messages: [],
+      start: 50,
+      end: -1
+    }))
+  });
+});
+
 const generateMessage = (length: number): string => {
   let message = '';
   for (let i = 0; i < length; i++) {
@@ -387,6 +484,12 @@ const generateMessage = (length: number): string => {
   }
   return message;
 };
+
+const sendMessages = (token: string, dmId: number, numberOfMessages: number, length: number) => {
+  for (let i = 0; i < numberOfMessages; i++) {
+    requestSendDm(token, dmId, generateMessage(length));
+  }
+}
 
 const requestClear = () => {
   const res = request(
@@ -453,6 +556,22 @@ const requestSendDm = (token: string, dmId: number, message: string) => {
         token: token,
         dmId: dmId,
         message: message
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestDmMessages = (token: string, dmId: number, start: number) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/dm/messages/v1',
+    {
+      qs: {
+        token: token,
+        dmId: dmId,
+        start: start
       }
     }
   );
