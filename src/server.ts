@@ -11,9 +11,9 @@ import { dmCreate, messageSendDm, dmDetails } from './dm';
 const app = express();
 const generateToken = (uId: number):string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
-function validToken(token: string){
-  let data: dataStr = getData();
-  for (const tokenObj of data.tokenArray){
+function validToken(token: string) {
+  const data: dataStr = getData();
+  for (const tokenObj of data.tokenArray) {
     if (token === tokenObj) return true;
   }
   return false;

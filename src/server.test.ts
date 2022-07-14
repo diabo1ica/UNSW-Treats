@@ -107,7 +107,6 @@ describe('Test suite for /message/senddm/v1', () => {
   });
 });
 
-
 describe('Test suite for /dm/details/v1', () => {
   let userId2: number, userId4: number;
   let dmId1: number;
