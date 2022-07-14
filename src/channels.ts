@@ -4,7 +4,7 @@ Create a channel with given name and whether it is public or private.
 
 Arguments:
 
-    token (string)        - a specific string point to the user that create the channel 
+    token (string)        - a specific string point to the user that create the channel
 
     authUserId (integer)  - author user id, the user that create the channel
 
@@ -72,7 +72,7 @@ export function channelsListV1(authUserId: number) {
       });
     }
   }
-    
+
   return {
     channels: allChannels
   };
@@ -147,7 +147,3 @@ function validateUserId(UserId: number) {
   return false;
 }
 
-export function removeowner (authUserId: number, channelId: number, uId: number) {
-  
-
-}
