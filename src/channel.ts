@@ -16,7 +16,7 @@ import { getData, setData, dataStr, channel, member, user, message } from './dat
 function channelDetailsV1(authUserId, channelId) {
   const data: dataStr = getData();
   if (!data.channels.some(obj => obj.channelId === channelId)) {
-    return { error: 'error1' };
+    return { error: 'error' };
   }
   let object: channel;
   for (let channel of data.channels) {

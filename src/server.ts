@@ -8,7 +8,6 @@ import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels'
 import { getData, setData, user, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
-const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 /*
 const decodeToken = (token: string): number => {
   const decoded = jose.UnsecuredJWT.decode(token)
@@ -17,7 +16,13 @@ const decodeToken = (token: string): number => {
 
 // Set up web app, use JSON
 const app = express();
-const generateToken = (uId: number):string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
+
+// Some magical token formulas from a npm library that spits out some whoop dee doo yeet magically exclusive token for each uid
+// generateToken - takes in a number and turns it to a token of type string
+// decodeToken   - takes in a token string and reverts it to its original number
+const generateToken = (uId: number): string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
+const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
+
 app.use(express.json());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
@@ -79,7 +84,7 @@ app.post('/channels/create/v2', (req, res) => {
     const authUserId = decodeToken(token);
     const channelId = channelsCreateV1(authUserId, name, isPublic);
     res.json({
-      channelId: channelId,
+      channelId: channelId.channelId,
     }); 
   }
 });
@@ -147,26 +152,6 @@ function dmRemove(token: string, dmId: number){
   setData(data);
   return {}
 }
-
-// Who wrote this ?
-/*
-app.delete('clear/v1', (req, res) => {
-  try {
-    const { email, password, nameFirst, nameLast } = req.body;
-    const userId = authRegisterV1(email, password, nameFirst, nameLast).authUserId;
-    const token = generateToken(userId);
-    const data = getData();
-    data.tokenArray.push(token);
-    setData(data);
-    res.json({
-      token: token,
-      authUserId: userId
-    });
-  } catch (err) {
-    res.json({ error: 'error' });
-  }
-});
-*/
 
 app.post('/auth/login/v2', (req, res) => {
   try {

@@ -42,12 +42,41 @@ function createChan(token: string, name: string, isPublic: boolean) {
   return res;
 }
 
+function logOut(token: string){
+  const res = request(
+    'POST',
+    SERVER_URL + '/auth/logout/v1',
+    {
+      json: {
+        token: token
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.body as string);
+}
+
+function chDetails(token: string, chId: number){
+  const res = request(
+    'GET',
+    SERVER_URL + '/channel/details/v2',
+    {
+      qs: {
+        token: token,
+        channelId: chId
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.body as string);
+}
+
 describe('auth path tests', () => {
   beforeEach(() => {
     requestClear();
   });
 
-  test('Test successful auth register', () => {
+  test('Test successful and unsuccessful auth register', () => {
     const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
     const bodyObj = JSON.parse(res.body as string);
     expect(res.statusCode).toBe(OK);
@@ -71,16 +100,7 @@ describe('auth path tests', () => {
   test('Test logout', () => {
     const res = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
     const bodyObj = JSON.parse(res.body as string);
-    const res2 = request(
-      'POST',
-      SERVER_URL + '/auth/logout/v1',
-      {
-        json: {
-          token: bodyObj.token
-        }
-      }
-    );
-    const bodyObj2 = JSON.parse(res2.body as string);
+    const bodyObj2 = logOut(bodyObj.token)
     expect(bodyObj2).toStrictEqual({});
     const channelRes = createChan(bodyObj.token, 'Xhorhas', true);
     const channel = JSON.parse(channelRes.body as string);
@@ -99,18 +119,7 @@ describe('channel path tests', () => {
   });
 
   test('Test channel details', () => {
-    const res = request(
-      'GET',
-      SERVER_URL + '/channel/details/v2',
-      {
-        qs: {
-          token: user.token,
-          channelId: 1
-        }
-      }
-    );
-    const bodyObj = JSON.parse(res.body as string);
-    expect(res.statusCode).toBe(OK);
+    const bodyObj = chDetails(user.token, channel.channelId);
     expect(bodyObj).toEqual({
       name: 'Xhorhas',
       isPublic: true,
@@ -123,6 +132,14 @@ describe('channel path tests', () => {
       }],
       allMembers: []
     });
+  });
+
+  test('Test Invalid channel details', () => {
+    const bodyObj = chDetails(user.token, -100);
+    expect(bodyObj).toEqual({ error: 'error' });
+    logOut(user.token);
+    const bodyObj2 = chDetails(user.token, channel.channelId);
+    expect(bodyObj2).toEqual({ error: 'error' });
   });
 });
 /*
