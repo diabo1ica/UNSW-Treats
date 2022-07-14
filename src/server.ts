@@ -8,10 +8,12 @@ import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels'
 import { getData, setData, user, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
+const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
+/*
 const decodeToken = (token: string): number => {
   const decoded = jose.UnsecuredJWT.decode(token)
   return decoded.payload.uId as number;
-}
+}*/
 
 // Set up web app, use JSON
 const app = express();
@@ -34,16 +36,24 @@ app.get('/echo', (req, res, next) => {
 app.post('/auth/register/v2', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
+  if (id.error) {
+    res.json({ error: 'error' });
+  }
+  else {
+    res.json(registerAuthV2(id.authUserId));
+  }
+});
+
+function registerAuthV2(id: number){
   const data: dataStr = getData();
-  let token: string = generateToken(id.authUserId);
-  console.log('auth route :', id);
+  let token: string = generateToken(id);
   data.tokenArray.push(token);
   setData(data);
-  res.json({
+  return {
     token: token,
-    authUserId: id.authUserId
-  });
-});
+    authUserId: id
+  }
+}
 
 app.post('/auth/logout/v1', (req, res) => {
   const { token } = req.body;
@@ -95,6 +105,12 @@ app.get('/dm/list/v1', (req, res) => {
   if (!validToken(token)) {
     res.json({ error: 'error' });
   }
+  else {
+    res.json(dmList(token));
+  }
+});
+
+function dmList(token: string){
   const data: dataStr = getData();
   let uId: number = decodeToken(token);
   const dmArray = [];
@@ -107,8 +123,8 @@ app.get('/dm/list/v1', (req, res) => {
       dmArray.push(dmObj);
     }
   }
-  res.json({ dms: dmArray });
-});
+  return { dms: dmArray };
+}
 
 app.delete('/dm/remove/v1', (req, res) => {
   const token = req.query.token as string;
@@ -116,6 +132,12 @@ app.delete('/dm/remove/v1', (req, res) => {
   if (!validToken(token)) {
     res.json({ error: 'error' });
   }
+  else {
+    res.json(dmRemove(token, dmId));
+  }
+});
+
+function dmRemove(token: string, dmId: number){
   const data: dataStr = getData();
   for(let i = 0; i < data.dms.length; i++){
     if(data.dms[i].dmId === dmId) {
@@ -123,7 +145,8 @@ app.delete('/dm/remove/v1', (req, res) => {
     }
   }
   setData(data);
-});
+  return {}
+}
 
 // Who wrote this ?
 /*

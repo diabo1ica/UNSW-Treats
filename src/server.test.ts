@@ -65,7 +65,7 @@ describe('auth path tests', () => {
     const res3 = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
     const bodyObj3 = JSON.parse(res3.body as string);
     expect(res3.statusCode).toBe(OK);
-    expect(bodyObj).toEqual({ error: 'error' });
+    expect(bodyObj3).toEqual({ error: 'error' });
   });
 
   test('Test logout', () => {
@@ -82,8 +82,8 @@ describe('auth path tests', () => {
     );
     const bodyObj2 = JSON.parse(res2.body as string);
     expect(bodyObj2).toStrictEqual({});
-    channelRes = createChan(user.token, 'Xhorhas', true);
-    channel = JSON.parse(channelRes.body as string);
+    const channelRes = createChan(bodyObj.token, 'Xhorhas', true);
+    const channel = JSON.parse(channelRes.body as string);
     expect(channel).toStrictEqual({ error: 'error' });
   });
 });
