@@ -62,6 +62,10 @@ describe('auth path tests', () => {
       token: expect.any(String),
       authUserId: 2
     });
+    const res3 = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
+    const bodyObj3 = JSON.parse(res3.body as string);
+    expect(res3.statusCode).toBe(OK);
+    expect(bodyObj).toEqual({ error: 'error' });
   });
 
   test('Test logout', () => {
@@ -78,15 +82,16 @@ describe('auth path tests', () => {
     );
     const bodyObj2 = JSON.parse(res2.body as string);
     expect(bodyObj2).toStrictEqual({});
+    channelRes = createChan(user.token, 'Xhorhas', true);
+    channel = JSON.parse(channelRes.body as string);
+    expect(channel).toStrictEqual({ error: 'error' });
   });
 });
 
 describe('channel path tests', () => {
-  let userRes;
-  let user;
-  let channel;
-  let channelRes;
+  let userRes, user, channel, channelRes;
   beforeEach(() =>{
+    requestClear();
     userRes = registerAuth('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
     user = JSON.parse(userRes.body as string);
     channelRes = createChan(user.token, 'Xhorhas', true);
@@ -122,6 +127,10 @@ describe('channel path tests', () => {
 });
 /*
 describe('dm path tests', () => {
+  beforeEach(() =>{
+    requestClear();
+  });
+
   test('Test dm list', () => {
     const res = request(
       'GET',
@@ -151,7 +160,8 @@ describe('dm path tests', () => {
     expect(res.statusCode).toBe(OK);
     expect(bodyObj).toStrictEqual({});
   });
-}); */
+});
+*/
 
 // Steve's tests 
 describe('Test suite for /auth/login/v2', () => {

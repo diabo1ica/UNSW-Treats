@@ -26,9 +26,7 @@ function channelDetailsV1(authUserId, channelId) {
     }
   }
   if (!object.members.some(obj => obj.uId === authUserId)) {
-    return { 
-      data: data,
-      error: 'error2' };
+    return { error: 'error' };
   }
   // Filter owmer members in members array
   const owner = [];

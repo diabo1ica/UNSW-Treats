@@ -8,7 +8,10 @@ import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels'
 import { getData, setData, user, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
-const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
+const decodeToken = (token: string): number => {
+  const decoded = jose.UnsecuredJWT.decode(token)
+  return decoded.payload.uId as number;
+}
 
 // Set up web app, use JSON
 const app = express();
@@ -33,6 +36,7 @@ app.post('/auth/register/v2', (req, res) => {
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   const data: dataStr = getData();
   let token: string = generateToken(id.authUserId);
+  console.log('auth route :', id);
   data.tokenArray.push(token);
   setData(data);
   res.json({
@@ -70,15 +74,11 @@ app.post('/channels/create/v2', (req, res) => {
   }
 });
 
-
 app.get('/channel/details/v2', (req, res) => {
-  const token: string = req.query.token as string;
+  let token: string = req.query.token as string;
   const chId: number = parseInt(req.query.channelId as string);
   if (!validToken(token)) {
-    res.json({ 
-      error: 'error3',
-      token: token
-   });
+    res.json({ error: 'error' });
   }
   else {
     res.json(chDetailsV2(token, chId));
@@ -87,8 +87,6 @@ app.get('/channel/details/v2', (req, res) => {
 
 function chDetailsV2(token: string, chId: number) {
   let userId = decodeToken(token);
-  console.log(typeof token);
-  console.log(userId);
   return channelDetailsV1(userId, chId);
 }
 
