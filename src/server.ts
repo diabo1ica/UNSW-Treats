@@ -6,9 +6,12 @@ import { getData, setData } from './dataStore';
 import { authRegisterV1, authLoginV1 } from './auth';
 import * as jose from 'jose';
 import { clearV1 } from './other';
+import { dmCreate } from './dm';
 // Set up web app, use JSON
 const app = express();
 const generateToken = (uId: number):string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
+const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
+
 app.use(express.json());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
@@ -53,6 +56,16 @@ app.post('/auth/login/v2', (req, res) => {
       token: token,
       authUserId: userId
     });
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.post('/dm/create/v1', (req, res) => {
+  try {
+    const { token, uIds } = req.body;
+    const dmId = dmCreate(decodeToken(token), uIds).dmId;
+    res.json({ dmId: dmId });
   } catch (err) {
     res.json({ error: 'error' });
   }
