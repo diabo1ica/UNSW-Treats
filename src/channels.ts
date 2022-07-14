@@ -1,10 +1,13 @@
 import { getData, setData, dataStr, channel } from './dataStore';
-
 /*
 Create a channel with given name and whether it is public or private.
 
 Arguments:
+
+    token (string)        - a specific string point to the user that create the channel
+
     authUserId (integer)  - author user id, the user that create the channel
+
                             and a member of channel.
     name (string)         - the name of the channel.
     isPublic (boolean)    - true if it is public and false for private.
@@ -14,7 +17,7 @@ Return Value:
     Returns {error: 'error'} on name that is invalid (less than 1 or
                              more than 20
 */
-function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
+export function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
     return { error: 'error' };
   }
@@ -45,6 +48,7 @@ function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
     channelId: channels.channelId,
   };
 }
+
 /*
 Provide a list of channels and it's details that the authorised user is a part of.
 
@@ -56,13 +60,13 @@ Return Value:
     Returns { channels } on authUserId is valid
 */
 
-function channelsListV1(authUserId: number) {
+export function channelsListV1(authUserId: number) {
   const data: dataStr = getData();
-  const userchannels = [];
+  const allChannels: any[] = [];
 
   for (const channel of data.channels) {
     if (channel.members.some(obj => obj.uId === authUserId)) {
-      userchannels.push({
+      allChannels.push({
         channelId: channel.channelId,
         name: channel.name,
       });
@@ -70,7 +74,7 @@ function channelsListV1(authUserId: number) {
   }
 
   return {
-    channels: userchannels
+    channels: allChannels
   };
 }
 /*
@@ -84,7 +88,7 @@ Return Value:
     Returns { channels } on authUserId is valid
     Returns {error: 'error'} on authUserId is invalid
 */
-function channelsListallV1(authUserId: number) {
+export function channelsListallV1(authUserId: number) {
   const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
     throw new Error('Invalid authUserId');
@@ -140,5 +144,3 @@ function validateUserId(UserId: number) {
   }
   return false;
 }
-
-export { channelsCreateV1, channelsListV1, channelsListallV1 };
