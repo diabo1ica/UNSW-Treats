@@ -113,7 +113,7 @@ const generateMessage = (length: number): string => {
     message += String.fromCharCode(Math.floor(Math.random() * 26) % 26 + 97);
   }
   return message;
-}
+};
 
 const requestClear = () => {
   const res = request(

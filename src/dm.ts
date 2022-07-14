@@ -48,15 +48,13 @@ export function messageSendDm(authUserId: number, dmId: number, message: string)
   newMessage.messageId = generateMessageId();
   newMessage.uId = authUserId;
   newMessage.message = message;
-  newMessage.timeSent = Math.floor((new Date()).getTime() / 1000 );
+  newMessage.timeSent = Math.floor((new Date()).getTime() / 1000);
   data.dms[data.dms.findIndex((dm) => dm.dmId === dmId)].messages.unshift(newMessage);
   setData(data);
   return {
     messageId: newMessage.messageId
   };
 }
-
-
 
 const dmTemplate = (): dm => {
   return {
@@ -117,7 +115,7 @@ function isDmMember(uId: number, dmObj: dm) {
 function generateMessageId() {
   let messageId: number;
   const data = getData();
-  if (data.messageIdCounter === 0) messageId = 1 
+  if (data.messageIdCounter === 0) messageId = 1;
   else messageId = data.messageIdCounter + 1;
   data.messageIdCounter++;
   setData(data);
@@ -133,4 +131,3 @@ function generatedmId() {
   setData(data);
   return dmId;
 }
-
