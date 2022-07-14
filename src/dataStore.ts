@@ -1,3 +1,5 @@
+import fs from 'fs';
+// YOU SHOULD MODIFY THIS OBJECT BELOW
 interface user {
   nameFirst: string,
   nameLast: string,
@@ -6,7 +8,6 @@ interface user {
   password: string,
   userId: number,
   globalPermsId: number,
-  tokenArray: string[]
 }
 
 interface member {
@@ -29,24 +30,39 @@ interface channel {
   messages: message[],
 }
 
+interface dmMember {
+  uId: number,
+  dmPermsId: number,
+}
+
 interface dm {
-  userIds: number[],
+  members: dmMember[],
   messages: message[],
   dmId: number,
-  ownerId: number,
+  creatorId: number,
   name: string
 }
 
 interface dataStr {
   users: user[],
   channels: channel[],
-  dms: dm[]
+  dms: dm[],
+  tokenArray: string[],
+  userIdCounter: number,
+  channelIdCounter: number,
+  dmIdCounter: number,
+  messageIdCounter: number,
 }
 
 let data: dataStr = {
   users: [],
   channels: [],
-  dms: []
+  dms: [],
+  tokenArray: [],
+  userIdCounter: 0,
+  channelIdCounter: 0,
+  dmIdCounter: 0,
+  messageIdCounter: 0,
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1
@@ -66,14 +82,21 @@ Example usage
 */
 
 // Use get() to access the data
-function getData() {
+function getData(load = false, name = './data.json') {
+  if (load === true && fs.existsSync(name)) {
+    const loadedData = JSON.parse(fs.readFileSync(name, { encoding: 'utf8' }));
+    data.users = loadedData.users;
+    data.channels = loadedData.channels;
+    data.dms = loadedData.dms;
+    console.log('\'data.json\' successfully loaded');
+  }
   return data;
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData: dataStr) {
+function setData(newData: dataStr, name = './data.json') {
+  fs.writeFileSync(name, JSON.stringify(newData, null, 4));
   data = newData;
 }
 
 export { getData, setData, user, member, channel, dataStr, dm, message };
-
