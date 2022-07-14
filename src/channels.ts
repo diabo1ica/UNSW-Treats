@@ -116,8 +116,7 @@ function channelsTemplate() {
     name: ' ',
     isPublic: true,
     members: [],
-    messages: [],
-    messageIdCounter: 0
+    messages: []
   };
 
   return channel;

@@ -6,9 +6,7 @@ import { channelsCreateV1 } from './channels';
 describe('channelDetails tests', () => {
   beforeEach(() => {
     authRegisterV1('email@gmail.com', 'drowssap', 'Drow', 'Sapling');
-    authRegisterV1('emailemail@gmail.com', 'drowssap', 'Drow', 'Sapling');
     channelsCreateV1(1, 'Ghor Dranas', true);
-    channelsCreateV1(2, 'rararat', true);
   });
 
   afterEach(() => {
@@ -31,26 +29,15 @@ describe('channelDetails tests', () => {
   });
 
   test('Invalid authId and channelId', () => {
-    expect(channelDetailsV1(3, 3)).toStrictEqual({ error: 'error' });
+    expect(channelDetailsV1(2, 2)).toStrictEqual({ error: 'error' });
   });
 
   test('Invalid channelId', () => {
-    expect(channelDetailsV1(1, 3)).toStrictEqual({ error: 'error' });
+    expect(channelDetailsV1(1, 2)).toStrictEqual({ error: 'error' });
   });
 
-  test('Valid channelId valid authId', () => {
-    expect(channelDetailsV1(2, 2)).toStrictEqual({
-      name: 'rararat',
-      isPublic: true,
-      ownerMembers: [{
-        uId: expect.any(Number),
-        email: 'emailemail@gmail.com',
-        nameFirst: 'Drow',
-        nameLast: 'Sapling',
-        handleStr: 'DrowSapling0'
-      }],
-      allMembers: []
-    });
+  test('Valid channelId but invalid authId', () => {
+    expect(channelDetailsV1(2, 1)).toStrictEqual({ error: 'error' });
   });
 });
 

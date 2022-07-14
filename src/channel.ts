@@ -1,4 +1,4 @@
-import { getData, setData, dataStr, channel, member, user, message } from './dataStore';
+import { getData, setData, dataStr, channel, message } from './dataStore';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -13,13 +13,13 @@ import { getData, setData, dataStr, channel, member, user, message } from './dat
 //    }
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
-function channelDetailsV1(authUserId, channelId) {
+function channelDetailsV1(authUserId: number, channelId: number) {
   const data: dataStr = getData();
   if (!data.channels.some(obj => obj.channelId === channelId)) {
     return { error: 'error' };
   }
   let object: channel;
-  for (let channel of data.channels) {
+  for (const channel of data.channels) {
     if (channel.channelId === channelId) {
       object = channel;
       break;
@@ -68,15 +68,11 @@ Arguments:
 Return Value:
     Returns {} on joining channel
 */
-function channelJoinV1(authUserId, channelId) {
+function channelJoinV1(authUserId: number, channelId: number) {
   const data: dataStr = getData();
-  let obj: user;
 
-  for (const new_member of data.users) {
-    if (new_member.userId === authUserId) {
-      obj = new_member;
-      break;
-    }
+  if (validateUserId(authUserId) === false) {
+    return { error: 'error' };
   }
 
   for (const channel of data.channels) {
@@ -118,7 +114,7 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is
                              not a member
 */
-function channelInviteV1(authUserId, channelId, uId) {
+function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const data: dataStr = getData();
   for (const item of data.channels) {
     if (channelId !== item.channelId) {
@@ -134,7 +130,7 @@ function channelInviteV1(authUserId, channelId, uId) {
     }
   }
 
-  if (validateUserId(uId) == false) {
+  if (validateUserId(uId) === false) {
     return { error: 'error' };
   }
 
@@ -210,7 +206,7 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
   };
 }
 
-function getChannel(channelId) {
+function getChannel(channelId: number) {
   const data: dataStr = getData();
   for (const item of data.channels) {
     if (item.channelId === channelId) {
@@ -220,9 +216,8 @@ function getChannel(channelId) {
   return false;
 }
 
-function isMember(userId, channel_obj) {
-  const data: dataStr = getData();
-  for (const item of channel_obj.members) {
+function isMember(userId: number, channelObj: channel) {
+  for (const item of channelObj.members) {
     if (userId === item.uId) {
       return true;
     }
@@ -230,7 +225,7 @@ function isMember(userId, channel_obj) {
   return false;
 }
 
-function validateUserId(UserId) {
+function validateUserId(UserId: number) {
   const data: dataStr = getData();
   for (const item of data.users) {
     if (item.userId === UserId) {
@@ -247,7 +242,6 @@ function channelsTemplate() {
     isPublic: true,
     members: [],
     messages: [],
-    messageIdCounter: 0
   };
   return channel;
 }

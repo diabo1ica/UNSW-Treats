@@ -27,7 +27,6 @@ interface channel {
   isPublic: boolean,
   members: member[],
   messages: message[],
-  messageIdCounter: number,
 }
 
 interface dmMember {
@@ -40,7 +39,6 @@ interface dm {
   messages: message[],
   dmId: number,
   creatorId: number,
-  messageIdCounter: number,
   name: string
 }
 
@@ -51,7 +49,8 @@ interface dataStr {
   tokenArray: string[],
   userIdCounter: number,
   channelIdCounter: number,
-  dmIdCounter: number
+  dmIdCounter: number,
+  messageIdCounter: number,
 }
 
 let data: dataStr = {
@@ -61,7 +60,8 @@ let data: dataStr = {
   tokenArray: [],
   userIdCounter: 0,
   channelIdCounter: 0,
-  dmIdCounter: 0
+  dmIdCounter: 0,
+  messageIdCounter: 0,
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1

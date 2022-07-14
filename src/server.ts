@@ -4,15 +4,11 @@ import morgan from 'morgan';
 import config from './config.json';
 import { authRegisterV1, authLoginV1 } from './auth';
 import { channelDetailsV1 } from './channel';
-import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
-import { getData, setData, user, dataStr } from './dataStore';
+import { channelsCreateV1 } from './channels';
+import { getData, setData, dataStr } from './dataStore';
 import { clearV1 } from './other';
+import { dmCreate } from './dm';
 import * as jose from 'jose';
-/*
-const decodeToken = (token: string): number => {
-  const decoded = jose.UnsecuredJWT.decode(token)
-  return decoded.payload.uId as number;
-}*/
 
 // Set up web app, use JSON
 const app = express();
@@ -33,7 +29,7 @@ app.get('/echo', (req, res, next) => {
   try {
     const data = req.query.echo as string;
     return res.json(echo(data));
-  } catch (err) { 
+  } catch (err) {
     next(err);
   }
 });
@@ -43,21 +39,20 @@ app.post('/auth/register/v2', (req, res) => {
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   if (id.error) {
     res.json({ error: 'error' });
-  }
-  else {
+  } else {
     res.json(registerAuthV2(id.authUserId));
   }
 });
 
-function registerAuthV2(id: number){
+function registerAuthV2(id: number) {
   const data: dataStr = getData();
-  let token: string = generateToken(id);
+  const token: string = generateToken(id);
   data.tokenArray.push(token);
   setData(data);
   return {
     token: token,
     authUserId: id
-  }
+  };
 }
 
 app.post('/auth/logout/v1', (req, res) => {
@@ -66,8 +61,8 @@ app.post('/auth/logout/v1', (req, res) => {
     res.json({ error: 'error' });
   }
   const data: dataStr = getData();
-  for (let i: number = 0; i < data.tokenArray.length; i++){
-    if (token === data.tokenArray[i]){
+  for (let i = 0; i < data.tokenArray.length; i++) {
+    if (token === data.tokenArray[i]) {
       data.tokenArray = data.tokenArray.slice(0, i);
     }
   }
@@ -79,29 +74,27 @@ app.post('/channels/create/v2', (req, res) => {
   const { token, name, isPublic } = req.body;
   if (!validToken(token)) {
     res.json({ error: 'error' });
-  }
-  else {
+  } else {
     const authUserId = decodeToken(token);
     const channelId = channelsCreateV1(authUserId, name, isPublic);
     res.json({
       channelId: channelId.channelId,
-    }); 
+    });
   }
 });
 
 app.get('/channel/details/v2', (req, res) => {
-  let token: string = req.query.token as string;
+  const token: string = req.query.token as string;
   const chId: number = parseInt(req.query.channelId as string);
   if (!validToken(token)) {
     res.json({ error: 'error' });
-  }
-  else {
+  } else {
     res.json(chDetailsV2(token, chId));
   }
 });
 
 function chDetailsV2(token: string, chId: number) {
-  let userId = decodeToken(token);
+  const userId = decodeToken(token);
   return channelDetailsV1(userId, chId);
 }
 
@@ -109,15 +102,14 @@ app.get('/dm/list/v1', (req, res) => {
   const token = req.query.token as string;
   if (!validToken(token)) {
     res.json({ error: 'error' });
-  }
-  else {
+  } else {
     res.json(dmList(token));
   }
 });
 
-function dmList(token: string){
+function dmList(token: string) {
   const data: dataStr = getData();
-  let uId: number = decodeToken(token);
+  const uId: number = decodeToken(token);
   const dmArray = [];
   for (const dm of data.dms) {
     if (dm.members.some(obj => obj.uId === uId)) {
@@ -136,21 +128,20 @@ app.delete('/dm/remove/v1', (req, res) => {
   const dmId = parseInt(req.query.dmId as string);
   if (!validToken(token)) {
     res.json({ error: 'error' });
-  }
-  else {
+  } else {
     res.json(dmRemove(token, dmId));
   }
 });
 
-function dmRemove(token: string, dmId: number){
+function dmRemove(token: string, dmId: number) {
   const data: dataStr = getData();
-  for(let i = 0; i < data.dms.length; i++){
-    if(data.dms[i].dmId === dmId) {
-      data.dms = data.dms.slice(0, i);
+  for (let i = 0; i < data.dms.length; i++) {
+    if (data.dms[i].dmId === dmId) {
+      data.dms.splice(i, 1);
     }
   }
   setData(data);
-  return {}
+  return {};
 }
 
 app.post('/auth/login/v2', (req, res) => {
@@ -170,14 +161,24 @@ app.post('/auth/login/v2', (req, res) => {
   }
 });
 
+app.post('/dm/create/v1', (req, res) => {
+  try {
+    const { token, uIds } = req.body;
+    const dmId = dmCreate(decodeToken(token), uIds).dmId;
+    res.json({ dmId: dmId });
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
 app.delete('/clear/v1', (req, res) => {
   clearV1();
   res.json({});
 });
 
-function validToken(token: string){
-  let data: dataStr = getData();
-  for (const tokenObj of data.tokenArray){
+function validToken(token: string) {
+  const data: dataStr = getData();
+  for (const tokenObj of data.tokenArray) {
     if (token === tokenObj) return true;
   }
   return false;
