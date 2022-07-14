@@ -107,6 +107,53 @@ describe('Test suite for /message/senddm/v1', () => {
   });
 });
 
+describe('Test suite for /dm/details/v1', () => {
+  let userId2: number, userId4: number;
+  let dmId1: number;
+  let token1: string, token2: string, token3: string;
+
+  beforeEach(() => {
+    requestClear();
+    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+    userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
+    requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
+    userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
+    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
+    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
+    token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
+    dmId1 = requestDmCreate(token1, [userId2, userId4]).dmId;
+  });
+
+  test('Invalid token', () => {
+    expect(requestDmDetails('-' + token1, dmId1)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Invalid dmId', () => {
+    expect(requestDmDetails(token1, dmId1 + 1)).toStrictEqual({ error: 'error' });
+  });
+
+  test('dmId is valid but authorised user is not a member', () => {
+    expect(requestDmDetails(token3, dmId1)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Correct output', () => {
+    expect(requestDmDetails(token2, dmId1)).toStrictEqual(expect.objectContaining(
+      {
+        name: 'DavidPei, GaryAng, SteveBerrospi',
+        members: expect.arrayContaining([expect.objectContaining(
+          {
+            uId: expect.any(Number),
+            email: expect.any(String),
+            nameFirst: expect.any(String),
+            nameLast: expect.any(String),
+            handleStr: expect.any(String)
+          }
+        )])
+      }
+    ));
+  });
+});
+
 const generateMessage = (length: number): string => {
   let message = '';
   for (let i = 0; i < length; i++) {
@@ -180,6 +227,21 @@ const requestSendDm = (token: string, dmId: number, message: string) => {
         token: token,
         dmId: dmId,
         message: message
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestDmDetails = (token: string, dmId: number) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/dm/details/v1',
+    {
+      qs: {
+        token: token,
+        dmId: dmId,
       }
     }
   );

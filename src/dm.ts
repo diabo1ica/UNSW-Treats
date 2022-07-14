@@ -56,6 +56,29 @@ export function messageSendDm(authUserId: number, dmId: number, message: string)
   };
 }
 
+export function dmDetails(authUserId: number, dmId: number) {
+  const data = getData();
+  const dmObj = getDm(dmId);
+  if (dmObj === false || isDmMember(authUserId, dmObj) === false) throw new Error('error');
+  const members = [];
+  let member: any;
+  for (const user of data.users) {
+    if (dmObj.members.some((member) => member.uId === user.userId)) {
+      member = JSON.parse(JSON.stringify(user));
+      delete member.password;
+      delete member.globalPermsId;
+      delete member.tokenArray;
+      member.uId = member.userId;
+      delete member.userId;
+      members.push(member);
+    }
+  }
+  return {
+    name: dmObj.name,
+    members: members,
+  };
+}
+
 const dmTemplate = (): dm => {
   return {
     members: [],
