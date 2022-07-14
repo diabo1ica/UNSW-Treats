@@ -14,7 +14,7 @@ import { getData, setData, dataStr, channel, member, user } from './dataStore';
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
 
-function channelDetailsV1(token: string, channelId: number) {
+function channelDetailsV1(authUserId: number, channelId: number) {
   const data: dataStr = getData();
   if (!data.channels.some(obj => obj.channelId === channelId)) {
     return { error: 'error' };
@@ -59,6 +59,7 @@ function channelDetailsV1(token: string, channelId: number) {
   };
 }
 
+
 /*
 The authorised user joins the channel using channelId given.
 
@@ -69,7 +70,7 @@ Arguments:
 Return Value:
     Returns {} on joining channel
 */
-function channelJoinV1(authUserId, channelId) {
+function channelJoinV1(authUserId: number, channelId: number) {
   const data: dataStr = getData();
   let obj: user;
 
@@ -92,10 +93,6 @@ function channelJoinV1(authUserId, channelId) {
       }
       channel.members.push({
         uId: authUserId,
-        email: obj.email,
-        nameFirst: obj.nameFirst,
-        nameLast: obj.nameLast,
-        handleStr: obj.handleStr,
         channelPermsId: 2,
       });
       data.channels.push();
@@ -171,31 +168,26 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is not a
     member of the channel
 */
-function channelMessagesV1(authUserId, channelId, start) {
-  const data: dataStr = getData();
 
-  const channel_obj = getChannel(channelId);
-  if (channel_obj === false) {
-    return {
-      error: 'error',
-    };
-  } else if (start > channel_obj.messages.length) {
-    return {
-      error: 'error'
-    };
-  } else if (isMember(authUserId, channel_obj) === false) {
-    return {
-      error: 'error'
-    };
+function channelMessagesV1(authUserId: number, channelId: number, start: number) {
+  const channelObj = getChannel(channelId);
+  if (validateUserId(authUserId) === false) {
+    throw new Error('Invalid authUserId');
+  } else if (channelObj === false) {
+    throw new Error('Invalid channelId');
+  } else if (start > channelObj.messages.length) {
+    throw new Error('Start is ahead of final message');
+  } else if (isMember(authUserId, channelObj) === false) {
+    throw new Error('User is not a member of the channel');
   }
   let end: number;
-  const messagesArray: string[] = [];
-  if (start + 50 > channel_obj.messages.length) {
+  const messagesArray = [];
+  if (start + 50 > channelObj.messages.length) {
     end = -1;
   } else {
     end = start + 50;
   }
-  for (const item of channel_obj.messages.slice(start, start + 50)) {
+  for (const item of channelObj.messages.slice(start, start + 50)) {
     messagesArray.push(item);
   }
 
@@ -206,7 +198,8 @@ function channelMessagesV1(authUserId, channelId, start) {
   };
 }
 
-function getChannel(channelId) {
+
+function getChannel(channelId: number) {
   const data: dataStr = getData();
   for (const item of data.channels) {
     if (item.channelId === channelId) {
@@ -216,7 +209,7 @@ function getChannel(channelId) {
   return false;
 }
 
-function isMember(userId, channel_obj) {
+function isMember(userId: number, channel_obj: channel) {
   const data: dataStr = getData();
   for (const item of channel_obj.members) {
     if (userId === item.uId) {
@@ -246,6 +239,36 @@ function channelsTemplate() {
     messages: [],
   };
   return channel;
+}
+
+export function removeowner (authUserId: number, channelId: number, uId: number) {
+  const data: dataStr = getData();
+  const channelObj = getChannel(channelId);
+  if (!validateUserId(uId) || channelObj === false) {
+    return { error: 'error' };
+  } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
+    return { error: 'error' };
+  }
+
+  let num: number = 0;
+  for (const member of channelObj.members) {
+    if (member.channelPermsId === 1) {
+      num++;
+    }
+  }
+
+  for (const member of channelObj.members) {
+    if (member.uId === uId) {
+      if (member.channelPermsId === 2 || num === 1) {
+        return { error: 'error' };
+      }
+      else {
+        member.channelPermsId = 2;
+      }
+    }
+  }
+
+  return {};
 }
 
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };

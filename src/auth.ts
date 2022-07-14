@@ -12,6 +12,7 @@ import { getData, setData, user, dataStr } from './dataStore';
 //    Returns { error : 'error' } on email not valid (Already taken, argument not in email format
 //    Returns { error : 'error' } on password length not valid (< 6)
 //    Returns { error : 'error' } on nameFirst and/or nameLast length not valid
+
 function authRegisterV1(email: string, password: string, nameFirst: string, nameLast: string) {
   if (!validator.isEmail(email) ||
   password.length < 6 ||
@@ -22,12 +23,13 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   const data: dataStr = getData();
   if (data.users.some(obj => obj.email === email)) return { error: 'error' };
 
+  const numTemp = generateUserId();
   const user: user = userTemplate();
   if (data.users.length === 0) {
-    user.userId = generateUserId();
+    user.userId = numTemp;
     user.globalPermsId = 1;
   } else {
-    user.userId = generateUserId();
+    user.userId = numTemp;
   }
   user.email = email;
   user.nameFirst = nameFirst;
@@ -53,6 +55,7 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   return {
     authUserId: user.userId
   };
+
 }
 /*
 Allows the user to login to their account and view their userId.
@@ -70,9 +73,7 @@ Return Value:
 */
 function authLoginV1(email: string, password: string) {
   if (validator.isEmail(email) === false) {
-    return {
-      error: 'error',
-    };
+    throw new Error('email is invalid');
   }
   const data: dataStr = getData();
   for (const item of data.users) {
@@ -82,9 +83,7 @@ function authLoginV1(email: string, password: string) {
       };
     }
   }
-  return {
-    error: 'error'
-  };
+  throw new Error('email or password is incorrect');
 }
 
 function validName(name: string) {
@@ -102,6 +101,7 @@ function generateUserId() {
   return id;
 }
 
+
 // Creates an empty user template
 function userTemplate() {
   const user: user = {
@@ -112,7 +112,6 @@ function userTemplate() {
     password: '',
     userId: 0,
     globalPermsId: 2,
-    tokenArray: []
   };
   return user;
 }

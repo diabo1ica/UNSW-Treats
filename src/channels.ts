@@ -1,14 +1,4 @@
 import { getData, setData, dataStr, channel } from './dataStore';
-
-function generateChannelId() {
-  let Id = Math.floor(Math.random() * 1000000)
-  const data = getData();
-  while (data.channels.some((channel) => channel.channelId === Id)) {
-    Id = Math.floor(Math.random() * 1000000)
-  }
-  return Id;
-}
-
 /*
 Create a channel with given name and whether it is public or private.
 
@@ -31,32 +21,34 @@ export function channelsCreateV1(authUserId: number, name: string, isPublic: boo
   if (name.length < 1 || name.length > 20) {
     return { error: 'error' };
   }
-  
   const data: dataStr = getData();
-
-  const channel = channelsTemplate();
-  
-  const channelIdTemp = generateChannelId();
-
-  channel.channelId = channelIdTemp;
-  channel.name = name;
-  channel.isPublic = isPublic;
-  
-for (let item of data.users) {
-  if (item.userId === authUserId) {
-    channel.members.push({
-      uId: authUserId,
-      channelPermsId: 1,
-    });
+  const channels: channel = channelsTemplate();
+  if (data.channelIdCounter === 0) {
+    channels.channelId = 1;
+    data.channelIdCounter++;
+  } else {
+    channels.channelId = data.channelIdCounter + 1;
+    data.channelIdCounter++;
   }
-}
 
-  data.channels.push(channel);
+  channels.name = name;
+  channels.isPublic = isPublic;
+
+  for (const item of data.users) {
+    if (item.userId === authUserId) {
+      channels.members.push({
+        uId: authUserId,
+        channelPermsId: 1,
+      });
+    }
+  }
+  data.channels.push(channels);
   setData(data);
   return {
-    channelId: channelIdTemp,
-  }
+    channelId: channels.channelId,
+  };
 }
+
 /*
 Provide a list of channels and it's details that the authorised user is a part of.
 
@@ -70,19 +62,19 @@ Return Value:
 
 export function channelsListV1(authUserId: number) {
   const data: dataStr = getData();
-  const userchannels = [];
+  const allChannels: any[] = [];
 
   for (const channel of data.channels) {
     if (channel.members.some(obj => obj.uId === authUserId)) {
-      userchannels.push({
+      allChannels.push({
         channelId: channel.channelId,
         name: channel.name,
       });
     }
   }
-      
+    
   return {
-    channels: userchannels
+    channels: allChannels
   };
 }
 /*
@@ -153,4 +145,9 @@ function validateUserId(UserId: number) {
     }
   }
   return false;
+}
+
+export function removeowner (authUserId: number, channelId: number, uId: number) {
+  
+
 }
