@@ -96,7 +96,7 @@ function userTemplate() {
     email: '',
     password: '',
     userId: 0,
-    globalPermsId: 2,
+    globalPermsId: 2
   };
   return user;
 }

@@ -6,10 +6,10 @@ import { getData, setData, dataStr, channel, message } from './dataStore';
 //    channelId (number)    - Channel id of the channel that will be inspected
 // Return value:
 //    Returns {
-//      channelId: <number>,
 //      name: <string>,           on valid authUserId and channelId
 //      isPublic: <bool>,
-//      members: <array>
+//      ownerMembers: <array>,
+//      alMembers: <array>
 //    }
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)

@@ -1,5 +1,4 @@
 import fs from 'fs';
-// YOU SHOULD MODIFY THIS OBJECT BELOW
 interface user {
   nameFirst: string,
   nameLast: string,
@@ -69,16 +68,16 @@ let data: dataStr = {
 
 /*
 Example usage
-    let store = getData()
-    console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Rando'] }
+  let store = getData()
+  console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Rando'] }
 
-    names = store.names
+  names = store.names
 
-    names.pop()
-    names.push('Jake')
+  names.pop()
+  names.push('Jake')
 
-    console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Jake'] }
-    setData(store)
+  console.log(store) # Prints { 'names': ['Hayden', 'Tam', 'Rani', 'Giuliana', 'Jake'] }
+  setData(store)
 */
 
 // Use get() to access the data
