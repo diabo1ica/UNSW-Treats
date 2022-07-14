@@ -5,23 +5,6 @@ const HOST: string = process.env.IP || config.url;
 const SERVER_URL = `${HOST}:${PORT}`;
 const OK = 200;
 
-function registerAuth(email: string, password: string, nameFirst: string, nameLast: string) {
-  const res = request(
-    'POST',
-    SERVER_URL + '/auth/register/v2',
-    {
-      json: {
-        email: email,
-        password: password,
-        nameFirst: nameFirst,
-        nameLast: nameLast
-      }
-    }
-  );
-  return res;
-}
-
-
 const requestRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request(
     'POST',
@@ -54,7 +37,6 @@ const requestLogin = (email: string, password: string) => {
   return JSON.parse(res.getBody() as string);
 };
 
-
 const requestClear = () => {
   const res = request(
     'DELETE',
@@ -86,7 +68,7 @@ const requestChannelsList = (token: string) => {
     SERVER_URL + '/channels/list/v2',
     {
       qs: {
-        token: token, 
+        token: token,
       }
     }
   );
@@ -94,14 +76,13 @@ const requestChannelsList = (token: string) => {
   return JSON.parse(res.getBody() as string);
 };
 
-
 const requestChannelInvite = (token: string, channelId: number, uId: number) => {
   const res = request(
     'POST',
     SERVER_URL + '/channel/invite/v2',
     {
       json: {
-        token: token, 
+        token: token,
         channelId: channelId,
         uId: uId,
       }
@@ -117,7 +98,7 @@ const requestUserProfile = (token: string, uId: number) => {
     SERVER_URL + '/user/profile/v2',
     {
       qs: {
-        token: token, 
+        token: token,
         uId: uId,
       }
     }
@@ -132,7 +113,7 @@ const requestRemoveOwner = (token: string, channelId: number, uId: number) => {
     SERVER_URL + '/channel/removeowner/v1',
     {
       json: {
-        token: token, 
+        token: token,
         channelId: channelId,
         uId: uId,
       }
@@ -148,7 +129,7 @@ const requestSetname = (token: string, nameFirst: string, nameLast: string) => {
     SERVER_URL + '/user/profile/setname/v1',
     {
       json: {
-        token: token, 
+        token: token,
         nameFirst: nameFirst,
         nameLast: nameLast,
       }
@@ -164,7 +145,7 @@ const requestSetemail = (token: string, email: string) => {
     SERVER_URL + '/user/profile/setemail/v1',
     {
       json: {
-        token: token, 
+        token: token,
         email: email,
       }
     }
@@ -173,7 +154,6 @@ const requestSetemail = (token: string, email: string) => {
   return JSON.parse(res.getBody() as string);
 };
 
-
 describe('channels path tests', () => {
   let userID : string;
   let token;
@@ -181,7 +161,7 @@ describe('channels path tests', () => {
     requestClear();
     userID = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan').token;
   });
-  
+
   test('ChannelsCreate Successfull', () => {
     expect(requestChannelsCreate(userID, 'Channel1', true)).toStrictEqual(expect.objectContaining({
       channelId: expect.any(Number),
@@ -244,7 +224,6 @@ describe('channel path tests', () => {
   test('ChannelRemoveOwner Unsuccessfull', () => {
     expect(requestRemoveOwner(token, -channelID, userID)).toStrictEqual({ error: 'error' });
   });
-  
 });
 
 describe('users path tests', () => {
@@ -269,7 +248,7 @@ describe('users path tests', () => {
       }
     });
   });
-   
+
   test('UserProfile Unsuccessfull', () => {
     expect(requestUserProfile(token, -321)).toStrictEqual({ error: 'error' });
   });
@@ -277,7 +256,7 @@ describe('users path tests', () => {
   test('SetName & SetEmail Successfull', () => {
     requestSetname(token, 'Kennt', 'Alex');
     requestSetemail(token, 'Iloveyou@gmail.com');
-    expect(requestUserProfile(token, userID)).toStrictEqual({ 
+    expect(requestUserProfile(token, userID)).toStrictEqual({
       user: {
         uId: userID,
         email: 'Iloveyou@gmail.com',
@@ -287,6 +266,4 @@ describe('users path tests', () => {
       }
     });
   });
-
-
 });
