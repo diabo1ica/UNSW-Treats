@@ -476,6 +476,113 @@ describe('Test suite for /auth/login/v2', () => {
   });
 });
 
+describe('Test suite for /channels/listall/v2', () => {
+  let channelId1: number, channelId2: number, channelId3: number, channelId4: number;
+  let token1: string, token2: string, token3: string, token4:string;
+
+  describe('Error cases', () => {
+    beforeEach(() => {
+      requestClear();
+      requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+      requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
+      token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
+      token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
+    });
+
+    test('No channels were created', () => {
+      expect(requestChannelslistall(token1).channels).toStrictEqual([]);
+    });
+
+    test('Invalid token', () => {
+      expect(requestChannelslistall(token2 + '3')).toStrictEqual({ error: 'error' });
+    });
+  });
+
+  describe('Working cases', () => {
+    beforeEach(() => {
+      requestClear();
+      requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+      requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
+      requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
+      requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei');
+      token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
+      token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
+      token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
+      token4 = requestLogin('z4234824@unsw.edu.au', 'aero654').token;
+      channelId1 = requestChannelsCreate(token1, 'Aero', true).channelId;
+      channelId2 = requestChannelsCreate(token2, 'Aero1', true).channelId;
+      channelId3 = requestChannelsCreate(token3, 'Aero2', false).channelId;
+      channelId4 = requestChannelsCreate(token4, 'Aero3', false).channelId;
+    });
+
+    test('Correct output (list 4 channels)', () => {
+      expect(requestChannelslistall(token1)).toStrictEqual(expect.objectContaining(
+        {
+          channels: expect.arrayContaining([
+            {
+              channelId: channelId1,
+              name: 'Aero',
+            },
+            {
+              channelId: channelId2,
+              name: 'Aero1',
+            },
+            {
+              channelId: channelId3,
+              name: 'Aero2',
+            },
+            {
+              channelId: channelId4,
+              name: 'Aero3',
+            }
+          ])
+        }));
+    });
+  });
+});
+
+describe('Test suite for /channel/messages/v2', () => {
+  let channelId1: number, channelId2: number;
+  let token1: string, token2: string, token3: string;
+  beforeEach(() => {
+    requestClear();
+    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+    requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
+    requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
+    requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei');
+    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
+    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
+    token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
+    channelId1 = requestChannelsCreate(token1, 'Aero', true).channelId;
+    channelId2 = requestChannelsCreate(token2, 'Aero1', true).channelId;
+  });
+
+  test('Invalid Token', () => {
+    expect(requestChannelMessages('-' + token2, channelId2, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Invalid channelId', () => {
+    expect(requestChannelMessages(token1, -channelId1, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Start is greater than total number messages', () => {
+    expect(requestChannelMessages(token1, channelId1, 10000000)).toStrictEqual({ error: 'error' });
+  });
+
+  test('User is not a member of valid channel', () => {
+    expect(requestChannelMessages(token3, channelId1, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Correct return type', () => {
+    expect(requestChannelMessages(token1, channelId1, 0)).toStrictEqual(expect.objectContaining(
+      {
+        messages: expect.arrayContaining([]),
+        start: 0,
+        end: -1,
+      }));
+  });
+});
+
 describe('Test suite for /dm/create/v1', () => {
   let userId2: number, userId3: number, userId4: number;
   let token1: string;
@@ -762,6 +869,36 @@ const requestLogin = (email: string, password: string) => {
       json: {
         email: email,
         password: password,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestChannelslistall = (token: string) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/channels/listall/v2',
+    {
+      qs: {
+        token: token
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestChannelMessages = (token: string, channelId: number, start: number) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/channel/messages/v2',
+    {
+      qs: {
+        token: token,
+        channelId: channelId,
+        start: start
       }
     }
   );
