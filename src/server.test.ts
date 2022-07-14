@@ -5,7 +5,6 @@ const HOST: string = process.env.IP || config.url;
 const SERVER_URL = `${HOST}:${PORT}`;
 const OK = 200;
 
-
 const requestChannelsCreate = (token: string, name: string, isPublic: boolean) => {
   const res = request(
     'POST',

@@ -173,7 +173,7 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
   }
   let end: number;
   const messagesArray: message[] = [];
-  if (start + 50 > channelObj.messages.length) {
+  if (start + 50 >= channelObj.messages.length) {
     end = -1;
   } else {
     end = start + 50;
