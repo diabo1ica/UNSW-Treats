@@ -6,7 +6,7 @@ import { getData, setData } from './dataStore';
 import { authRegisterV1, authLoginV1 } from './auth';
 import * as jose from 'jose';
 import { clearV1 } from './other';
-import { dmCreate } from './dm';
+import { dmCreate, messageSendDm } from './dm';
 // Set up web app, use JSON
 const app = express();
 const generateToken = (uId: number):string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
@@ -66,6 +66,15 @@ app.post('/dm/create/v1', (req, res) => {
     const { token, uIds } = req.body;
     const dmId = dmCreate(decodeToken(token), uIds).dmId;
     res.json({ dmId: dmId });
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.post('/message/senddm/v1', (req, res) => {
+  try {
+    const { token, dmId, message } = req.body;
+    res.json(messageSendDm(decodeToken(token), dmId, message));
   } catch (err) {
     res.json({ error: 'error' });
   }
