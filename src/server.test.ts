@@ -334,13 +334,13 @@ describe('Test suite for /message/senddm/v1', () => {
 });
 
 describe('Test suite for /dm/details/v1', () => {
-  let userId2: number, userId4: number;
+  let userId1: number, userId2: number, userId4: number;
   let dmId1: number;
   let token1: string, token2: string, token3: string;
 
   beforeEach(() => {
     requestClear();
-    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+    userId1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
     userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
     requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
     userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
@@ -368,13 +368,28 @@ describe('Test suite for /dm/details/v1', () => {
         name: 'DavidPei, GaryAng, SteveBerrospi',
         members: expect.arrayContaining([expect.objectContaining(
           {
-            uId: expect.any(Number),
-            email: expect.any(String),
-            nameFirst: expect.any(String),
-            nameLast: expect.any(String),
-            handleStr: expect.any(String)
-          }
-        )])
+            uId: userId1,
+            email: 'z5363495@unsw.edu.au',
+            nameFirst: 'Steve',
+            nameLast: 'Berrospi',
+            handleStr: 'SteveBerrospi'
+          }), expect.objectContaining(
+            {
+              uId: userId2,
+              email: 'z3329234@unsw.edu.au',
+              nameFirst: 'Gary',
+              nameLast: 'Ang',
+              handleStr: 'GaryAng'
+            }), expect.objectContaining(
+              {
+                uId: userId4,
+                email: 'z4234824@unsw.edu.au',
+                nameFirst: 'David',
+                nameLast: 'Pei',
+                handleStr: 'DavidPei'
+              }
+            )
+        ])
       }
     ));
   });
