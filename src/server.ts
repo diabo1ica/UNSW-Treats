@@ -8,7 +8,7 @@ import { channelsCreateV1 } from './channels';
 import { getData, setData, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
-import { dmCreate, messageSendDm, dmDetails } from './dm';
+import { dmCreate, messageSendDm, dmDetails, dmMessages } from './dm';
 
 // Set up web app, use JSON
 const app = express();
@@ -145,6 +145,18 @@ app.post('/message/senddm/v1', (req, res) => {
     const { token, dmId, message } = req.body;
     if (!validToken(token)) throw new Error('Invalid Token');
     res.json(messageSendDm(decodeToken(token), dmId, message));
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.get('/dm/messages/v1', (req, res) => {
+  try {
+    const token = req.query.token as string;
+    const dmId = JSON.parse(req.query.dmId as string);
+    const start = JSON.parse(req.query.start as string);
+    if (!validToken(token)) throw new Error('Invalid Token');
+    res.json(dmMessages(decodeToken(token), dmId, start));
   } catch (err) {
     res.json({ error: 'error' });
   }
