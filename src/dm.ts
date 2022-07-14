@@ -40,6 +40,27 @@ export function dmCreate(creatorId: number, uIds: number[]) {
   };
 }
 
+export function dmMessages(authUserId: number, dmId: number, start: number) {
+  const dmObj = getDm(dmId);
+  if (dmObj === false || start > dmObj.messages.length  || isDmMember(authUserId, dmObj) === false) throw new Error('error');
+  let end: number;
+  const messagesArray: message[] = [];
+  if (start + 50 >= dmObj.messages.length) {
+    end = -1;
+  } else {
+    end = start + 50;
+  }
+  for (const item of dmObj.messages.slice(start, start + 50)) {
+    messagesArray.push(item);
+  }
+
+  return {
+    messages: messagesArray,
+    start: start,
+    end: end,
+  };
+}
+
 export function messageSendDm(authUserId: number, dmId: number, message: string) {
   const data = getData();
   const dmObj = getDm(dmId);
