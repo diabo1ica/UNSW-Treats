@@ -18,13 +18,6 @@ const app = express();
 // decodeToken   - takes in a token string and reverts it to its original number
 const generateToken = (uId: number): string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
-function validToken(token: string) {
-  const data: dataStr = getData();
-  for (const tokenObj of data.tokenArray) {
-    if (token === tokenObj) return true;
-  }
-  return false;
-}
 
 app.use(express.json());
 
@@ -50,17 +43,6 @@ app.post('/auth/register/v2', (req, res) => {
     res.json(registerAuthV2(id.authUserId));
   }
 });
-
-function registerAuthV2(id: number) {
-  const data: dataStr = getData();
-  const token: string = generateToken(id);
-  data.tokenArray.push(token);
-  setData(data);
-  return {
-    token: token,
-    authUserId: id
-  };
-}
 
 app.post('/auth/logout/v1', (req, res) => {
   const { token } = req.body;
@@ -100,11 +82,6 @@ app.get('/channel/details/v2', (req, res) => {
   }
 });
 
-function chDetailsV2(token: string, chId: number) {
-  const userId = decodeToken(token);
-  return channelDetailsV1(userId, chId);
-}
-
 app.get('/dm/list/v1', (req, res) => {
   const token = req.query.token as string;
   if (!validToken(token)) {
@@ -113,22 +90,6 @@ app.get('/dm/list/v1', (req, res) => {
     res.json(dmList(token));
   }
 });
-
-function dmList(token: string) {
-  const data: dataStr = getData();
-  const uId: number = decodeToken(token);
-  const dmArray = [];
-  for (const dm of data.dms) {
-    if (dm.members.some(obj => obj.uId === uId)) {
-      const dmObj = {
-        dmId: dm.dmId,
-        name: dm.name
-      };
-      dmArray.push(dmObj);
-    }
-  }
-  return { dms: dmArray };
-}
 
 app.delete('/dm/remove/v1', (req, res) => {
   const token = req.query.token as string;
@@ -139,17 +100,6 @@ app.delete('/dm/remove/v1', (req, res) => {
     res.json(dmRemove(token, dmId));
   }
 });
-
-function dmRemove(token: string, dmId: number) {
-  const data: dataStr = getData();
-  for (let i = 0; i < data.dms.length; i++) {
-    if (data.dms[i].dmId === dmId) {
-      data.dms.splice(i, 1);
-    }
-  }
-  setData(data);
-  return {};
-}
 
 app.post('/auth/login/v2', (req, res) => {
   try {
@@ -205,14 +155,6 @@ app.delete('/clear/v1', (req, res) => {
   res.json({});
 });
 
-function validToken(token: string) {
-  const data: dataStr = getData();
-  for (const tokenObj of data.tokenArray) {
-    if (token === tokenObj) return true;
-  }
-  return false;
-}
-
 // for logging errors
 app.use(morgan('dev'));
 
@@ -221,3 +163,54 @@ app.listen(PORT, HOST, () => {
   getData(true);
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
 });
+
+function validToken(token: string) {
+  const data: dataStr = getData();
+  for (const tokenObj of data.tokenArray) {
+    if (token === tokenObj) return true;
+  }
+  return false;
+}
+
+function registerAuthV2(id: number) {
+  const data: dataStr = getData();
+  const token: string = generateToken(id);
+  data.tokenArray.push(token);
+  setData(data);
+  return {
+    token: token,
+    authUserId: id
+  };
+}
+
+function chDetailsV2(token: string, chId: number) {
+  const userId = decodeToken(token);
+  return channelDetailsV1(userId, chId);
+}
+
+function dmList(token: string) {
+  const data: dataStr = getData();
+  const uId: number = decodeToken(token);
+  const dmArray = [];
+  for (const dm of data.dms) {
+    if (dm.members.some(obj => obj.uId === uId)) {
+      const dmObj = {
+        dmId: dm.dmId,
+        name: dm.name
+      };
+      dmArray.push(dmObj);
+    }
+  }
+  return { dms: dmArray };
+}
+
+function dmRemove(token: string, dmId: number) {
+  const data: dataStr = getData();
+  for (let i = 0; i < data.dms.length; i++) {
+    if (data.dms[i].dmId === dmId) {
+      data.dms.splice(i, 1);
+    }
+  }
+  setData(data);
+  return {};
+}
