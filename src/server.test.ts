@@ -5,47 +5,6 @@ const HOST: string = process.env.IP || config.url;
 const SERVER_URL = `${HOST}:${PORT}`;
 const OK = 200;
 
-const requestRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
-  const res = request(
-    'POST',
-    SERVER_URL + '/auth/register/v2',
-    {
-      json: {
-        email: email,
-        password: password,
-        nameFirst: nameFirst,
-        nameLast: nameLast,
-      }
-    }
-  );
-  if (res.statusCode !== OK) return { error: 'error' };
-  return JSON.parse(res.getBody() as string);
-};
-
-const requestLogin = (email: string, password: string) => {
-  const res = request(
-    'POST',
-    SERVER_URL + '/auth/login/v2',
-    {
-      json: {
-        email: email,
-        password: password,
-      }
-    }
-  );
-  if (res.statusCode !== OK) return { error: 'error' };
-  return JSON.parse(res.getBody() as string);
-};
-
-const requestClear = () => {
-  const res = request(
-    'DELETE',
-    SERVER_URL + '/clear/v1'
-  );
-  if (res.statusCode !== OK) return { error: 'error' };
-  return JSON.parse(res.getBody() as string);
-};
-
 const requestChannelsCreate = (token: string, name: string, isPublic: boolean) => {
   const res = request(
     'POST',
@@ -516,6 +475,113 @@ describe('Test suite for /auth/login/v2', () => {
   });
 });
 
+describe('Test suite for /channels/listall/v2', () => {
+  let channelId1: number, channelId2: number, channelId3: number, channelId4: number;
+  let token1: string, token2: string, token3: string, token4:string;
+
+  describe('Error cases', () => {
+    beforeEach(() => {
+      requestClear();
+      requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+      requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
+      token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
+      token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
+    });
+
+    test('No channels were created', () => {
+      expect(requestChannelslistall(token1).channels).toStrictEqual([]);
+    });
+
+    test('Invalid token', () => {
+      expect(requestChannelslistall(token2 + '3')).toStrictEqual({ error: 'error' });
+    });
+  });
+
+  describe('Working cases', () => {
+    beforeEach(() => {
+      requestClear();
+      requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+      requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
+      requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
+      requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei');
+      token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
+      token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
+      token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
+      token4 = requestLogin('z4234824@unsw.edu.au', 'aero654').token;
+      channelId1 = requestChannelsCreate(token1, 'Aero', true).channelId;
+      channelId2 = requestChannelsCreate(token2, 'Aero1', true).channelId;
+      channelId3 = requestChannelsCreate(token3, 'Aero2', false).channelId;
+      channelId4 = requestChannelsCreate(token4, 'Aero3', false).channelId;
+    });
+
+    test('Correct output (list 4 channels)', () => {
+      expect(requestChannelslistall(token1)).toStrictEqual(expect.objectContaining(
+        {
+          channels: expect.arrayContaining([
+            {
+              channelId: channelId1,
+              name: 'Aero',
+            },
+            {
+              channelId: channelId2,
+              name: 'Aero1',
+            },
+            {
+              channelId: channelId3,
+              name: 'Aero2',
+            },
+            {
+              channelId: channelId4,
+              name: 'Aero3',
+            }
+          ])
+        }));
+    });
+  });
+});
+
+describe('Test suite for /channel/messages/v2', () => {
+  let channelId1: number, channelId2: number;
+  let token1: string, token2: string, token3: string;
+  beforeEach(() => {
+    requestClear();
+    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+    requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
+    requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
+    requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei');
+    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
+    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
+    token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
+    channelId1 = requestChannelsCreate(token1, 'Aero', true).channelId;
+    channelId2 = requestChannelsCreate(token2, 'Aero1', true).channelId;
+  });
+
+  test('Invalid Token', () => {
+    expect(requestChannelMessages('-' + token2, channelId2, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Invalid channelId', () => {
+    expect(requestChannelMessages(token1, -channelId1, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Start is greater than total number messages', () => {
+    expect(requestChannelMessages(token1, channelId1, 10000000)).toStrictEqual({ error: 'error' });
+  });
+
+  test('User is not a member of valid channel', () => {
+    expect(requestChannelMessages(token3, channelId1, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Correct return type', () => {
+    expect(requestChannelMessages(token1, channelId1, 0)).toStrictEqual(expect.objectContaining(
+      {
+        messages: expect.arrayContaining([]),
+        start: 0,
+        end: -1,
+      }));
+  });
+});
+
 describe('Test suite for /dm/create/v1', () => {
   let userId2: number, userId3: number, userId4: number;
   let token1: string;
@@ -596,13 +662,13 @@ describe('Test suite for /message/senddm/v1', () => {
 });
 
 describe('Test suite for /dm/details/v1', () => {
-  let userId2: number, userId4: number;
+  let userId1: number, userId2: number, userId4: number;
   let dmId1: number;
   let token1: string, token2: string, token3: string;
 
   beforeEach(() => {
     requestClear();
-    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+    userId1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
     userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
     requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
     userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
@@ -630,15 +696,127 @@ describe('Test suite for /dm/details/v1', () => {
         name: 'DavidPei, GaryAng, SteveBerrospi',
         members: expect.arrayContaining([expect.objectContaining(
           {
-            uId: expect.any(Number),
-            email: expect.any(String),
-            nameFirst: expect.any(String),
-            nameLast: expect.any(String),
-            handleStr: expect.any(String)
+            uId: userId1,
+            email: 'z5363495@unsw.edu.au',
+            nameFirst: 'Steve',
+            nameLast: 'Berrospi',
+            handleStr: 'SteveBerrospi'
+          }), expect.objectContaining(
+          {
+            uId: userId2,
+            email: 'z3329234@unsw.edu.au',
+            nameFirst: 'Gary',
+            nameLast: 'Ang',
+            handleStr: 'GaryAng'
+          }), expect.objectContaining(
+          {
+            uId: userId4,
+            email: 'z4234824@unsw.edu.au',
+            nameFirst: 'David',
+            nameLast: 'Pei',
+            handleStr: 'DavidPei'
           }
-        )])
+        )
+        ])
       }
     ));
+  });
+});
+
+describe('Test suite for /dm/messages/v1', () => {
+  let userId2: number, userId3: number, userId4: number;
+  let dmId1: number;
+  let token1: string, token2: string, token3: string, token4:string;
+
+  beforeEach(() => {
+    requestClear();
+    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
+    userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
+    userId3 = requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
+    userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
+    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
+    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
+    token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
+    token4 = requestLogin('z4234824@unsw.edu.au', 'aero654').token;
+    dmId1 = requestDmCreate(token1, [userId2, userId4, userId3]).dmId;
+  });
+
+  test('Invalid token', () => {
+    expect(requestDmMessages('-' + token1, dmId1, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Invalid dmId', () => {
+    expect(requestDmMessages(token1, -dmId1, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('start is greater than total messages', () => {
+    sendMessages(token2, dmId1, 30, 10);
+    expect(requestDmMessages(token1, dmId1, 31)).toStrictEqual({ error: 'error' });
+  });
+
+  test('dmId is valid but authorised user is not a member', () => {
+    const dmId2 = requestDmCreate(token1, [userId2, userId4]).dmId;
+    sendMessages(token1, dmId2, 60, 5);
+    expect(requestDmMessages(token3, dmId2, 0)).toStrictEqual({ error: 'error' });
+  });
+
+  test('Correct Output (start = 0)(59 messages sent)', () => {
+    sendMessages(token1, dmId1, 15, 5);
+    sendMessages(token2, dmId1, 15, 10);
+    sendMessages(token3, dmId1, 10, 5);
+    sendMessages(token4, dmId1, 19, 8);
+    const res = requestDmMessages(token2, dmId1, 0);
+    expect(res).toStrictEqual(expect.objectContaining(
+      {
+        messages: expect.arrayContaining([expect.objectContaining(
+          {
+            messageId: expect.any(Number),
+            uId: expect.any(Number),
+            message: expect.any(String),
+            timeSent: expect.any(Number)
+          }
+        )]),
+        start: 0,
+        end: 50,
+      }
+    ));
+    for (let i = 0; i < res.messages.length - 2; i++) {
+      expect(res.messages[i].timeSent).toBeGreaterThanOrEqual(res.messages[i].timeSent);
+    }
+  });
+
+  test('Correct Output (start = 45)(59 messages sent)', () => {
+    sendMessages(token1, dmId1, 15, 5);
+    sendMessages(token2, dmId1, 15, 10);
+    sendMessages(token3, dmId1, 10, 5);
+    sendMessages(token4, dmId1, 19, 8);
+    const res = requestDmMessages(token2, dmId1, 45);
+    expect(res).toStrictEqual(expect.objectContaining(
+      {
+        messages: expect.arrayContaining([expect.objectContaining(
+          {
+            messageId: expect.any(Number),
+            uId: expect.any(Number),
+            message: expect.any(String),
+            timeSent: expect.any(Number)
+          }
+        )]),
+        start: 45,
+        end: -1
+      }
+    ));
+    for (let i = 0; i < res.messages.length - 2; i++) {
+      expect(res.messages[i].timeSent).toBeGreaterThanOrEqual(res.messages[i].timeSent);
+    }
+  });
+
+  test('Correct Output (start = 50)(50 messages sent)', () => {
+    sendMessages(token1, dmId1, 50, 2);
+    expect(requestDmMessages(token3, dmId1, 50)).toStrictEqual(expect.objectContaining({
+      messages: [],
+      start: 50,
+      end: -1
+    }));
   });
 });
 
@@ -648,6 +826,83 @@ const generateMessage = (length: number): string => {
     message += String.fromCharCode(Math.floor(Math.random() * 26) % 26 + 97);
   }
   return message;
+};
+
+const sendMessages = (token: string, dmId: number, numberOfMessages: number, length: number) => {
+  for (let i = 0; i < numberOfMessages; i++) {
+    requestSendDm(token, dmId, generateMessage(length));
+  }
+};
+
+const requestClear = () => {
+  const res = request(
+    'DELETE',
+    SERVER_URL + '/clear/v1'
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
+  const res = request(
+    'POST',
+    SERVER_URL + '/auth/register/v2',
+    {
+      json: {
+        email: email,
+        password: password,
+        nameFirst: nameFirst,
+        nameLast: nameLast,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestLogin = (email: string, password: string) => {
+  const res = request(
+    'POST',
+    SERVER_URL + '/auth/login/v2',
+    {
+      json: {
+        email: email,
+        password: password,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestChannelslistall = (token: string) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/channels/listall/v2',
+    {
+      qs: {
+        token: token
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestChannelMessages = (token: string, channelId: number, start: number) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/channel/messages/v2',
+    {
+      qs: {
+        token: token,
+        channelId: channelId,
+        start: start
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
 };
 
 const requestDmCreate = (token: string, uIds: number[]) => {
@@ -674,6 +929,22 @@ const requestSendDm = (token: string, dmId: number, message: string) => {
         token: token,
         dmId: dmId,
         message: message
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+};
+
+const requestDmMessages = (token: string, dmId: number, start: number) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/dm/messages/v1',
+    {
+      qs: {
+        token: token,
+        dmId: dmId,
+        start: start
       }
     }
   );

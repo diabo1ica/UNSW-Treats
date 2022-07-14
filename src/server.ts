@@ -2,15 +2,15 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { channelsCreateV1, channelsListV1 } from './channels';
-import { channelInviteV1, removeowner } from './channel';
+import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
+import { channelInviteV1, removeowner, channelMessagesV1 } from './channel';
 import { getData, setData, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1 } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import { channelDetailsV1 } from './channel';
-import { dmCreate, messageSendDm, dmDetails } from './dm';
+import { dmCreate, messageSendDm, dmDetails, dmMessages } from './dm';
 
 // Set up web app, use JSON
 const app = express();
@@ -21,6 +21,8 @@ const app = express();
 const generateToken = (uId: number): string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 app.use(express.json());
+// for logging errors
+app.use(morgan('dev'));
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
@@ -177,10 +179,33 @@ app.post('/auth/login/v2', (req, res) => {
   }
 });
 
+app.get('/channels/listall/v2', (req, res) => {
+  try {
+    const token = req.query.token as string;
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
+
+    res.json(channelsListallV1(decodeToken(token)));
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.get('/channel/messages/v2', (req, res) => {
+  try {
+    const token = req.query.token as string;
+    const channelId = JSON.parse(req.query.channelId as string);
+    const start = JSON.parse(req.query.start as string);
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
+    res.json(channelMessagesV1(decodeToken(token), channelId, start));
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
 app.post('/dm/create/v1', (req, res) => {
   try {
     const { token, uIds } = req.body;
-    if (!validToken(token)) throw new Error('Invalid Token');
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
     const dmId = dmCreate(decodeToken(token), uIds).dmId;
     res.json({ dmId: dmId });
   } catch (err) {
@@ -192,7 +217,7 @@ app.get('/dm/details/v1', (req, res) => {
   try {
     const token = req.query.token as string;
     const dmId = JSON.parse(req.query.dmId as string);
-    if (!validToken(token)) throw new Error('Invalid Token');
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
     res.json(dmDetails(decodeToken(token), dmId));
   } catch (err) {
     res.json({ error: 'error' });
@@ -202,8 +227,20 @@ app.get('/dm/details/v1', (req, res) => {
 app.post('/message/senddm/v1', (req, res) => {
   try {
     const { token, dmId, message } = req.body;
-    if (!validToken(token)) throw new Error('Invalid Token');
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
     res.json(messageSendDm(decodeToken(token), dmId, message));
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.get('/dm/messages/v1', (req, res) => {
+  try {
+    const token = req.query.token as string;
+    const dmId = JSON.parse(req.query.dmId as string);
+    const start = JSON.parse(req.query.start as string);
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
+    res.json(dmMessages(decodeToken(token), dmId, start));
   } catch (err) {
     res.json({ error: 'error' });
   }
@@ -213,9 +250,6 @@ app.delete('/clear/v1', (req, res) => {
   clearV1();
   res.json({});
 });
-
-// for logging errors
-app.use(morgan('dev'));
 
 // start server
 app.listen(PORT, HOST, () => {
