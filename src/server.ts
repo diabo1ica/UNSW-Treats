@@ -169,7 +169,6 @@ app.delete('/clear/v1', (req, res) => {
   res.json({});
 });
 
-
 // start server
 app.listen(PORT, HOST, () => {
   getData(true);
