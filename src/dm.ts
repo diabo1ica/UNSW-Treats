@@ -1,6 +1,6 @@
 import { getData, setData, dataStr, dm, dmMember, message } from './dataStore';
 
-function dmCreate(creatorId: number, uIds: number[]) {
+export function dmCreate(creatorId: number, uIds: number[]) {
   const data: dataStr = getData();
   if (!uIds.every((uId) => validateUserId(uId)) || isDuplicateUserId(uIds) === true) {
     throw new Error('error');
@@ -40,7 +40,7 @@ function dmCreate(creatorId: number, uIds: number[]) {
   };
 }
 
-function messageSendDm(authUserId: number, dmId: number, message: string) {
+export function messageSendDm(authUserId: number, dmId: number, message: string) {
   const data = getData();
   const dmObj = getDm(dmId);
   if (dmObj === false || message.length < 1 || message.length > 1000 || !isDmMember(authUserId, dmObj)) throw new Error('error');
@@ -133,4 +133,4 @@ function generatedmId() {
   setData(data);
   return dmId;
 }
-export { dmCreate };
+
