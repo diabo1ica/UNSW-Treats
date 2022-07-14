@@ -20,6 +20,8 @@ const generateToken = (uId: number): string => new jose.UnsecuredJWT({ uId: uId 
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 
 app.use(express.json());
+// for logging errors
+app.use(morgan('dev'));
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
@@ -167,8 +169,6 @@ app.delete('/clear/v1', (req, res) => {
   res.json({});
 });
 
-// for logging errors
-app.use(morgan('dev'));
 
 // start server
 app.listen(PORT, HOST, () => {

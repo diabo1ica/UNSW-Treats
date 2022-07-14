@@ -374,21 +374,21 @@ describe('Test suite for /dm/details/v1', () => {
             nameLast: 'Berrospi',
             handleStr: 'SteveBerrospi'
           }), expect.objectContaining(
-            {
-              uId: userId2,
-              email: 'z3329234@unsw.edu.au',
-              nameFirst: 'Gary',
-              nameLast: 'Ang',
-              handleStr: 'GaryAng'
-            }), expect.objectContaining(
-              {
-                uId: userId4,
-                email: 'z4234824@unsw.edu.au',
-                nameFirst: 'David',
-                nameLast: 'Pei',
-                handleStr: 'DavidPei'
-              }
-            )
+          {
+            uId: userId2,
+            email: 'z3329234@unsw.edu.au',
+            nameFirst: 'Gary',
+            nameLast: 'Ang',
+            handleStr: 'GaryAng'
+          }), expect.objectContaining(
+          {
+            uId: userId4,
+            email: 'z4234824@unsw.edu.au',
+            nameFirst: 'David',
+            nameLast: 'Pei',
+            handleStr: 'DavidPei'
+          }
+        )
         ])
       }
     ));
@@ -437,7 +437,7 @@ describe('Test suite for /dm/messages/v1', () => {
     sendMessages(token2, dmId1, 15, 10);
     sendMessages(token3, dmId1, 10, 5);
     sendMessages(token4, dmId1, 19, 8);
-    const res = requestDmMessages(token2, dmId1, 0)
+    const res = requestDmMessages(token2, dmId1, 0);
     expect(res).toStrictEqual(expect.objectContaining(
       {
         messages: expect.arrayContaining([expect.objectContaining(
@@ -481,14 +481,14 @@ describe('Test suite for /dm/messages/v1', () => {
       expect(res.messages[i].timeSent).toBeGreaterThanOrEqual(res.messages[i].timeSent);
     }
   });
-  
+
   test('Correct Output (start = 50)(50 messages sent)', () => {
     sendMessages(token1, dmId1, 50, 2);
     expect(requestDmMessages(token3, dmId1, 50)).toStrictEqual(expect.objectContaining({
       messages: [],
       start: 50,
       end: -1
-    }))
+    }));
   });
 });
 
@@ -504,7 +504,7 @@ const sendMessages = (token: string, dmId: number, numberOfMessages: number, len
   for (let i = 0; i < numberOfMessages; i++) {
     requestSendDm(token, dmId, generateMessage(length));
   }
-}
+};
 
 const requestClear = () => {
   const res = request(

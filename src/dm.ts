@@ -42,7 +42,7 @@ export function dmCreate(creatorId: number, uIds: number[]) {
 
 export function dmMessages(authUserId: number, dmId: number, start: number) {
   const dmObj = getDm(dmId);
-  if (dmObj === false || start > dmObj.messages.length  || isDmMember(authUserId, dmObj) === false) throw new Error('error');
+  if (dmObj === false || start > dmObj.messages.length || isDmMember(authUserId, dmObj) === false) throw new Error('error');
   let end: number;
   const messagesArray: message[] = [];
   if (start + 50 >= dmObj.messages.length) {
