@@ -31,7 +31,7 @@ export function dmCreate(creatorId: number, uIds: number[]) {
     newMember.dmPermsId = 2;
     newMember.uId = uId;
     newDm.members.push(newMember);
-  }); // For each uId inside of uIds will be added to the members list with member permissions 
+  }); // For each uId inside of uIds will be added to the members list with member permissions
 
   const creator = dmMemberTemplate();
   creator.dmPermsId = 1; // Give the creator DM owner permissions
@@ -41,7 +41,7 @@ export function dmCreate(creatorId: number, uIds: number[]) {
   for (const item of data.users) {
     if (newDm.members.some((member) => member.uId === item.userId)) sortedArray.push(item.handleStr);
   } // Push the handles of all members into an array
-  sortedArray.sort(); //Sort the array by alphabetical order
+  sortedArray.sort(); // Sort the array by alphabetical order
   for (const item of sortedArray) {
     if (sortedArray.indexOf(item) === sortedArray.length - 1) {
       newDm.name += item;
@@ -71,7 +71,7 @@ Arguments:
 Return Value:
     Returns {messages, start, end} on start + 50 is an index which contains
     a message
-    Returns {messages, start, -1} on start + 50 is an index which does not 
+    Returns {messages, start, -1} on start + 50 is an index which does not
     contain a message.
     Returns {error: 'error} on start is empty or over 1000 characters, invalid
     DM, user is not a member of DM, start is greater than the total messages in
@@ -121,7 +121,7 @@ Return Value:
 export function messageSendDm(authUserId: number, dmId: number, message: string) {
   const data = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false || message.length < 1 || message.length > 1000 || !isDmMember(authUserId, dmObj)) throw new Error('error'); //check for all errors
+  if (dmObj === false || message.length < 1 || message.length > 1000 || !isDmMember(authUserId, dmObj)) throw new Error('error'); // check for all errors
   const newMessage = messageTemplate();// generate a messageTemplate for the relevant information
   newMessage.messageId = generateMessageId(); // generate unique messageid
   newMessage.uId = authUserId;
@@ -153,7 +153,7 @@ Return Value:
 export function dmDetails(authUserId: number, dmId: number) {
   const data = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false || isDmMember(authUserId, dmObj) === false) throw new Error('error'); //check for all errors
+  if (dmObj === false || isDmMember(authUserId, dmObj) === false) throw new Error('error'); // check for all errors
   const members = [];
   let member: any;
   for (const user of data.users) {
@@ -174,7 +174,7 @@ export function dmDetails(authUserId: number, dmId: number) {
 }
 
 /*
-Removes the user as member of the specified DM in dmId. 
+Removes the user as member of the specified DM in dmId.
 
 Arguments:
     authUserId (number)    - Identification number of the user calling
@@ -214,7 +214,7 @@ const dmTemplate = (): dm => {
   };
 };
 
-// creates a template for new messages 
+// creates a template for new messages
 const messageTemplate = (): message => {
   return {
     messageId: 0,
@@ -249,7 +249,7 @@ const isDuplicateUserId = (userIds: number[]) => {
   return false;
 };
 
-// Validates the dmId refers to a registered DM 
+// Validates the dmId refers to a registered DM
 function getDm(dmId: number) {
   const data: dataStr = getData();
   for (const item of data.dms) {
@@ -266,7 +266,7 @@ function isDmMember(uId: number, dmObj: dm) {
   return false;
 }
 
-// generates a unique message id 
+// generates a unique message id
 function generateMessageId() {
   let messageId: number;
   const data = getData();

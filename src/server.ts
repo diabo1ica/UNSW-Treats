@@ -178,12 +178,12 @@ and logs in the user provided the email and password
 are correct.
 
 Arguments:
-    email (string)    - email of the user. 
+    email (string)    - email of the user.
     password (string)    - password linked to email of user.
 
 Return Value:
     Returns {token, authUserId} on correct email and password
-    Returns {error: 'error} on invalid email and/or password 
+    Returns {error: 'error} on invalid email and/or password
 */
 
 app.post('/auth/login/v2', (req, res) => {
@@ -204,7 +204,7 @@ app.post('/auth/login/v2', (req, res) => {
 });
 
 /*
-Server route for channels/list/all/v2, Validates token is an 
+Server route for channels/list/all/v2, Validates token is an
 an active user session. Decodes token to get userId and calls
 channelsListallV1
 
@@ -219,7 +219,7 @@ Return Value:
 
 app.get('/channels/listall/v2', (req, res) => {
   try {
-    const token = req.query.token as string; 
+    const token = req.query.token as string;
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(channelsListallV1(decodeToken(token))); // respond to request with list of all channels
   } catch (err) {
@@ -229,7 +229,7 @@ app.get('/channels/listall/v2', (req, res) => {
 
 /*
 Server route for channel/messages/v2, calls and responds with the ouput
-of channelMessagesV1 
+of channelMessagesV1
 
 Arguments:
     token (integer)   - a string pertaining to an active user session
@@ -251,7 +251,7 @@ Return Value:
 
 app.get('/channel/messages/v2', (req, res) => {
   try {
-    const token = req.query.token as string; 
+    const token = req.query.token as string;
     const channelId = JSON.parse(req.query.channelId as string);
     const start = JSON.parse(req.query.start as string);
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
@@ -386,7 +386,7 @@ Arguments:
 Return Value:
     Returns {messages, start, end} on start + 50 is an index which contains
     a message
-    Returns {messages, start, -1} on start + 50 is an index which does not 
+    Returns {messages, start, -1} on start + 50 is an index which does not
     contain a message.
     Returns {error: 'error} on start is empty or over 1000 characters, invalid
     DM, user is not a member of DM, start is greater than the total messages in
@@ -405,7 +405,7 @@ app.get('/dm/messages/v1', (req, res) => {
   }
 });
 
-//clear runtime data and data.json
+// clear runtime data and data.json
 app.delete('/clear/v1', (req, res) => {
   clearV1();
   res.json({});
