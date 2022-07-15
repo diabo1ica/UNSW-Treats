@@ -20,7 +20,7 @@ Return Value:
 export function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
     return { error: 'error' };
-  }
+  } // validate channel name is between 1-20 characters inclusive
   const data: dataStr = getData();
   const channels: channel = channelsTemplate();
   if (data.channelIdCounter === 0) {
@@ -29,7 +29,7 @@ export function channelsCreateV1(authUserId: number, name: string, isPublic: boo
   } else {
     channels.channelId = data.channelIdCounter + 1;
     data.channelIdCounter++;
-  }
+  } // generate the unique channelId
 
   channels.name = name;
   channels.isPublic = isPublic;
@@ -41,7 +41,7 @@ export function channelsCreateV1(authUserId: number, name: string, isPublic: boo
         channelPermsId: 1,
       });
     }
-  }
+  } //list the channel creator as an owner of the channel
   data.channels.push(channels);
   setData(data);
   return {
@@ -71,7 +71,7 @@ export function channelsListV1(authUserId: number) {
         name: channel.name,
       });
     }
-  }
+  } // pushes all the channels that the user is a member of into a new array
 
   return {
     channels: allChannels
@@ -92,7 +92,7 @@ export function channelsListallV1(authUserId: number) {
   const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
     throw new Error('Invalid authUserId');
-  }
+  } // check userId is valid
 
   const allChannels: any[] = [];
   for (const item of data.channels) {
@@ -100,7 +100,7 @@ export function channelsListallV1(authUserId: number) {
       channelId: item.channelId,
       name: item.name,
     });
-  }
+  } // put all relevant information of all channels into a new array
 
   return {
     channels: allChannels // see interface for contents
