@@ -41,7 +41,7 @@ export function channelsCreateV1(authUserId: number, name: string, isPublic: boo
         channelPermsId: 1,
       });
     }
-  } //list the channel creator as an owner of the channel
+  } // list the channel creator as an owner of the channel
   data.channels.push(channels);
   setData(data);
   return {

@@ -222,7 +222,7 @@ function validateUserId(UserId: number) {
 }
 
 /*
-Removes owner permissions from the given uId. 
+Removes owner permissions from the given uId.
 
 Arguments:
     token (string)    - a string pertaining to an active user session

@@ -95,7 +95,7 @@ export function userSetemailV1(authUserId: number, email: string) {
     if (item.userId === authUserId) {
       item.email = email;
     }
-  } // set the new email 
+  } // set the new email
   setData(data);
   return {};
 }

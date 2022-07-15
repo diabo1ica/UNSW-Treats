@@ -79,7 +79,7 @@ Arguments:
 
 Return Value:
     Returns {channelId} on Valid/active token & name is 1-20 characters
-    Returns {error: 'error'} on invalid/inactive token | length of name is 
+    Returns {error: 'error'} on invalid/inactive token | length of name is
     less than 1 or more than 20 characters
 */
 
