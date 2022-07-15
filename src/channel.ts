@@ -142,7 +142,7 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
   }
   for (const item of channelObj.messages.slice(start, start + 50)) {
     messagesArray.push(item);
-  }
+  } // extract the 50 most recent messages relative to start from the channel
 
   return {
     messages: messagesArray,

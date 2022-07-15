@@ -1,23 +1,13 @@
 import { getData, setData, dataStr, channel } from './dataStore';
-
-function generateChannelId() {
-  let Id = Math.floor(Math.random() * 1000000)
-  const data = getData();
-  while (data.channels.some((channel) => channel.channelId === Id)) {
-    Id = Math.floor(Math.random() * 1000000)
-  }
-  return Id;
-}
-
 /*
 Create a channel with given name and whether it is public or private.
 
 Arguments:
-<<<<<<< HEAD
-    token (string)        - a specific string point to the user that create the channel 
-=======
+
+    token (string)        - a specific string point to the user that create the channel
+
     authUserId (integer)  - author user id, the user that create the channel
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
+
                             and a member of channel.
     name (string)         - the name of the channel.
     isPublic (boolean)    - true if it is public and false for private.
@@ -27,27 +17,11 @@ Return Value:
     Returns {error: 'error'} on name that is invalid (less than 1 or
                              more than 20
 */
-function channelsCreateV1(token: string, name: string, isPublic: boolean) {
+export function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
     return { error: 'error' };
-  }
-  
+  } // validate channel name is between 1-20 characters inclusive
   const data: dataStr = getData();
-<<<<<<< HEAD
-  const channel = channelsTemplate();
-  
-  channel.name = name;
-  channel.isPublic = isPublic;
-  
-  for (let item of data.users) {
-    for (let tokens of item.tokenArray) {
-      if (tokens === token) {
-        channel.members.push({
-          uId: item.userId,
-          channelPermsId: 1,
-        });
-      }
-=======
   const channels: channel = channelsTemplate();
   if (data.channelIdCounter === 0) {
     channels.channelId = 1;
@@ -55,7 +29,7 @@ function channelsCreateV1(token: string, name: string, isPublic: boolean) {
   } else {
     channels.channelId = data.channelIdCounter + 1;
     data.channelIdCounter++;
-  }
+  } // generate the unique channelId
 
   channels.name = name;
   channels.isPublic = isPublic;
@@ -64,26 +38,17 @@ function channelsCreateV1(token: string, name: string, isPublic: boolean) {
     if (item.userId === authUserId) {
       channels.members.push({
         uId: authUserId,
-        email: item.email,
-        nameFirst: item.nameFirst,
-        nameLast: item.nameLast,
-        handleStr: item.handleStr,
         channelPermsId: 1,
       });
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
     }
-  }
-  data.channels.push(channel);
+  } // list the channel creator as an owner of the channel
+  data.channels.push(channels);
   setData(data);
   return {
-<<<<<<< HEAD
-    channelId: generateChannelId(),
-  }
-=======
     channelId: channels.channelId,
   };
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
 }
+
 /*
 Provide a list of channels and it's details that the authorised user is a part of.
 
@@ -95,37 +60,21 @@ Return Value:
     Returns { channels } on authUserId is valid
 */
 
-function channelsListV1(token: string) {
+export function channelsListV1(authUserId: number) {
   const data: dataStr = getData();
-  const userchannels = [];
-<<<<<<< HEAD
-  
-  for (let item of data.users) {
-    for (let tokens of item.tokenArray) {
-      if (tokens === token) {
-        for (let channel of data.channels) {
-          if (channel.members.some(obj => obj.uId === item.userId)) {
-            userchannels.push({
-              channelId: channel.channelId,
-              name: channel.name,
-            });
-          }
-        }
-      }   
-=======
+  const allChannels: any[] = [];
 
   for (const channel of data.channels) {
     if (channel.members.some(obj => obj.uId === authUserId)) {
-      userchannels.push({
+      allChannels.push({
         channelId: channel.channelId,
         name: channel.name,
       });
->>>>>>> e8f4b6293d6e761f79ee7e113196b2b43be7bfc0
     }
-  }
-  
+  } // pushes all the channels that the user is a member of into a new array
+
   return {
-    channels: userchannels
+    channels: allChannels
   };
 }
 /*
@@ -139,11 +88,11 @@ Return Value:
     Returns { channels } on authUserId is valid
     Returns {error: 'error'} on authUserId is invalid
 */
-function channelsListallV1(authUserId: number) {
+export function channelsListallV1(authUserId: number) {
   const data: dataStr = getData();
   if (validateUserId(authUserId) === false) {
     throw new Error('Invalid authUserId');
-  }
+  } // check userId is valid
 
   const allChannels: any[] = [];
   for (const item of data.channels) {
@@ -151,7 +100,7 @@ function channelsListallV1(authUserId: number) {
       channelId: item.channelId,
       name: item.name,
     });
-  }
+  } // put all relevant information of all channels into a new array
 
   return {
     channels: allChannels // see interface for contents
@@ -195,5 +144,3 @@ function validateUserId(UserId: number) {
   }
   return false;
 }
-
-export { channelsCreateV1, channelsListV1, channelsListallV1 };

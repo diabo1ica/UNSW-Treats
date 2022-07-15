@@ -665,6 +665,17 @@ app.put('/user/profile/sethandle/v1', (req, res) => {
     res.json(userProfileSethandleV1(authUserId, handleStr));
   }
 });
+/*
+Server route for dm/messages/v1, calls and responds with the output
+of dmMessages
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    dmId (number)    - Identification number of the DM whose messages
+                       are to be viewed.
+    start (number)    - The starting index of which the next 50 messages
+                        will be returned from
 
 /*
 Server route for user/all/v1, calls and responds with the output
