@@ -102,6 +102,16 @@ app.post('/channel/invite/v2', (req, res) => {
   }
 });
 
+app.post('/channel/leave/v1', (req, res) => {
+  const { token, channelId } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const userId = decodeToken(token);
+    res.json(channelLeave(userId, channelId));
+  }
+});
+
 app.get('/user/profile/v2', (req, res) => {
   const token = req.query.token as string;
   const uID: number = parseInt(req.query.uId as string);
@@ -363,6 +373,25 @@ function dmRemove(token: string, dmId: number) {
       for (let j = 0; j < data.dms[i].members.length; j++) {
         if (data.dms[i].members[j].uId === id && data.dms[i].members[j].dmPermsId === 1) {
           data.dms.splice(i, 1);
+          setData(data);
+          return {};
+        }
+      }
+      return { error: 'error' };
+    }
+  }
+  return { error: 'error' };
+}
+
+function channelLeave(userId: number, chId: number) {
+  const data: dataStr = getData();
+  // Find channel in channel array
+  for (const channel of data.channels) {
+    if (channel.channelId === chId) {
+      // Find userId in channel's member array
+      for (let i = 0; i < channel.members.length; i++) {
+        if (channel.members[i].uId === userId) {
+          channel.members.splice(i, 1);
           setData(data);
           return {};
         }
