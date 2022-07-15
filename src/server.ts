@@ -27,6 +27,10 @@ app.use(morgan('dev'));
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
 
+// NOTE :
+// Some of these request paths calls wrapper functions
+// Documentations for the wrapper functions can be found on the bottom part of this file
+
 // Example get request
 app.get('/echo', (req, res, next) => {
   try {
@@ -37,6 +41,21 @@ app.get('/echo', (req, res, next) => {
   }
 });
 
+/*
+Takes in an email, password, nameFirst and nameLast and passes it to authRegisterV1
+On success authRegisterV1 returns the id of the created user
+The id is then passed on to wrapper function registerAuthV2
+which returns an object containing the token and id of the user on success
+Request :
+    - email (string)      - an email string
+    - password (string)   - a password string
+    - nameFirst (string)  - First name of the user passed as a string
+    - nameLast (string)   - Last name of the user passed as a string
+Response :
+    - Returns an object containing the token and id of the user on success
+    - Returns { error: 'error' } if authRegisterV1 returns an error
+    - Returns { error: 'error' } if registerAuthV2 returns an error
+*/
 app.post('/auth/register/v2', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
@@ -67,6 +86,15 @@ app.get('/channels/list/v2', (req, res) => {
   }
 });
 
+/*
+Logs a user out by invalidating the user's token
+the token is deleted from the dataStore
+Request :
+    - token (string)      - The token of the user that is trying to log out
+Response :
+    - Returns {} if the token is successfully removed
+    - Returns { error: 'error' } if the token does not exist in the dataStore
+*/
 app.post('/auth/logout/v1', (req, res) => {
   const { token } = req.body;
   if (!validToken(token)) {
@@ -75,13 +103,24 @@ app.post('/auth/logout/v1', (req, res) => {
   const data: dataStr = getData();
   for (let i = 0; i < data.tokenArray.length; i++) {
     if (token === data.tokenArray[i]) {
-      data.tokenArray = data.tokenArray.slice(0, i);
+      data.tokenArray.splice(i, 1);
     }
   }
   setData(data);
   res.json({});
 });
 
+/*
+Given a channel id, finds the channel in the dataStore and reveals the details of that channel
+Request :
+    - token (string)      - The token of the user trying to access the channel details
+    - chId (number)       - The id of the channel
+Response :
+    - Returns an object containing the channel's name, isPublic value, owners and members
+    - Returns { error: 'error' } if the token does not exist in the dataStore
+    - Returns { error: 'error' } if the chId refers to a channel that does not exist in the dataStore
+    - Returns { error: 'error' } if the token refers to a uId that isn't a member of the channel
+*/
 app.get('/channel/details/v2', (req, res) => {
   const token: string = req.query.token as string;
   const chId: number = parseInt(req.query.channelId as string);
@@ -102,6 +141,17 @@ app.post('/channel/invite/v2', (req, res) => {
   }
 });
 
+/*
+Given token of a user and channel id, removes the user from the channel's members array
+Request :
+    - token (string)      - The token of the user that is trying to leave the channel
+    - channelId (number)  - The id of the channel
+Response :
+    - Returns {} if the removal is succesful
+    - Returns { error: 'error' } if the token does not exist in the dataStore
+    - Returns { error: 'error  } if channelId does not exist in the channels array
+    - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
+*/
 app.post('/channel/leave/v1', (req, res) => {
   const { token, channelId } = req.body;
   if (!validToken(token)) {
@@ -153,6 +203,15 @@ app.put('/user/profile/setemail/v1', (req, res) => {
   }
 });
 
+/*
+Given a token of a user, finds all dms that the user is part of
+Request :
+    - token (String)      - The token of the user trying to access the dm list
+Response :
+    - Returns an array of objects where each object contains dmId and the name of the dm
+    - Returns an empty object if the user is not part of any dms
+    - Returns { error: 'error' } if the token points to a uid that does not exist in the dataStore
+*/
 app.get('/dm/list/v1', (req, res) => {
   const token = req.query.token as string;
   if (!validToken(token)) {
@@ -162,6 +221,18 @@ app.get('/dm/list/v1', (req, res) => {
   }
 });
 
+/*
+Given a token and dmId, finds and removes the dm with that id
+Request :
+    - token (string)      - the token of the user that is trying to remove the dm
+    - dmId  (number)      - the id of the dm that will be removed
+Response  :
+    - Returns {} once removal is successful
+    - Returns { error: 'error' } if the dmId points to a dm that does not exist in the dataStore
+    - Returns { error: 'error' } if the token points to a uid that is not the uid of the dm creator
+    - Returns { error: 'error  } if the token points to a uid that is not in the dm members list
+    - Returns { error: 'error' } if the token points to a uid that does not exist in the dataStore
+*/
 app.delete('/dm/remove/v1', (req, res) => {
   const token = req.query.token as string;
   const dmId = parseInt(req.query.dmId as string);
@@ -267,6 +338,8 @@ app.get('/dm/messages/v1', (req, res) => {
   }
 });
 
+// Calls the clearV1 function from ./other which resets the dataStore
+// Always returns {}
 app.delete('/clear/v1', (req, res) => {
   clearV1();
   res.json({});
@@ -335,6 +408,7 @@ Argurments :
     - token (string)      - The token of the user that is trying to access the list
 Return values :
     - Returns an array of objects where each object contains dmId and the name of the dm
+    - Returns an empty object if the user is not part of any dms
 */
 function dmList(token: string) {
   const data: dataStr = getData();
