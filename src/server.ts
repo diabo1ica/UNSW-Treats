@@ -3,13 +3,13 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
-import { channelInviteV1, removeowner, channelMessagesV1 } from './channel';
+import { channelInviteV1, removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1 } from './channel';
 import { getData, setData, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
-import { userProfileV1, userSetNameV1, userSetemailV1 } from './users';
+import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
-import { channelDetailsV1 } from './channel';
+import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
 
 // Set up web app, use JSON
@@ -588,6 +588,193 @@ app.get('/dm/messages/v1', (req, res) => {
     res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
+  }
+});
+
+/*
+Server route for channel/join/v2, calls and responds with the output
+of channelJoinV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number)    - Identification number of the channel where the
+                        user joins.
+
+Return Value:
+    Returns {} when user joins the channel succesfully
+    Returns {error: 'error'} on invalid channelId, user is alread a member 
+                        of channel, channel is private and user has no globalperm
+*/
+app.post('/channel/join/v2', (req, res) => {
+  const { token, channelId } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(channelJoinV1(authUserId, channelId));
+  }
+});
+
+/*
+Server route for channel/addowner/v2, calls and responds with the output
+of channelAddownerV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number)    - Identification number of the channel where the
+                        uId is going to be added as owner.
+    uId (number)      - Identification of user that will be added as owner.
+
+Return Value:
+    Returns {} when uId is added as owner succesfully.
+    Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member 
+                        of channel, uId is already owner, authuser has no owner permission.
+*/
+app.post('/channel/addowner/v1', (req, res) => {
+  const { token, channelId, uId } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(channelAddownerV1(authUserId, channelId, uId));
+  }
+});
+
+/*
+Server route for user/profile/sethandle/v1, calls and responds with the output
+of userProfileSethandleV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    handleStr (string)    - Displayed name of user
+    
+Return Value:
+    Returns {} when handleStr is changed succesfully
+    Returns {error: 'error'} on incorrect handleStr length, contain non-alphanumeric characters,
+                                the handleStr is occupied by another user.
+*/
+app.put('/user/profile/sethandle/v1', (req, res) => {
+  const { token, handleStr } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userProfileSethandleV1(authUserId, handleStr));
+  }
+});
+/*
+Server route for dm/messages/v1, calls and responds with the output
+of dmMessages
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    dmId (number)    - Identification number of the DM whose messages
+                       are to be viewed.
+    start (number)    - The starting index of which the next 50 messages
+                        will be returned from
+
+/*
+Server route for user/all/v1, calls and responds with the output
+of userAllV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    
+Return Value:
+    Returns { users } an array of all the users and their asscoiated detail on success.
+*/
+app.get('/users/all/v1', (req, res, next) => {
+  const token: string = req.query.token as string;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  }
+
+  const authUserId = decodeToken(token);
+  res.json(usersAllV1(authUserId));
+});
+
+/*
+Server route for message/send/v1, calls and responds with the output
+of messageSendV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number)  - Identification of channel that the message 
+                        is sent.
+    message (string)   - string of message that is sent.
+
+Return Value:
+    Returns { messageId } unique identification for the message on success
+    Returns {error: 'error'} on invalid channelId, incorrect message length,
+                            messageId being valid, but not included in channel that
+                            usr is a part of.
+*/
+app.post('/message/send/v1', (req, res) => {
+  const { token, channelId, message } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(messageSendV1(authUserId, channelId, message));
+  }
+});
+
+/*
+Server route for message/edit/v1, calls and responds with the output
+of messageEditV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number)  - Identification of channel that the message 
+                        is edited.
+    message (string)   - string of message that is sent to be edited.
+
+Return Value:
+    Returns {} when message is edited succesfully
+    Returns {error: 'error'} on incorrect message length, invalid messageId,
+                              not the user who sent the message, no owner permission
+                              to edit other's message.
+*/
+app.put('/message/edit/v1', (req, res) => {
+  const { token, messageId, message } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(messageEditV1(authUserId, messageId, message));
+  }
+});
+
+/*
+Server route for message/remove/v1, calls and responds with the output
+of messageRemoveV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    messageId (number)  - Identification of channel that the message 
+                        is removed.
+
+Return Value:
+    Returns {} when message is removed succesfully
+    Returns {error: 'error'} on invalid messageId,  not the user who sent the 
+                              message, have no ownerpermsion to remove message.
+*/
+app.delete('/message/remove/v1', (req, res) => {
+  const token: string = req.query.token as string;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const messageId: number = parseInt(req.query.messageId as string);
+    const authUserId = decodeToken(token);
+    res.json(messageRemoveV1(authUserId, messageId));
   }
 });
 
