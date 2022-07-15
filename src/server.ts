@@ -66,6 +66,23 @@ app.post('/auth/register/v2', (req, res) => {
   }
 });
 
+/*
+Server route for channels/create/v2 calls and responds with output
+of channelsCreateV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the authorised user's Id.
+    name (string)    - Name of the new channel
+                            user is being invited to
+    isPublic (boolean)    - determines whether the channel is Public or Private
+
+Return Value:
+    Returns {channelId} on Valid/active token & name is 1-20 characters
+    Returns {error: 'error'} on invalid/inactive token | length of name is
+    less than 1 or more than 20 characters
+*/
+
 app.post('/channels/create/v2', (req, res) => {
   const { token, name, isPublic } = req.body;
   if (!validToken(token)) {
@@ -75,6 +92,19 @@ app.post('/channels/create/v2', (req, res) => {
     res.json(channelsCreateV1(authUserId, name, isPublic));
   }
 });
+
+/*
+Server route for channels/list/v2 calls and responds with output
+of channelsListV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the authorised user's Id.
+
+Return Value:
+    Returns {channels} on Valid/active token
+    Returns {error: 'error'} on invalid/inactive token
+*/
 
 app.get('/channels/list/v2', (req, res) => {
   const token = req.query.token as string;
@@ -131,6 +161,24 @@ app.get('/channel/details/v2', (req, res) => {
   }
 });
 
+/*
+Server route for channel/invite/v2 calls and responds with output
+of channelInviteV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number)    - Identification number of the channel that
+                            user is being invited to
+    uId (number)    - Identification number of the user being invited
+
+Return Value:
+    Returns {} on Valid/active token
+    Returns {error: 'error'} on invalid/inactive token | uId refers to invalid
+    user | channelId refers to invalid channel | uId refers to a user who is
+    already a member of the channel | authorised user is not a member of the channel
+*/
+
 app.post('/channel/invite/v2', (req, res) => {
   const { token, channelId, uId } = req.body;
   if (!validToken(token)) {
@@ -162,6 +210,21 @@ app.post('/channel/leave/v1', (req, res) => {
   }
 });
 
+/*
+Server route for user/profile/v2 calls and responds with output
+of userProfileV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    uId (number)    - Identification number of the user being invited
+
+Return Value:
+    Returns {user} on Valid/active token & valid uId
+    Returns {error: 'error'} on invalid/inactive token | uId does not
+    refer to a valid user
+*/
+
 app.get('/user/profile/v2', (req, res) => {
   const token = req.query.token as string;
   const uID: number = parseInt(req.query.uId as string);
@@ -173,6 +236,26 @@ app.get('/user/profile/v2', (req, res) => {
   }
 });
 
+/*
+Server route for channel/removeowner/v1 calls and responds with output
+of removeowner
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number)    - Identification number of the channel being
+                            edited
+    uId (number)    - Identification number of the owner whose permissions
+                      are to be replaced with member permissions
+
+Return Value:
+    Returns {} on Valid/active token
+    Returns {error: 'error'} on invalid/inactive token, invalid userId, uId
+    refers to a user who is not an owner of the channel, uId refers to a user
+    who is the only owner of the channel, authorised user does not have owner
+    permissions
+*/
+
 app.post('/channel/removeowner/v1', (req, res) => {
   const { token, channelId, uId } = req.body;
   if (!validToken(token)) {
@@ -183,6 +266,23 @@ app.post('/channel/removeowner/v1', (req, res) => {
   }
 });
 
+/*
+Server route for user/profile/setname/v1 calls and responds with output
+of userSetNameV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    nameFirst (string)    - First name the user wishes to switch to
+    nameLast (string)    - Last name the user wishes to switch to
+
+Return Value:
+    Returns {} on Valid/active token & nameFirst and nameLast have 1-50 characters
+    Returns {error: 'error'} on invalid/inactive token | length of nameFirst
+    is not between 1 and 50 characters inclusive | length of nameLast is not
+    between 1 and 50 characters inclusive
+*/
+
 app.put('/user/profile/setname/v1', (req, res) => {
   const { token, nameFirst, nameLast } = req.body;
   if (!validToken(token)) {
@@ -192,6 +292,21 @@ app.put('/user/profile/setname/v1', (req, res) => {
     res.json(userSetNameV1(authUserId, nameFirst, nameLast));
   }
 });
+
+/*
+Server route for user/profile/setemail/v1 calls and responds with output
+of userSetemailV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    email (string)    - email that user wishes to switch to
+
+Return Value:
+    Returns {} on Valid/active token & valid email & email is not being used
+    Returns {error: 'error'} on invalid/inactive token | email entered
+    is not a valid email | email address is being used by another user
+*/
 
 app.put('/user/profile/setemail/v1', (req, res) => {
   const { token, email } = req.body;

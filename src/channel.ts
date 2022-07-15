@@ -177,10 +177,10 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
     end = -1;
   } else {
     end = start + 50;
-  }
+  } // Determine whether there are more messages in the channel after the first 50 from start.
   for (const item of channelObj.messages.slice(start, start + 50)) {
     messagesArray.push(item);
-  }
+  } // extract the 50 most recent messages relative to start from the channel
 
   return {
     messages: messagesArray,
@@ -189,6 +189,7 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
   };
 }
 
+// Validates the dmId refers to a registered DM
 function getChannel(channelId: number) {
   const data: dataStr = getData();
   for (const item of data.channels) {
@@ -199,6 +200,7 @@ function getChannel(channelId: number) {
   return false;
 }
 
+// Validates that the user is a member of the given channel
 function isMember(userId: number, channelObj: channel) {
   for (const item of channelObj.members) {
     if (userId === item.uId) {
@@ -208,6 +210,7 @@ function isMember(userId: number, channelObj: channel) {
   return false;
 }
 
+// Validates the given userId is a registered user
 function validateUserId(UserId: number) {
   const data: dataStr = getData();
   for (const item of data.users) {
@@ -219,16 +222,23 @@ function validateUserId(UserId: number) {
 }
 
 /*
-function channelsTemplate() {
-  const channel: channel = {
-    channelId: 0,
-    name: ' ',
-    isPublic: true,
-    members: [],
-    messages: [],
-  };
-  return channel;
-} */
+Removes owner permissions from the given uId.
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number)    - Identification number of the channel being
+                            edited
+    uId (number)    - Identification number of the owner whose permissions
+                      are to be replaced with member permissions
+
+Return Value:
+    Returns {} on Valid/active token
+    Returns {error: 'error'} on invalid/inactive token, invalid userId, uId
+    refers to a user who is not an owner of the channel, uId refers to a user
+    who is the only owner of the channel, authorised user does not have owner
+    permissions
+*/
 
 export function removeowner (authUserId: number, channelId: number, uId: number) {
   const channelObj = getChannel(channelId);
@@ -248,9 +258,9 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   for (const member of channelObj.members) {
     if (member.uId === uId) {
       if (member.channelPermsId === 2 || num === 1) {
-        return { error: 'error' };
+        return { error: 'error' }; // if user doesn't have owner permissions return error
       } else {
-        member.channelPermsId = 2;
+        member.channelPermsId = 2; // set the user's permissions to member permissions
       }
     }
   }
