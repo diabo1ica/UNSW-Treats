@@ -384,6 +384,7 @@ describe('channel path tests', () => {
 
 describe('dm path tests', () => {
   let tokenId1: string;
+  let tokenId2: string;
   let userId2: number;
   let userId3: number;
   let userId4: number;
@@ -391,7 +392,9 @@ describe('dm path tests', () => {
   beforeEach(() => {
     requestClear();
     tokenId1 = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan').token;
-    userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
+    const bodyObj = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
+    tokenId2 = bodyObj.token;
+    userId2 = bodyObj.authUserId;
     userId3 = requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
     userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
   });
@@ -448,6 +451,18 @@ describe('dm path tests', () => {
         }
       ]
     }));
+  });
+
+  test('Test remove invalid parameters', () => {
+    const uIds1: number[] = [userId2, userId3];
+    const uIds2: number[] = [userId2, userId4];
+    const dmId: number = requestDmCreate(tokenId1, uIds1).dmId;
+    const dmId2: number = requestDmCreate(tokenId1, uIds2).dmId;
+    const tokenId3 = registerAuth('hero@gmail.com', 'Coursehero', 'Hiiro', 'Heroe').token;
+    expect(dmRemove(tokenId1, dmId)).toStrictEqual({});
+    expect(dmRemove(tokenId1, dmId2 - 100)).toStrictEqual({ error: 'error' });
+    expect(dmRemove(tokenId3, dmId2)).toStrictEqual({ error: 'error' });
+    expect(dmRemove(tokenId2, dmId2)).toStrictEqual({ error: 'error' });
   });
 });
 

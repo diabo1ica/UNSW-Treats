@@ -338,14 +338,26 @@ Arguements :
     - dmId (number)       - The id of the dm that will be removed
 Return values :
     - Returns {} once removal is done
+    - Returns { error: 'error' } if the dmId does not exist in the dataStore
+    - Returns { error: 'error' } if the uid of the token is not the dm creator
+    - Returns { error: 'error  } if the uid is not in the dm members list
 */
 function dmRemove(token: string, dmId: number) {
   const data: dataStr = getData();
+  // Find the dm in the dm array
   for (let i = 0; i < data.dms.length; i++) {
     if (data.dms[i].dmId === dmId) {
-      data.dms.splice(i, 1);
+      const id: number = decodeToken(token);
+      // Verify if token owner is the dm creator
+      for (let j = 0; j < data.dms[i].members.length; j++) {
+        if (data.dms[i].members[j].uId === id && data.dms[i].members[j].dmPermsId === 1) {
+          data.dms.splice(i, 1);
+          setData(data);
+          return {};
+        }
+      }
+      return { error: 'error' };
     }
   }
-  setData(data);
-  return {};
+  return { error: 'error' };
 }
