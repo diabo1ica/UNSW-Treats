@@ -383,6 +383,17 @@ function dmRemove(token: string, dmId: number) {
   return { error: 'error' };
 }
 
+/*
+Wrapper function for the /channel/leave/v1 implementation
+Arguements :
+    - token (string)      - A token of the user that will leave the channel
+    - chId (number)       - The id of the channel
+Return values :
+    - Returns {} once removal is done
+    - Returns { error: 'error' } if the token/uid does not exist in the dataStore
+    - Returns { error: 'error  } if chId does not exist in the channels array
+    - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
+*/
 function channelLeave(userId: number, chId: number) {
   const data: dataStr = getData();
   // Find channel in channel array
