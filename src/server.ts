@@ -243,98 +243,236 @@ app.delete('/dm/remove/v1', (req, res) => {
   }
 });
 
+/*
+Server route for auth/login/v2, calls authLoginV1
+and logs in the user provided the email and password
+are correct.
+
+Arguments:
+    email (string)    - email of the user.
+    password (string)    - password linked to email of user.
+
+Return Value:
+    Returns {token, authUserId} on correct email and password
+    Returns {error: 'error} on invalid email and/or password
+*/
+
 app.post('/auth/login/v2', (req, res) => {
   try {
-    const { email, password } = req.body;
-    const userId = authLoginV1(email, password).authUserId;
-    const token = generateToken(userId);
-    const data = getData();
-    data.tokenArray.push(token);
-    setData(data);
+    const { email, password } = req.body; // load relevant request information
+    const userId = authLoginV1(email, password).authUserId; // Login the user
+    const token = generateToken(userId); // Generate a new active token for the user
+    const data = getData(); // load the datastore
+    data.tokenArray.push(token); // Add the new active token to the datastore
+    setData(data); // save changes
     res.json({
       token: token,
       authUserId: userId
-    });
+    }); // responds to request with the desired information
   } catch (err) {
-    res.json({ error: 'error' });
+    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
 });
+
+/*
+Server route for channels/list/all/v2, Validates token is an
+an active user session. Decodes token to get userId and calls
+channelsListallV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+
+Return Value:
+    Returns { channels } on token is valid/active
+    Returns {error: 'error'} on token is invalid/inactive
+*/
 
 app.get('/channels/listall/v2', (req, res) => {
   try {
     const token = req.query.token as string;
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
-
-    res.json(channelsListallV1(decodeToken(token)));
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
+    res.json(channelsListallV1(decodeToken(token))); // respond to request with list of all channels
   } catch (err) {
-    res.json({ error: 'error' });
+    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
 });
+
+/*
+Server route for channel/messages/v2, calls and responds with the ouput
+of channelMessagesV1
+
+Arguments:
+    token (integer)   - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (integer)    - Identification number of the channel whose messages
+                             are to be viewed.
+    start (integer)        - The starting index of which the user wants to start
+                             looking at the messages from.
+
+Return Value:
+    Returns {messages, start, end} on correct input
+    Returns {error: 'error'} on token is invalid/inactive
+    Returns {error: 'error'} on start is greater than the total amount of
+    messages
+    Returns {error: 'error'} on channelId refers to an invalid channel
+    Returns {error: 'error'} on channelId is valid but user is not a
+    member of the channel
+*/
 
 app.get('/channel/messages/v2', (req, res) => {
   try {
     const token = req.query.token as string;
     const channelId = JSON.parse(req.query.channelId as string);
     const start = JSON.parse(req.query.start as string);
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
-    res.json(channelMessagesV1(decodeToken(token), channelId, start));
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
+    res.json(channelMessagesV1(decodeToken(token), channelId, start)); // respond to request with list of message in channel
   } catch (err) {
-    res.json({ error: 'error' });
+    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
 });
+
+/*
+Server route for dm/create/v1, calls and responds with the output
+of dmCreate
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    uIds (array)    - array of uIds of users that are to be invited
+                      to the DM
+
+Return Value:
+    Returns {dmId} on Valid/active token, uIds doesn't have duplicate uId
+    and every uId is valid
+    Returns {error: 'error'} on Invalid/Inactive token, Uids contains duplicate uId or
+    invalid uId are found in uIds
+*/
 
 app.post('/dm/create/v1', (req, res) => {
   try {
     const { token, uIds } = req.body;
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
-    const dmId = dmCreate(decodeToken(token), uIds).dmId;
-    res.json({ dmId: dmId });
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
+    res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
   } catch (err) {
-    res.json({ error: 'error' });
+    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
 });
+
+/*
+Server route for dm/details/v1, calls and responds with the output
+of dmDetails
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    dmId (number)    - Identification number of the DM whose messages
+                       are to be viewed.
+
+Return Value:
+    Returns {name, members} on valid/active token
+    Returns {error: 'error'} on invalid DM or user is not a member
+    of the DM
+*/
 
 app.get('/dm/details/v1', (req, res) => {
   try {
     const token = req.query.token as string;
     const dmId = JSON.parse(req.query.dmId as string);
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
-    res.json(dmDetails(decodeToken(token), dmId));
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
+    res.json(dmDetails(decodeToken(token), dmId)); // respond to request with details of the DM
   } catch (err) {
-    res.json({ error: 'error' });
+    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
 });
+
+/*
+Server route for dm/leave/v1, calls and responds with the output
+of dmLeave
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    dmId (number)    - Identification number of the DM whose messages
+                       are to be viewed.
+
+Return Value:
+    Returns {} on token is active/valid and user is in DM
+    Returns {error: 'error'} on invalid DM or user is not a member
+    of the DM
+*/
 
 app.post('/dm/leave/v1', (req, res) => {
   try {
     const { token, dmId } = req.body;
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
-    res.json(dmLeave(decodeToken(token), dmId));
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
+    res.json(dmLeave(decodeToken(token), dmId)); // respond to request with empty object
   } catch (err) {
     console.log(err);
-    res.json({ error: 'error' });
+    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
 });
+
+/*
+Server route message/senddm/v1, calls and responds with the output
+of messageSendDm
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    dmId (number)    - Identification number of the DM whose messages
+                       are to be viewed.
+    message (string)    - the message that the user is trying to send
+                          to the DM
+
+Return Value:
+    Returns {messageId} on valid/active token, dmId refers to valid DM,
+    message is not empty and is under 1001 characters, user is a member
+    of the DM.
+    Returns {error: 'error'} on dmId refers to invalid DM, message is empty,
+    message is over 1000 characters, or user is not a member of the DM.
+*/
 
 app.post('/message/senddm/v1', (req, res) => {
   try {
     const { token, dmId, message } = req.body;
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
-    res.json(messageSendDm(decodeToken(token), dmId, message));
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
+    res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
   } catch (err) {
-    res.json({ error: 'error' });
+    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
 });
+/*
+Server route for dm/messages/v1, calls and responds with the output
+of dmMessages
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    dmId (number)    - Identification number of the DM whose messages
+                       are to be viewed.
+    start (number)    - The starting index of which the next 50 messages
+                        will be returned from
+
+Return Value:
+    Returns {messages, start, end} on start + 50 is an index which contains
+    a message
+    Returns {messages, start, -1} on start + 50 is an index which does not
+    contain a message.
+    Returns {error: 'error} on start is empty or over 1000 characters, invalid
+    DM, user is not a member of DM, start is greater than the total messages in
+    DM, or invalid/inactive token
+*/
 
 app.get('/dm/messages/v1', (req, res) => {
   try {
     const token = req.query.token as string;
     const dmId = JSON.parse(req.query.dmId as string);
     const start = JSON.parse(req.query.start as string);
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
-    res.json(dmMessages(decodeToken(token), dmId, start));
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
+    res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
   } catch (err) {
-    res.json({ error: 'error' });
+    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
 });
 
