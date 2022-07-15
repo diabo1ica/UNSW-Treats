@@ -290,6 +290,21 @@ function chDetails(token: string, chId: number) {
   return JSON.parse(res.body as string);
 }
 
+function chLeave(token: string, channelId: number) {
+  const res = request(
+    'POST',
+    SERVER_URL + '/channel/leave/v1',
+    {
+      json: {
+        token: token,
+        channelId: channelId
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.body as string);
+}
+
 function dmList(token: string) {
   const res = request(
     'GET',
@@ -379,6 +394,47 @@ describe('channel path tests', () => {
     logOut(userToken);
     const bodyObj2 = chDetails(userToken, channelId);
     expect(bodyObj2).toEqual({ error: 'error' });
+  });
+
+  test('Test Channel Leave', () => {
+    const bodyObj = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
+    const token1: string = bodyObj.token;
+    const userId1: number = bodyObj.authUserId;
+    const userId2: number = requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
+    const userId3: number = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
+    const token2: string = requestRegister('z6789654@unsw.edu.au', 'aero897', 'Arlong', 'Hui').token;
+    requestChannelInvite(userToken, channelId, userId1);
+    requestChannelInvite(userToken, channelId, userId2);
+    requestChannelInvite(userToken, channelId, userId3);
+    expect(chLeave(userToken, channelId - 100)).toStrictEqual({ error: 'error' });
+    expect(chLeave(userToken, channelId)).toStrictEqual({});
+    expect(chLeave(token2, channelId)).toStrictEqual({ error: 'error' });
+    expect(chDetails(token1, channelId)).toStrictEqual({
+      name: 'Xhorhas',
+      isPublic: true,
+      ownerMembers: [],
+      allMembers: [{
+        uId: expect.any(Number),
+        email: 'z3329234@unsw.edu.au',
+        nameFirst: 'Gary',
+        nameLast: 'Ang',
+        handleStr: 'GaryAng'
+      },
+      {
+        uId: expect.any(Number),
+        email: 'z1319832@unsw.edu.au',
+        nameFirst: 'Kenneth',
+        nameLast: 'Kuo',
+        handleStr: 'KennethKuo'
+      },
+      {
+        uId: expect.any(Number),
+        email: 'z4234824@unsw.edu.au',
+        nameFirst: 'David',
+        nameLast: 'Pei',
+        handleStr: 'DavidPei'
+      }]
+    });
   });
 });
 
