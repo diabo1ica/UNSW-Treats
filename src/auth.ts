@@ -12,6 +12,7 @@ import { getData, setData, user, dataStr } from './dataStore';
 //    Returns { error : 'error' } on email not valid (Already taken, argument not in email format
 //    Returns { error : 'error' } on password length not valid (< 6)
 //    Returns { error : 'error' } on nameFirst and/or nameLast length not valid
+
 function authRegisterV1(email: string, password: string, nameFirst: string, nameLast: string) {
   if (!validator.isEmail(email) ||
   password.length < 6 ||
@@ -96,7 +97,7 @@ function userTemplate() {
     email: '',
     password: '',
     userId: 0,
-    globalPermsId: 2
+    globalPermsId: 2,
   };
   return user;
 }

@@ -2,13 +2,15 @@ import express from 'express';
 import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
-import { authRegisterV1, authLoginV1 } from './auth';
-import { channelDetailsV1 } from './channel';
-import { channelsCreateV1 } from './channels';
+import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
+import { channelInviteV1, removeowner, channelMessagesV1 } from './channel';
 import { getData, setData, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
-import { dmCreate, messageSendDm, dmDetails } from './dm';
+import { userProfileV1, userSetNameV1, userSetemailV1 } from './users';
+import { authRegisterV1, authLoginV1 } from './auth';
+import { channelDetailsV1 } from './channel';
+import { dmCreate, messageSendDm, dmDetails, dmMessages } from './dm';
 
 // Set up web app, use JSON
 const app = express();
@@ -18,8 +20,9 @@ const app = express();
 // decodeToken   - takes in a token string and reverts it to its original number
 const generateToken = (uId: number): string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
-
 app.use(express.json());
+// for logging errors
+app.use(morgan('dev'));
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
@@ -44,6 +47,26 @@ app.post('/auth/register/v2', (req, res) => {
   }
 });
 
+app.post('/channels/create/v2', (req, res) => {
+  const { token, name, isPublic } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(channelsCreateV1(authUserId, name, isPublic));
+  }
+});
+
+app.get('/channels/list/v2', (req, res) => {
+  const token = req.query.token as string;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(channelsListV1(authUserId));
+  }
+});
+
 app.post('/auth/logout/v1', (req, res) => {
   const { token } = req.body;
   if (!validToken(token)) {
@@ -59,19 +82,6 @@ app.post('/auth/logout/v1', (req, res) => {
   res.json({});
 });
 
-app.post('/channels/create/v2', (req, res) => {
-  const { token, name, isPublic } = req.body;
-  if (!validToken(token)) {
-    res.json({ error: 'error' });
-  } else {
-    const authUserId = decodeToken(token);
-    const channelId = channelsCreateV1(authUserId, name, isPublic);
-    res.json({
-      channelId: channelId.channelId,
-    });
-  }
-});
-
 app.get('/channel/details/v2', (req, res) => {
   const token: string = req.query.token as string;
   const chId: number = parseInt(req.query.channelId as string);
@@ -79,6 +89,57 @@ app.get('/channel/details/v2', (req, res) => {
     res.json({ error: 'error' });
   } else {
     res.json(chDetailsV2(token, chId));
+  }
+});
+
+app.post('/channel/invite/v2', (req, res) => {
+  const { token, channelId, uId } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(channelInviteV1(authUserId, channelId, uId));
+  }
+});
+
+app.get('/user/profile/v2', (req, res) => {
+  const token = req.query.token as string;
+  const uID: number = parseInt(req.query.uId as string);
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userProfileV1(authUserId, uID));
+  }
+});
+
+app.post('/channel/removeowner/v1', (req, res) => {
+  const { token, channelId, uId } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(removeowner(authUserId, channelId, uId));
+  }
+});
+
+app.put('/user/profile/setname/v1', (req, res) => {
+  const { token, nameFirst, nameLast } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userSetNameV1(authUserId, nameFirst, nameLast));
+  }
+});
+
+app.put('/user/profile/setemail/v1', (req, res) => {
+  const { token, email } = req.body;
+  if (!validToken(token)) {
+    res.json({ error: 'error' });
+  } else {
+    const authUserId = decodeToken(token);
+    res.json(userSetemailV1(authUserId, email));
   }
 });
 
@@ -118,10 +179,33 @@ app.post('/auth/login/v2', (req, res) => {
   }
 });
 
+app.get('/channels/listall/v2', (req, res) => {
+  try {
+    const token = req.query.token as string;
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
+
+    res.json(channelsListallV1(decodeToken(token)));
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.get('/channel/messages/v2', (req, res) => {
+  try {
+    const token = req.query.token as string;
+    const channelId = JSON.parse(req.query.channelId as string);
+    const start = JSON.parse(req.query.start as string);
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
+    res.json(channelMessagesV1(decodeToken(token), channelId, start));
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
 app.post('/dm/create/v1', (req, res) => {
   try {
     const { token, uIds } = req.body;
-    if (!validToken(token)) throw new Error('Invalid Token');
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
     const dmId = dmCreate(decodeToken(token), uIds).dmId;
     res.json({ dmId: dmId });
   } catch (err) {
@@ -133,7 +217,7 @@ app.get('/dm/details/v1', (req, res) => {
   try {
     const token = req.query.token as string;
     const dmId = JSON.parse(req.query.dmId as string);
-    if (!validToken(token)) throw new Error('Invalid Token');
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
     res.json(dmDetails(decodeToken(token), dmId));
   } catch (err) {
     res.json({ error: 'error' });
@@ -143,8 +227,20 @@ app.get('/dm/details/v1', (req, res) => {
 app.post('/message/senddm/v1', (req, res) => {
   try {
     const { token, dmId, message } = req.body;
-    if (!validToken(token)) throw new Error('Invalid Token');
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
     res.json(messageSendDm(decodeToken(token), dmId, message));
+  } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.get('/dm/messages/v1', (req, res) => {
+  try {
+    const token = req.query.token as string;
+    const dmId = JSON.parse(req.query.dmId as string);
+    const start = JSON.parse(req.query.start as string);
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
+    res.json(dmMessages(decodeToken(token), dmId, start));
   } catch (err) {
     res.json({ error: 'error' });
   }
@@ -154,9 +250,6 @@ app.delete('/clear/v1', (req, res) => {
   clearV1();
   res.json({});
 });
-
-// for logging errors
-app.use(morgan('dev'));
 
 // start server
 app.listen(PORT, HOST, () => {
