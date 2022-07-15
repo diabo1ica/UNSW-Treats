@@ -1,4 +1,4 @@
-import { getData, dataStr, setData, user } from './dataStore';
+import { getData, dataStr, setData } from './dataStore';
 import validator from 'validator';
 
 /*
@@ -13,7 +13,7 @@ Return Value:
     return {error: 'error'} on invalud uId
 */
 
-function userProfileV1(authUserId: number, uId: number) {
+export function userProfileV1(authUserId: number, uId: number) {
   const data: dataStr = getData();
 
   for (const item of data.users) {
@@ -33,42 +33,74 @@ function userProfileV1(authUserId: number, uId: number) {
   return { error: 'error' };
 }
 
+// Validates the given name is between 1 to 50 characters long inclusive
 function validName(name: string) {
   if (name.length < 1 || name.length > 50) return false;
   return true;
 }
 
+/*
+Sets the new first name and last name of the authorised user
+
+Arguments:
+    authUserId (number)    - Identification number of the user calling
+                             the function
+    nameFirst (string)    - First name the user wishes to switch to
+    nameLast (string)    - Last name the user wishes to switch to
+
+Return Value:
+    Returns {} on Valid/active token & nameFirst and nameLast have 1-50 characters
+    Returns {error: 'error'} on invalid/inactive token | length of nameFirst
+    is not between 1 and 50 characters inclusive | length of nameLast is not
+    between 1 and 50 characters inclusive
+*/
+
 export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: string) {
   const data: dataStr = getData();
   if (!validName(nameFirst) || !validName(nameLast)) {
     return { error: 'error' };
-  }
+  } // check all errors
 
   for (const item of data.users) {
     if (item.userId === authUserId) {
       item.nameFirst = nameFirst;
       item.nameLast = nameLast;
     }
-  }
+  } // set the nameFirst and nameLast
   setData(data);
   return {};
 }
+
+/*
+Sets the new email of the authorised user
+
+Arguments:
+    authUserId (number)    - Identification number of the user calling
+                             the function
+    email (string)    - email that user wishes to switch to
+
+Return Value:
+    Returns {} on Valid/active token & valid email & email is not being used
+    Returns {error: 'error'} on invalid/inactive token | email entered
+    is not a valid email | email address is being used by another user
+*/
 
 export function userSetemailV1(authUserId: number, email: string) {
   const data: dataStr = getData();
   if (!validator.isEmail(email)) {
     return { error: 'error' };
-  }
+  } // Validate the new email
 
   for (const item of data.users) {
     if (item.userId === authUserId) {
       item.email = email;
     }
-  }
+  } // set the new email
   setData(data);
   return {};
 }
 
+// set a new displayed name for user
 function userProfileSethandleV1(authUserId:number, handleStr: string) {
   const data: dataStr = getData();
   console.log(handleStr as string);
@@ -98,7 +130,7 @@ function userProfileSethandleV1(authUserId:number, handleStr: string) {
 
   return { error: 'error' };
 }
-
+// return array of all user and assocaited detail
 function usersAllV1(authUserId: number) {
   const data: dataStr = getData();
   const allUsers: any[] = [];
@@ -118,4 +150,4 @@ function usersAllV1(authUserId: number) {
 
 const isAlphaNumeric = (str: string) => /^[A-Za-z0-9]+$/gi.test(str);
 
-export { userProfileV1, usersAllV1, userProfileSethandleV1 };
+export { usersAllV1, userProfileSethandleV1 };
