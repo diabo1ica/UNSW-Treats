@@ -1,4 +1,5 @@
-import { getData, dataStr, user, setData } from './dataStore';
+import { getData, dataStr, setData, user } from './dataStore';
+import validator from 'validator';
 
 /*
 Provide userId, email, first name, last name and handle for a valid user.
@@ -32,44 +33,89 @@ function userProfileV1(authUserId: number, uId: number) {
   return { error: 'error' };
 }
 
-function userProfileSethandleV1(authUserId:number, handleStr: string) {
-  const data: dataStr = getData();
+function validName(name: string) {
+  if (name.length < 1 || name.length > 50) return false;
+  return true;
+}
 
-  if (handleStr.length > 20 || handleStr.length < 3) {
-    return {error: 'error'};
-  };
+export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: string) {
+  const data: dataStr = getData();
+  if (!validName(nameFirst) || !validName(nameLast)) {
+    return { error: 'error' };
+  }
 
   for (const item of data.users) {
-    if (item.handleStr === handleStr) {
-      return {error: 'error'};
-    };
-  };
-
-  if (!isAlphaNumeric(handleStr)) {
-    return {error: 'error'};
+    if (item.userId === authUserId) {
+      item.nameFirst = nameFirst;
+      item.nameLast = nameLast;
+    }
   }
-  
+  setData(data);
+  return {};
+}
+
+export function userSetemailV1(authUserId: number, email: string) {
+  const data: dataStr = getData();
+  if (!validator.isEmail(email)) {
+    return { error: 'error' };
+  }
+
+  for (const item of data.users) {
+    if (item.userId === authUserId) {
+      item.email = email;
+    }
+  }
+  setData(data);
+  return {};
+}
+
+function userProfileSethandleV1(authUserId:number, handleStr: string) {
+  const data: dataStr = getData();
+  console.log(handleStr as string);
+  // check for incorrect message length
+  if (handleStr.length > 20 || handleStr.length < 3) {
+    return { error: 'error' };
+  }
+  // check if handStr is occupied
+  for (const item of data.users) {
+    console.log(handleStr, item.handleStr);
+    if (item.handleStr === handleStr) {
+      return { error: 'error' };
+    }
+  }
+  // check for alphanumberic
+  if (!isAlphaNumeric(handleStr)) {
+    return { error: 'error' };
+  }
+
   for (const user of data.users) {
     if (user.userId === authUserId) {
       user.handleStr = handleStr;
-    };
-  };
+      setData(data);
+      return {};
+    }
+  }
 
-  setData(data);
+  return { error: 'error' };
 }
 
 function usersAllV1(authUserId: number) {
   const data: dataStr = getData();
-  let userarray: user[];
+  const allUsers: any[] = [];
 
   for (const item of data.users) {
-    userarray.push(item);
+    allUsers.push({
+      userId: item.userId,
+      email: item.email,
+      nameFirst: item.nameFirst,
+      nameLast: item.nameLast,
+      handleStr: item.handleStr,
+    });
   }
 
-  return ({users: userarray});
+  return { users: allUsers };
 }
 
-const isAlphaNumeric = str => /^[A-Za-z0-9]+$/gi.test(str);
-
+const isAlphaNumeric = (str: string) => /^[A-Za-z0-9]+$/gi.test(str);
 
 export { userProfileV1, usersAllV1, userProfileSethandleV1 };
