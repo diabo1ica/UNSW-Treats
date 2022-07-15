@@ -10,7 +10,7 @@ import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1 } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import { channelDetailsV1 } from './channel';
-import { dmCreate, messageSendDm, dmDetails, dmMessages } from './dm';
+import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
 
 // Set up web app, use JSON
 const app = express();
@@ -220,6 +220,17 @@ app.get('/dm/details/v1', (req, res) => {
     if (!validToken(token)) throw new Error('Invalid/Inactive Token');
     res.json(dmDetails(decodeToken(token), dmId));
   } catch (err) {
+    res.json({ error: 'error' });
+  }
+});
+
+app.post('/dm/leave/v1', (req, res) => {
+  try {
+    const { token, dmId } = req.body;
+    if (!validToken(token)) throw new Error('Invalid/Inactive Token');
+    res.json(dmLeave(decodeToken(token), dmId));
+  } catch (err) {
+    console.log(err);
     res.json({ error: 'error' });
   }
 });

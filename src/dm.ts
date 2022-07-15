@@ -100,6 +100,21 @@ export function dmDetails(authUserId: number, dmId: number) {
   };
 }
 
+export function dmLeave(authUserId: number, dmId: number) {
+  const data: dataStr = getData();
+  const dm_obj = getDm(dmId);
+  if (!validateUserId(authUserId)) {
+    throw new Error('Invalid userId');
+  } else if (dm_obj === false) {
+    throw new Error('Invalid DM');
+  } else if (!isDmMember(authUserId, dm_obj)) {
+    throw new Error('User is not a member of the DM');
+  }
+  dm_obj.members = JSON.parse(JSON.stringify(dm_obj.members.filter((obj) => obj.uId !== authUserId)));
+  setData(data);
+  return {};
+}
+
 const dmTemplate = (): dm => {
   return {
     members: [],
