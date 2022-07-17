@@ -1,0 +1,79 @@
+npm verb cli [
+npm verb cli   '/import/kamen/3/cs1531/.nvm/versions/node/v16.14.2/bin/node',
+npm verb cli   '/import/kamen/3/cs1531/.nvm/versions/node/v16.14.2/bin/npm',
+npm verb cli   'run',
+npm verb cli   'test',
+npm verb cli   '--verbose',
+npm verb cli   '--testMatch',
+npm verb cli   '**/?(*.)+(test).ts'
+npm verb cli ]
+npm info using npm@8.5.0
+npm info using node@v16.14.2
+npm timing npm:load:whichnode Completed in 0ms
+npm timing config:load:defaults Completed in 2ms
+npm timing config:load:file:/import/kamen/3/cs1531/.nvm/versions/node/v16.14.2/lib/node_modules/npm/npmrc Completed in 1ms
+npm timing config:load:builtin Completed in 1ms
+npm timing config:load:cli Completed in 3ms
+npm timing config:load:env Completed in 1ms
+npm timing config:load:file:/import/kamen/3/cs1531/project-automarking/tempstore/.npmrc Completed in 0ms
+npm timing config:load:project Completed in 25ms
+npm timing config:load:file:/import/kamen/3/cs1531/.npmrc Completed in 1ms
+npm timing config:load:user Completed in 1ms
+npm timing config:load:file:/import/kamen/3/cs1531/.nvm/versions/node/v16.14.2/etc/npmrc Completed in 0ms
+npm timing config:load:global Completed in 0ms
+npm timing config:load:validate Completed in 1ms
+npm timing config:load:credentials Completed in 1ms
+npm timing config:load:setEnvs Completed in 1ms
+npm timing config:load Completed in 38ms
+npm timing npm:load:configload Completed in 38ms
+npm timing npm:load:setTitle Completed in 0ms
+npm timing config:load:flatten Completed in 4ms
+npm timing npm:load:display Completed in 8ms
+npm verb logfile /import/kamen/3/cs1531/.npm/_logs/2022-07-16T03_53_10_806Z-debug-0.log
+npm timing npm:load:logFile Completed in 12ms
+npm timing npm:load:timers Completed in 0ms
+npm timing npm:load:configScope Completed in 0ms
+npm timing npm:load Completed in 61ms
+
+> test
+> jest "**/?(*.)+(test).ts"
+
+  Invalid testPattern **/?(*.)+(test).ts supplied. Running all tests instead.
+  Invalid testPattern **/?(*.)+(test).ts supplied. Running all tests instead.
+FAIL src/channel.test.ts
+  ● Test suite failed to run
+
+    [96msrc/channel.test.ts[0m:[93m159[0m:[93m42[0m - [91merror[0m[90m TS2552: [0mCannot find name 'user_id2'. Did you mean 'userId2'?
+
+    [7m159[0m     const channel_id1 = channelsCreateV1(user_id2, 'Gary', false).channelId;
+    [7m   [0m [91m                                         ~~~~~~~~[0m
+
+      [96msrc/channel.test.ts[0m:[93m148[0m:[93m7[0m
+        [7m148[0m   let userId2: number;
+        [7m   [0m [96m      ~~~~~~~[0m
+        'userId2' is declared here.
+    [96msrc/channel.test.ts[0m:[93m160[0m:[93m26[0m - [91merror[0m[90m TS2552: [0mCannot find name 'user_id1'. Did you mean 'userId1'?
+
+    [7m160[0m     expect(channelJoinV1(user_id1, channel_id1)).toStrictEqual({});
+    [7m   [0m [91m                         ~~~~~~~~[0m
+
+      [96msrc/channel.test.ts[0m:[93m147[0m:[93m7[0m
+        [7m147[0m   let userId1: number;
+        [7m   [0m [96m      ~~~~~~~[0m
+        'userId1' is declared here.
+
+PASS src/auth.test.ts
+PASS src/echo.test.ts
+PASS src/users.test.ts
+PASS src/channels.test.ts
+PASS src/server.test.ts (32.762 s)
+
+Test Suites: 1 failed, 5 passed, 6 total
+Tests:       107 passed, 107 total
+Snapshots:   0 total
+Time:        40.85 s
+Ran all test suites.
+npm timing command:run Completed in 43442ms
+npm verb exit 1
+npm timing npm Completed in 43890ms
+npm verb code 1
