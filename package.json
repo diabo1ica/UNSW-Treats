@@ -4,7 +4,7 @@
         "tsc": "tsc --noImplicitAny",
         "lint": "eslint src/**.ts",
         "lint-fix": "eslint --fix src/**.ts",
-        "start": "ts-node src/server.ts"
+        "start": "ts-node src/server.ts --ignore './currentData.json'"
     },
     "dependencies": {
         "cors": "^2.8.5",
@@ -12,6 +12,7 @@
         "http-errors": "^2.0.0",
         "jose": "^4.8.3",
         "morgan": "^1.10.0",
+        "nodemon": "^2.0.19",
         "rewire": "^6.0.0",
         "sync-request": "^6.1.0",
         "ts-node": "^10.7.0",
