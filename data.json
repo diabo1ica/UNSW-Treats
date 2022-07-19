@@ -1,32 +1,11 @@
 {
-    "users": [
-        {
-            "nameFirst": "Apple",
-            "nameLast": "Tree",
-            "handleStr": "AppleTree",
-            "email": "apple@gmail.com",
-            "password": "apple10",
-            "userId": 1,
-            "globalPermsId": 1
-        },
-        {
-            "nameFirst": "Banana",
-            "nameLast": "Tree",
-            "handleStr": "superman",
-            "email": "banana@gmail.com",
-            "password": "banana10",
-            "userId": 2,
-            "globalPermsId": 2
-        }
-    ],
+    "users": [],
     "channels": [],
     "dms": [],
-    "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1ODIwNTM5MTI2MCwiaXNzIjoiMTY1ODIwNTM5MTI2MCJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1ODIwNTM5MTI3MiwiaXNzIjoiMTY1ODIwNTM5MTI3MiJ9."
-    ],
-    "userIdCounter": 2,
+    "tokenArray": [],
+    "userIdCounter": 0,
     "channelIdCounter": 0,
     "dmIdCounter": 0,
     "messageIdCounter": 0
 }
+
