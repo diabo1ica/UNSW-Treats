@@ -1,4 +1,4 @@
-import { getData, setData, dataStr, channel, message } from './dataStore';
+import { getData, setData, dataStr, channel, message, user } from './dataStore';
 
 // Display channel details of channel with channelId
 // Arguements:

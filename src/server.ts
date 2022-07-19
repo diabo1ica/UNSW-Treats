@@ -3,13 +3,13 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
-import { channelInviteV1, removeowner, channelMessagesV1 } from './channel';
+import { channelInviteV1, removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1 } from './channel';
 import { getData, setData, dataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
-import { userProfileV1, userSetNameV1, userSetemailV1 } from './users';
+import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
-import { channelDetailsV1 } from './channel';
+import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
 
 // Set up web app, use JSON
