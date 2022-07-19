@@ -1,28 +1,32 @@
 {
     "users": [
         {
-            "nameFirst": "Steve",
-            "nameLast": "Berrospi",
-            "handleStr": "SteveBerrospi",
-            "email": "z5363495@unsw.edu.au",
-            "password": "aero123",
+            "nameFirst": "Apple",
+            "nameLast": "Tree",
+            "handleStr": "AppleTree",
+            "email": "apple@gmail.com",
+            "password": "apple10",
             "userId": 1,
-            "globalPermsId": 1,
-            "tokenArray": []
+            "globalPermsId": 1
         },
         {
-            "nameFirst": "Gary",
-            "nameLast": "Ang",
-            "handleStr": "GaryAng",
-            "email": "z3329234@unsw.edu.au",
-            "password": "aero321",
+            "nameFirst": "Banana",
+            "nameLast": "Tree",
+            "handleStr": "superman",
+            "email": "banana@gmail.com",
+            "password": "banana10",
             "userId": 2,
-            "globalPermsId": 2,
-            "tokenArray": []
+            "globalPermsId": 2
         }
     ],
     "channels": [],
     "dms": [],
+    "tokenArray": [
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1ODIwNTM5MTI2MCwiaXNzIjoiMTY1ODIwNTM5MTI2MCJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1ODIwNTM5MTI3MiwiaXNzIjoiMTY1ODIwNTM5MTI3MiJ9."
+    ],
     "userIdCounter": 2,
-    "channelIdCounter": 0
+    "channelIdCounter": 0,
+    "dmIdCounter": 0,
+    "messageIdCounter": 0
 }

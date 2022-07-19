@@ -12,6 +12,7 @@ import { getData, setData, user, dataStr } from './dataStore';
 //    Returns { error : 'error' } on email not valid (Already taken, argument not in email format
 //    Returns { error : 'error' } on password length not valid (< 6)
 //    Returns { error : 'error' } on nameFirst and/or nameLast length not valid
+
 function authRegisterV1(email: string, password: string, nameFirst: string, nameLast: string) {
   if (!validator.isEmail(email) ||
   password.length < 6 ||
@@ -24,11 +25,10 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
 
   const user: user = userTemplate();
   if (data.users.length === 0) {
-    user.userId = generateUserId();
     user.globalPermsId = 1;
-  } else {
-    user.userId = generateUserId();
   }
+  data.userIdCounter++;
+  user.userId = data.userIdCounter;
   user.email = email;
   user.nameFirst = nameFirst;
   user.nameLast = nameLast;
@@ -73,15 +73,10 @@ function authLoginV1(email: string, password: string) {
     throw new Error('email is invalid');
   }
   const data: dataStr = getData();
-  let token: string;
   for (const item of data.users) {
     if (email === item.email && password === item.password) {
-      token = generateToken();
-      data.users[data.users.indexOf(item)].tokenArray.push(token);
-      setData(data);
       return {
         authUserId: item.userId,
-        token: token
       };
     }
   }
@@ -91,16 +86,6 @@ function authLoginV1(email: string, password: string) {
 function validName(name: string) {
   if (name.length < 1 || name.length > 50) return false;
   return true;
-}
-
-// Generates a valid userId
-function generateUserId() {
-  let id = Math.floor(Math.random() * 1000000);
-  const data = getData();
-  while (data.users.some((user) => user.userId === id)) {
-    id = Math.floor(Math.random() * 1000000);
-  }
-  return id;
 }
 
 // Creates an empty user template
@@ -113,24 +98,8 @@ function userTemplate() {
     password: '',
     userId: 0,
     globalPermsId: 2,
-    tokenArray: []
   };
   return user;
-}
-
-function generateToken(): string {
-  const token: number = Math.floor(Math.random() * 100000);
-  const tokenStr: string = token.toString();
-  const data: dataStr = getData();
-  for (const user of data.users) {
-    // Loop to find duplicate
-    for (const userToken of user.tokenArray) {
-      if (tokenStr === userToken) {
-        return generateToken(); // Recursion
-      }
-    }
-  }
-  return tokenStr;
 }
 
 export { authLoginV1, authRegisterV1 };
