@@ -603,7 +603,7 @@ Arguments:
 
 Return Value:
     Returns {} when user joins the channel succesfully
-    Returns {error: 'error'} on invalid channelId, user is alread a member 
+    Returns {error: 'error'} on invalid channelId, user is alread a member
                         of channel, channel is private and user has no globalperm
 */
 app.post('/channel/join/v2', (req, res) => {
@@ -629,7 +629,7 @@ Arguments:
 
 Return Value:
     Returns {} when uId is added as owner succesfully.
-    Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member 
+    Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member
                         of channel, uId is already owner, authuser has no owner permission.
 */
 app.post('/channel/addowner/v1', (req, res) => {
@@ -650,7 +650,7 @@ Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
     handleStr (string)    - Displayed name of user
-    
+
 Return Value:
     Returns {} when handleStr is changed succesfully
     Returns {error: 'error'} on incorrect handleStr length, contain non-alphanumeric characters,
@@ -673,7 +673,7 @@ of userAllV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-    
+
 Return Value:
     Returns { users } an array of all the users and their asscoiated detail on success.
 */
@@ -694,7 +694,7 @@ of messageSendV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-    channelId (number)  - Identification of channel that the message 
+    channelId (number)  - Identification of channel that the message
                         is sent.
     message (string)   - string of message that is sent.
 
@@ -721,7 +721,7 @@ of messageEditV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-    channelId (number)  - Identification of channel that the message 
+    channelId (number)  - Identification of channel that the message
                         is edited.
     message (string)   - string of message that is sent to be edited.
 
@@ -748,12 +748,12 @@ of messageRemoveV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-    messageId (number)  - Identification of channel that the message 
+    messageId (number)  - Identification of channel that the message
                         is removed.
 
 Return Value:
     Returns {} when message is removed succesfully
-    Returns {error: 'error'} on invalid messageId,  not the user who sent the 
+    Returns {error: 'error'} on invalid messageId,  not the user who sent the
                               message, have no ownerpermsion to remove message.
 */
 app.delete('/message/remove/v1', (req, res) => {

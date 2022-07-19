@@ -1532,4 +1532,3 @@ describe('Test suite for users/profile/sethandle/v1', () => {
     expect(requestUserSethandle(usertoken1, 'superman')).toStrictEqual({ error: 'error' });
   });
 });
-

@@ -217,7 +217,7 @@ Arguments:
 
 Return Value:
     Returns {} when uId is added as owner succesfully.
-    Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member 
+    Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member
 */
 function channelAddownerV1(authUserId: number, channelId: number, uId: number) {
   const data: dataStr = getData();
@@ -257,7 +257,7 @@ sents a message to channel,
 
 Arguments:
     authUserId (number)    - user calling the function
-    channelId (number)  - Identification of channel that the message 
+    channelId (number)  - Identification of channel that the message
                         is sent.
     message (string)   - string of message that is sent.
 
@@ -308,7 +308,7 @@ edit message correspoding to messageId
 
 Arguments:
     authUserId (number)    - user calling the function
-    channelId (number)  - Identification of channel that the message 
+    channelId (number)  - Identification of channel that the message
                         is edited.
     message (string)   - string of message that is sent to be edited.
 
@@ -370,12 +370,12 @@ remove message correspoding to messageId
 
 Arguments:
     authUserId (number)    - user calling the function
-    messageId (number)  - Identification of channel that the message 
+    messageId (number)  - Identification of channel that the message
                         is removed.
 
 Return Value:
     Returns {} when message is removed succesfully
-    Returns {error: 'error'} on invalid messageId,  not the user who sent the 
+    Returns {error: 'error'} on invalid messageId,  not the user who sent the
                               message, have no ownerpermsion to remove message.
 */
 function messageRemoveV1(authUserId: number, messageId: number) {
@@ -604,4 +604,4 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   return {};
 }
 
-export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1, channelAddownerV1, messageEditV1, messageSendV1, messageRemoveV1, };
+export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1, channelAddownerV1, messageEditV1, messageSendV1, messageRemoveV1 };
