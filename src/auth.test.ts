@@ -68,4 +68,3 @@ describe('Test suite for authLoginV1', () => {
     }));
   });
 });
-
