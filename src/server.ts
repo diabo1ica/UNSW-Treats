@@ -9,6 +9,7 @@ import { clearV1 } from './other';
 import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
+import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
 
@@ -23,6 +24,7 @@ const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).p
 app.use(express.json());
 // for logging errors
 app.use(morgan('dev'));
+app.use(cors());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
