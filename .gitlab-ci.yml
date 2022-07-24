@@ -31,8 +31,3 @@ typecheck:
   stage: checks
   script:
     - npm run tsc
-
-lint:
-  stage: checks
-  script:
-    - npm run lint
