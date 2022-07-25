@@ -12,6 +12,7 @@ import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
+import errorHandler from 'middleware-http-errors';
 
 // Set up web app, use JSON
 const app = express();
@@ -22,9 +23,10 @@ const app = express();
 const generateToken = (uId: number): string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 app.use(express.json());
+// Use middleware that allows for access from other domains
+app.use(cors());
 // for logging errors
 app.use(morgan('dev'));
-app.use(cors());
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
@@ -776,10 +778,18 @@ app.delete('/clear/v1', (req, res) => {
   res.json({});
 });
 
+// handles errors nicely
+app.use(errorHandler());
+
 // start server
-app.listen(PORT, HOST, () => {
+const server = app.listen(PORT, HOST, () => {
   getData(true);
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
+});
+
+// For coverage, handle Ctrl+C gracefully
+process.on('SIGINT', () => {
+  server.close(() => console.log('Shutting down server gracefully.'));
 });
 
 /*
