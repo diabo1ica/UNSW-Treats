@@ -16,7 +16,7 @@ tests with coverage:
     - SERVER_LOG=$(mktemp)
     - npm run ts-node-coverage >& $SERVER_LOG &
     - sleep 3
-    - npm run test src/**.ts || (cat $SERVER_LOG && exit 1)
+    - npm run test src/**.ts src/tests/**.ts || (cat $SERVER_LOG && exit 1)
     - kill -SIGINT %1
     - sleep 2
     - cat $SERVER_LOG
