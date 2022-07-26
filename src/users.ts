@@ -1,4 +1,4 @@
-import { getData, dataStr, setData } from './dataStore';
+import { getData, DataStr, setData } from './dataStore';
 import validator from 'validator';
 
 /*
@@ -14,7 +14,7 @@ Return Value:
 */
 
 export function userProfileV1(authUserId: number, uId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
 
   for (const item of data.users) {
     if (item.userId === uId) {
@@ -56,7 +56,7 @@ Return Value:
 */
 
 export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   if (!validName(nameFirst) || !validName(nameLast)) {
     return { error: 'error' };
   } // check all errors
@@ -86,7 +86,7 @@ Return Value:
 */
 
 export function userSetemailV1(authUserId: number, email: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   if (!validator.isEmail(email)) {
     return { error: 'error' };
   } // Validate the new email
@@ -102,7 +102,7 @@ export function userSetemailV1(authUserId: number, email: string) {
 
 // set a new displayed name for user
 function userProfileSethandleV1(authUserId:number, handleStr: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   console.log(handleStr as string);
   // check for incorrect message length
   if (handleStr.length > 20 || handleStr.length < 3) {
@@ -132,7 +132,7 @@ function userProfileSethandleV1(authUserId:number, handleStr: string) {
 }
 // return array of all user and assocaited detail
 function usersAllV1(authUserId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const allUsers: any[] = [];
 
   for (const item of data.users) {

@@ -1,4 +1,6 @@
-import { getData, setData, dataStr, channel } from './dataStore';
+import { getData, setData, DataStr, Channel } from './dataStore';
+import { validateUserId } from './util';
+
 /*
 Create a channel with given name and whether it is public or private.
 
@@ -21,8 +23,8 @@ export function channelsCreateV1(authUserId: number, name: string, isPublic: boo
   if (name.length < 1 || name.length > 20) {
     return { error: 'error' };
   } // validate channel name is between 1-20 characters inclusive
-  const data: dataStr = getData();
-  const channels: channel = channelsTemplate();
+  const data: DataStr = getData();
+  const channels: Channel = channelsTemplate();
   if (data.channelIdCounter === 0) {
     channels.channelId = 1;
     data.channelIdCounter++;
@@ -61,7 +63,7 @@ Return Value:
 */
 
 export function channelsListV1(authUserId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const allChannels: any[] = [];
 
   for (const channel of data.channels) {
@@ -89,7 +91,7 @@ Return Value:
     Returns {error: 'error'} on authUserId is invalid
 */
 export function channelsListallV1(authUserId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   if (validateUserId(authUserId) === false) {
     throw new Error('Invalid authUserId');
   } // check userId is valid
@@ -115,7 +117,7 @@ Return Value:
     Returns {channel}
 */
 function channelsTemplate() {
-  const channel: channel = {
+  const channel: Channel = {
     channelId: 0,
     name: ' ',
     isPublic: true,
@@ -124,23 +126,4 @@ function channelsTemplate() {
   };
 
   return channel;
-}
-/*
-Checks if the given userId is valid
-
-Arguments:
-    UserId (integer)   - Identification number of the user to be
-                         validated.
-Return Value:
-    Returns {true} on userId was found in the dataStore's users array
-    Returns {false} on userId was not found in the dataStore's users array
-*/
-function validateUserId(UserId: number) {
-  const data: dataStr = getData();
-  for (const item of data.users) {
-    if (item.userId === UserId) {
-      return true;
-    }
-  }
-  return false;
 }

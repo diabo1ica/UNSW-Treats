@@ -1,4 +1,5 @@
-import { getData, setData, dataStr, channel, message, user } from './dataStore';
+import { getData, setData, DataStr, Channel, Message, User } from './dataStore';
+import { validateUserId, getChannel, isMember } from './util';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -14,11 +15,11 @@ import { getData, setData, dataStr, channel, message, user } from './dataStore';
 //    Returns { error : 'error' } on invalid authUserId (authUserId does not have correct permission
 //    Returns { error : 'error' } on invalid channnelId (channelId does not exist)
 function channelDetailsV1(authUserId: number, channelId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   if (!data.channels.some(obj => obj.channelId === channelId)) {
     return { error: 'error' };
   }
-  let object: channel;
+  let object: Channel;
   for (const channel of data.channels) {
     if (channel.channelId === channelId) {
       object = channel;
@@ -69,8 +70,8 @@ Return Value:
     Returns {} on joining channel
 */
 function channelJoinV1(authUserId: number, channelId: number) {
-  const data: dataStr = getData();
-  let obj: user;
+  const data: DataStr = getData();
+  let obj: User;
 
   for (const newMember of data.users) {
     if (newMember.userId === authUserId) {
@@ -131,7 +132,7 @@ Return Value:
                              not a member
 */
 function channelInviteV1(authUserId: number, channelId: number, uId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const channelObj = getChannel(channelId);
   if (getChannel(channelId) === false) {
     return { error: 'error' };
@@ -188,7 +189,7 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
     throw new Error('User is not a member of the channel');
   }
   let end: number;
-  const messagesArray: message[] = [];
+  const messagesArray: Message[] = [];
   if (start + 50 >= channelObj.messages.length) {
     end = -1;
   } else {
@@ -220,7 +221,7 @@ Return Value:
     Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member
 */
 function channelAddownerV1(authUserId: number, channelId: number, uId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   // const channelObj = getChannel(channelId);
 
   // checking if uId is not valid
@@ -268,7 +269,7 @@ Return Value:
                             usr is a part of.
 */
 function messageSendV1(authUserId: number, channelId: number, message: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const channelObj = getChannel(channelId);
   const currTime: number = parseInt(new Date().toISOString());
   if (message.length > 1000) {
@@ -319,7 +320,7 @@ Return Value:
                               to edit other's message.
 */
 function messageEditV1(authUserId: number, messageId: number, message: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
 
   if (message.length > 1000) {
     return { error: 'error' };
@@ -379,7 +380,7 @@ Return Value:
                               message, have no ownerpermsion to remove message.
 */
 function messageRemoveV1(authUserId: number, messageId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
 
   // check if messageId is in channel, if not check in dm
   for (const channel of data.channels) {
@@ -422,7 +423,7 @@ function messageRemoveV1(authUserId: number, messageId: number) {
 }
 
 // check if owner permission
-function isOwner(userId: number, channelObj: channel) {
+function isOwner(userId: number, channelObj: Channel) {
   // if (dm_obj === undefined) {
   for (const item of channelObj.members) {
     if (item.uId === userId && item.channelPermsId === 1) {
@@ -433,7 +434,7 @@ function isOwner(userId: number, channelObj: channel) {
 }
 // helper function to edit message, reduce nesting
 function editMessage(authUserId: number, messageId: number, message: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   let index = 0;
 
   for (const channel of data.channels) {
@@ -481,7 +482,7 @@ function editMessage(authUserId: number, messageId: number, message: string) {
 
 // helper function to remove message, reduce nesting
 function removeMessage(authUserId: number, messageId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   let index = 0;
 
   for (const channel of data.channels) {
@@ -514,44 +515,12 @@ function removeMessage(authUserId: number, messageId: number) {
 }
 
 // check if user is sent the message
-function isSender(userId: number, messageId: number, channelObj: channel) {
+function isSender(userId: number, messageId: number, channelObj: Channel) {
   for (const item of channelObj.messages) {
     if (item.messageId === messageId) {
       if (item.uId === userId) {
         return true;
       }
-    }
-  }
-  return false;
-}
-
-// Validates the dmId refers to a registered DM
-function getChannel(channelId: number) {
-  const data: dataStr = getData();
-  for (const item of data.channels) {
-    if (item.channelId === channelId) {
-      return item;
-    }
-  }
-  return false;
-}
-
-// Validates that the user is a member of the given channel
-function isMember(userId: number, channelObj: channel) {
-  for (const item of channelObj.members) {
-    if (userId === item.uId) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// Validates the given userId is a registered user
-function validateUserId(UserId: number) {
-  const data: dataStr = getData();
-  for (const item of data.users) {
-    if (item.userId === UserId) {
-      return true;
     }
   }
   return false;

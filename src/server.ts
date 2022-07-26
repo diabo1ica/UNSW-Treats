@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
 import { channelInviteV1, removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1 } from './channel';
-import { getData, setData, dataStr } from './dataStore';
+import { getData, setData, DataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
@@ -134,7 +134,7 @@ app.post('/auth/logout/v1', (req, res) => {
   if (!validToken(token)) {
     res.json({ error: 'error' });
   }
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   for (let i = 0; i < data.tokenArray.length; i++) {
     if (token === data.tokenArray[i]) {
       data.tokenArray.splice(i, 1);
@@ -802,7 +802,7 @@ Return values :
     - Returns false if the token is not found on the array
 */
 function validToken(token: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   for (const tokenObj of data.tokenArray) {
     if (token === tokenObj) return true;
   }
@@ -818,7 +818,7 @@ Return values :
     - Returns an object containing the user's id and token
 */
 function registerAuthV2(id: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const token: string = generateToken(id);
   data.tokenArray.push(token);
   setData(data);
@@ -852,7 +852,7 @@ Return values :
     - Returns an empty object if the user is not part of any dms
 */
 function dmList(token: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const uId: number = decodeToken(token);
   const dmArray = [];
   for (const dm of data.dms) {
@@ -879,7 +879,7 @@ Return values :
     - Returns { error: 'error  } if the uid is not in the dm members list
 */
 function dmRemove(token: string, dmId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   // Find the dm in the dm array
   for (let i = 0; i < data.dms.length; i++) {
     if (data.dms[i].dmId === dmId) {
@@ -910,7 +910,7 @@ Return values :
     - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
 */
 function channelLeave(userId: number, chId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   // Find channel in channel array
   for (const channel of data.channels) {
     if (channel.channelId === chId) {
