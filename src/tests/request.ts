@@ -3,7 +3,9 @@ import config from '../config.json';
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || config.url;
 const SERVER_URL = `${HOST}:${PORT}`;
-const OK = 200;
+export const OK = 200;
+export const INPUT_ERROR = 400;
+export const AUTHORISATION_ERROR = 403;
 
 export const generateMessage = (length: number): string => {
   let message = '';
@@ -33,7 +35,7 @@ export const requestRegister = (email: string, password: string, nameFirst: stri
 };
 
 export const requestLogin = (email: string, password: string) => {
-  return requestHelper('POST', '/auth/login/v2', { email: email, password: password });
+  return requestHelper('POST', '/auth/login/v3', { email: email, password: password });
 };
 
 export const requestChannelslistall = (token: string) => {
