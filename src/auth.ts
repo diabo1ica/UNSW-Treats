@@ -1,5 +1,7 @@
 import validator from 'validator';
 import { getData, setData, User, DataStr } from './dataStore';
+import HTTPError from 'http-errors';
+import { INPUT_ERROR } from './tests/request';
 
 // Creates a user and store it in dataStore
 // Arguments:
@@ -77,7 +79,7 @@ function authLoginV1(email: string, password: string) {
       };
     }
   }
-  throw new Error('email or password is incorrect');
+  throw HTTPError(INPUT_ERROR, 'email and/or password is incorrect');
 }
 
 function validName(name: string) {
