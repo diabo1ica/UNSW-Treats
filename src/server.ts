@@ -376,6 +376,23 @@ Return Value:
     Returns {error: 'error} on invalid email and/or password
 */
 
+app.post('/auth/login/v2', (req, res) => {
+  try {
+    const { email, password } = req.body; // load relevant request information
+    const userId = authLoginV1(email, password).authUserId; // Login the user
+    const token = generateToken(userId); // Generate a new active token for the user
+    const data = getData(); // load the datastore
+    data.tokenArray.push(token); // Add the new active token to the datastore
+    setData(data); // save changes
+    res.json({
+      token: token,
+      authUserId: userId
+    }); // responds to request with the desired information
+  } catch (err) {
+    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
+  }
+});
+
 app.post('/auth/login/v3', (req, res) => {
   const { email, password } = req.body; // load relevant request information
   const userId = authLoginV1(email, password).authUserId; // Login the user

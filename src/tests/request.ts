@@ -77,5 +77,5 @@ const requestHelper = (method: HttpVerb, route: string, payload: object) => {
   else json = payload;
   const res = request(method, SERVER_URL + route, { qs: qs, json: json });
 
-  return { statusCode: res.statusCode, body: JSON.parse(res.getBody() as string) };
+  return { statusCode: res.statusCode, body: JSON.parse(res.body as string) };
 };
