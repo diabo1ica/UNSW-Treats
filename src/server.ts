@@ -393,6 +393,19 @@ app.post('/auth/login/v2', (req, res) => {
   }
 });
 
+app.post('/auth/login/v3', (req, res) => {
+  const { email, password } = req.body; // load relevant request information
+  const userId = authLoginV1(email, password).authUserId; // Login the user
+  const token = generateToken(userId); // Generate a new active token for the user
+  const data = getData(); // load the datastore
+  data.tokenArray.push(token); // Add the new active token to the datastore
+  setData(data); // save changes
+  res.json({
+    token: token,
+    authUserId: userId
+  }); // responds to request with the desired information
+});
+
 /*
 Server route for channels/list/all/v2, Validates token is an
 an active user session. Decodes token to get userId and calls
