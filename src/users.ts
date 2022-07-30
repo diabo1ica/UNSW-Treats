@@ -1,4 +1,4 @@
-import { getData, dataStr, setData, user } from './dataStore';
+import { getData, DataStr, setData } from './dataStore';
 import validator from 'validator';
 
 /*
@@ -13,8 +13,8 @@ Return Value:
     return {error: 'error'} on invalud uId
 */
 
-function userProfileV1(authUserId: number, uId: number) {
-  const data: dataStr = getData();
+export function userProfileV1(authUserId: number, uId: number) {
+  const data: DataStr = getData();
 
   for (const item of data.users) {
     if (item.userId === uId) {
@@ -39,7 +39,7 @@ function validName(name: string) {
 }
 
 export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   if (!validName(nameFirst) || !validName(nameLast)) {
     return { error: 'error' };
   }
@@ -55,7 +55,7 @@ export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: s
 }
 
 export function userSetemailV1(authUserId: number, email: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   if (!validator.isEmail(email)) {
     return { error: 'error' };
   }
@@ -69,8 +69,10 @@ export function userSetemailV1(authUserId: number, email: string) {
   return {};
 }
 
+
+// set a new displayed name for user
 function userProfileSethandleV1(authUserId:number, handleStr: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   console.log(handleStr as string);
   // check for incorrect message length
   if (handleStr.length > 20 || handleStr.length < 3) {
@@ -99,8 +101,9 @@ function userProfileSethandleV1(authUserId:number, handleStr: string) {
   return { error: 'error' };
 }
 
+// return array of all user and assocaited detail
 function usersAllV1(authUserId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const allUsers: any[] = [];
 
   for (const item of data.users) {
@@ -118,4 +121,4 @@ function usersAllV1(authUserId: number) {
 
 const isAlphaNumeric = (str: string) => /^[A-Za-z0-9]+$/gi.test(str);
 
-export { userProfileV1, usersAllV1, userProfileSethandleV1 };
+export { usersAllV1, userProfileSethandleV1 };

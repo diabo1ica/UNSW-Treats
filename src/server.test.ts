@@ -522,451 +522,12 @@ describe('dm path tests', () => {
   });
 });
 
-// Steve's tests
-describe('Test suite for /auth/login/v2', () => {
-  let userId1: number;
-  beforeEach(() => {
-    requestClear();
-    userId1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
-  });
-
-  test('Email doesn\'t belong to a user', () => {
-    expect(requestLogin('z5363496@unsw.edu.au', 'aero123')).toStrictEqual({ error: 'error' });
-  });
-
-  test('Password is not correct', () => {
-    expect(requestLogin('z5363495@unsw.edu.au', 'aero12')).toStrictEqual({ error: 'error' });
-  });
-
-  test('User Login', () => {
-    expect(requestLogin('z5363495@unsw.edu.au', 'aero123')).toStrictEqual(expect.objectContaining({
-      token: expect.any(String),
-      authUserId: userId1
-    }));
-  });
-});
-
-describe('Test suite for /channels/listall/v2', () => {
-  let channelId1: number, channelId2: number, channelId3: number, channelId4: number;
-  let token1: string, token2: string, token3: string, token4:string;
-
-  describe('Error cases', () => {
-    beforeEach(() => {
-      requestClear();
-      requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
-      requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
-      token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
-      token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
-    });
-
-    test('No channels were created', () => {
-      expect(requestChannelslistall(token1).channels).toStrictEqual([]);
-    });
-
-    test('Invalid token', () => {
-      expect(requestChannelslistall(token2 + '3')).toStrictEqual({ error: 'error' });
-    });
-  });
-
-  describe('Working cases', () => {
-    beforeEach(() => {
-      requestClear();
-      requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
-      requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
-      requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
-      requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei');
-      token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
-      token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
-      token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
-      token4 = requestLogin('z4234824@unsw.edu.au', 'aero654').token;
-      channelId1 = requestChannelsCreate(token1, 'Aero', true).channelId;
-      channelId2 = requestChannelsCreate(token2, 'Aero1', true).channelId;
-      channelId3 = requestChannelsCreate(token3, 'Aero2', false).channelId;
-      channelId4 = requestChannelsCreate(token4, 'Aero3', false).channelId;
-    });
-
-    test('Correct output (list 4 channels)', () => {
-      expect(requestChannelslistall(token1)).toStrictEqual(expect.objectContaining(
-        {
-          channels: expect.arrayContaining([
-            {
-              channelId: channelId1,
-              name: 'Aero',
-            },
-            {
-              channelId: channelId2,
-              name: 'Aero1',
-            },
-            {
-              channelId: channelId3,
-              name: 'Aero2',
-            },
-            {
-              channelId: channelId4,
-              name: 'Aero3',
-            }
-          ])
-        }));
-    });
-  });
-});
-
-describe('Test suite for /channel/messages/v2', () => {
-  let channelId1: number, channelId2: number;
-  let token1: string, token2: string, token3: string;
-  beforeEach(() => {
-    requestClear();
-    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
-    requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang');
-    requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
-    requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei');
-    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
-    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
-    token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
-    channelId1 = requestChannelsCreate(token1, 'Aero', true).channelId;
-    channelId2 = requestChannelsCreate(token2, 'Aero1', true).channelId;
-  });
-
-  test('Invalid Token', () => {
-    expect(requestChannelMessages('-' + token2, channelId2, 0)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Invalid channelId', () => {
-    expect(requestChannelMessages(token1, -channelId1, 0)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Start is greater than total number messages', () => {
-    expect(requestChannelMessages(token1, channelId1, 10000000)).toStrictEqual({ error: 'error' });
-  });
-
-  test('User is not a member of valid channel', () => {
-    expect(requestChannelMessages(token3, channelId1, 0)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Correct return type', () => {
-    expect(requestChannelMessages(token1, channelId1, 0)).toStrictEqual(expect.objectContaining(
-      {
-        messages: expect.arrayContaining([]),
-        start: 0,
-        end: -1,
-      }));
-  });
-});
-
-describe('Test suite for /dm/create/v1', () => {
-  let userId2: number, userId3: number, userId4: number;
-  let token1: string;
-
-  beforeEach(() => {
-    requestClear();
-    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
-    userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
-    userId3 = requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
-    userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
-    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
-  });
-
-  test('uIds contains an invalid uId', () => {
-    const uIds = [userId2, -userId3, userId4];
-    expect(requestDmCreate(token1, uIds)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Duplicate \'uIds\' in uIds', () => {
-    const uIds = [userId2, userId2, userId4];
-    expect(requestDmCreate(token1, uIds)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Correct output', () => {
-    const uIds = [userId2, userId3, userId4];
-    expect(requestDmCreate(token1, uIds)).toStrictEqual({ dmId: expect.any(Number) });
-  });
-});
-
-describe('Test suite for /message/senddm/v1', () => {
-  let userId2: number, userId3: number, userId4: number;
-  let dmId1: number, dmId2: number, dmId3: number, dmId4: number;
-  let token1: string, token2: string, token3: string;
-
-  beforeEach(() => {
-    requestClear();
-    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
-    userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
-    userId3 = requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
-    userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
-    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
-    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
-    token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
-    dmId1 = requestDmCreate(token1, [userId2, userId4, userId3]).dmId;
-    dmId2 = requestDmCreate(token1, [userId3, userId2]).dmId;
-    dmId3 = requestDmCreate(token1, [userId3, userId4]).dmId;
-    dmId4 = requestDmCreate(token1, [userId2, userId4]).dmId;
-  });
-
-  test('dmId is invalid', () => {
-    expect(requestSendDm(token1, -dmId2, 'HELLO')).toStrictEqual({ error: 'error' });
-  });
-
-  test('Message is empty (less than 1 character)', () => {
-    expect(requestSendDm(token3, dmId1, '')).toStrictEqual({ error: 'error' });
-  });
-
-  test('Message is over 1000 characters', () => {
-    const message = generateMessage(1200);
-    expect(requestSendDm(token2, dmId3, message)).toStrictEqual({ error: 'error' });
-  });
-
-  test('dmId is valid but authorised user is not a member', () => {
-    expect(requestSendDm(token3, dmId4, 'HIIII')).toStrictEqual({ error: 'error' });
-  });
-
-  test('Invalid token', () => {
-    expect(requestSendDm('-' + token3, dmId1, 'HLELO')).toStrictEqual({ error: 'error' });
-  });
-
-  test('Correct output', () => {
-    expect(requestSendDm(token1, dmId3, 'yooooooooooooooooo')).toStrictEqual(expect.objectContaining(
-      {
-        messageId: expect.any(Number)
-      }
-    ));
-  });
-});
-
-describe('Test suite for /dm/details/v1', () => {
-  let userId1: number, userId2: number, userId4: number;
-  let dmId1: number;
-  let token1: string, token2: string, token3: string;
-
-  beforeEach(() => {
-    requestClear();
-    userId1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
-    userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
-    requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo');
-    userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
-    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
-    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
-    token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
-    dmId1 = requestDmCreate(token1, [userId2, userId4]).dmId;
-  });
-
-  test('Invalid token', () => {
-    expect(requestDmDetails('-' + token1, dmId1)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Invalid dmId', () => {
-    expect(requestDmDetails(token1, dmId1 + 1)).toStrictEqual({ error: 'error' });
-  });
-
-  test('dmId is valid but authorised user is not a member', () => {
-    expect(requestDmDetails(token3, dmId1)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Correct output', () => {
-    expect(requestDmDetails(token2, dmId1)).toStrictEqual(expect.objectContaining(
-      {
-        name: 'DavidPei, GaryAng, SteveBerrospi',
-        members: expect.arrayContaining([expect.objectContaining(
-          {
-            uId: userId1,
-            email: 'z5363495@unsw.edu.au',
-            nameFirst: 'Steve',
-            nameLast: 'Berrospi',
-            handleStr: 'SteveBerrospi'
-          }), expect.objectContaining(
-          {
-            uId: userId2,
-            email: 'z3329234@unsw.edu.au',
-            nameFirst: 'Gary',
-            nameLast: 'Ang',
-            handleStr: 'GaryAng'
-          }), expect.objectContaining(
-          {
-            uId: userId4,
-            email: 'z4234824@unsw.edu.au',
-            nameFirst: 'David',
-            nameLast: 'Pei',
-            handleStr: 'DavidPei'
-          }
-        )
-        ])
-      }
-    ));
-  });
-});
-
-describe('Test suite for /dm/messages/v1', () => {
-  let userId2: number, userId3: number, userId4: number;
-  let dmId1: number;
-  let token1: string, token2: string, token3: string, token4:string;
-
-  beforeEach(() => {
-    requestClear();
-    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
-    userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
-    userId3 = requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
-    userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
-    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
-    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
-    token3 = requestLogin('z1319832@unsw.edu.au', 'aero456').token;
-    token4 = requestLogin('z4234824@unsw.edu.au', 'aero654').token;
-    dmId1 = requestDmCreate(token1, [userId2, userId4, userId3]).dmId;
-  });
-
-  test('Invalid token', () => {
-    expect(requestDmMessages('-' + token1, dmId1, 0)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Invalid dmId', () => {
-    expect(requestDmMessages(token1, -dmId1, 0)).toStrictEqual({ error: 'error' });
-  });
-
-  test('start is greater than total messages', () => {
-    sendMessages(token2, dmId1, 30, 10);
-    expect(requestDmMessages(token1, dmId1, 31)).toStrictEqual({ error: 'error' });
-  });
-
-  test('dmId is valid but authorised user is not a member', () => {
-    const dmId2 = requestDmCreate(token1, [userId2, userId4]).dmId;
-    sendMessages(token1, dmId2, 60, 5);
-    expect(requestDmMessages(token3, dmId2, 0)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Correct Output (start = 0)(59 messages sent)', () => {
-    sendMessages(token1, dmId1, 15, 5);
-    sendMessages(token2, dmId1, 15, 10);
-    sendMessages(token3, dmId1, 10, 5);
-    sendMessages(token4, dmId1, 19, 8);
-    const res = requestDmMessages(token2, dmId1, 0);
-    expect(res).toStrictEqual(expect.objectContaining(
-      {
-        messages: expect.arrayContaining([expect.objectContaining(
-          {
-            messageId: expect.any(Number),
-            uId: expect.any(Number),
-            message: expect.any(String),
-            timeSent: expect.any(Number)
-          }
-        )]),
-        start: 0,
-        end: 50,
-      }
-    ));
-    for (let i = 0; i < res.messages.length - 2; i++) {
-      expect(res.messages[i].timeSent).toBeGreaterThanOrEqual(res.messages[i].timeSent);
-    }
-  });
-
-  test('Correct Output (start = 45)(59 messages sent)', () => {
-    sendMessages(token1, dmId1, 15, 5);
-    sendMessages(token2, dmId1, 15, 10);
-    sendMessages(token3, dmId1, 10, 5);
-    sendMessages(token4, dmId1, 19, 8);
-    const res = requestDmMessages(token2, dmId1, 45);
-    expect(res).toStrictEqual(expect.objectContaining(
-      {
-        messages: expect.arrayContaining([expect.objectContaining(
-          {
-            messageId: expect.any(Number),
-            uId: expect.any(Number),
-            message: expect.any(String),
-            timeSent: expect.any(Number)
-          }
-        )]),
-        start: 45,
-        end: -1
-      }
-    ));
-    for (let i = 0; i < res.messages.length - 2; i++) {
-      expect(res.messages[i].timeSent).toBeGreaterThanOrEqual(res.messages[i].timeSent);
-    }
-  });
-
-  test('Correct Output (start = 50)(50 messages sent)', () => {
-    sendMessages(token1, dmId1, 50, 2);
-    expect(requestDmMessages(token3, dmId1, 50)).toStrictEqual(expect.objectContaining({
-      messages: [],
-      start: 50,
-      end: -1
-    }));
-  });
-});
-
-describe('Test suite for dm/leave/v1', () => {
-  let userId2: number, userId3: number, userId4: number;
-  let dmId1: number, dmId2: number;
-  let token1: string, token2: string, token4: string;
-
-  beforeEach(() => {
-    requestClear();
-    requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi');
-    userId2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
-    userId3 = requestRegister('z1319832@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').authUserId;
-    userId4 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').authUserId;
-    token1 = requestLogin('z5363495@unsw.edu.au', 'aero123').token;
-    token2 = requestLogin('z3329234@unsw.edu.au', 'aero321').token;
-    token4 = requestLogin('z4234824@unsw.edu.au', 'aero654').token;
-    dmId1 = requestDmCreate(token1, [userId2, userId4, userId3]).dmId;
-    dmId2 = requestDmCreate(token1, [userId3, userId2]).dmId;
-  });
-
-  test('Invalid token', () => {
-    expect(requestDmLeave('-123', dmId1)).toStrictEqual({ error: 'error' });
-  });
-
-  test('dmId refers to invalid DM', () => {
-    expect(requestDmLeave(token1, -dmId1)).toStrictEqual({ error: 'error' });
-  });
-
-  test('dmId is valid but user is not a member of the DM', () => {
-    expect(requestDmLeave(token4, dmId2)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Correct Output', () => {
-    expect(requestDmLeave(token2, dmId2)).toStrictEqual({});
-    expect(requestDmDetails(token1, dmId2)).toStrictEqual(expect.objectContaining(
-      {
-        name: 'GaryAng, KennethKuo, SteveBerrospi',
-        members: expect.not.arrayContaining([expect.objectContaining(
-          {
-            uId: userId2,
-            email: 'z3329234@unsw.edu.au',
-            nameFirst: 'Gary',
-            nameLast: 'Ang',
-            handleStr: 'GaryAng'
-          }
-        )])
-      }
-    ));
-    expect(requestDmLeave(token2, dmId1)).toStrictEqual({});
-    expect(requestDmDetails(token1, dmId1)).toStrictEqual(expect.objectContaining(
-      {
-        name: 'DavidPei, GaryAng, KennethKuo, SteveBerrospi',
-        members: expect.not.arrayContaining([expect.objectContaining(
-          {
-            uId: userId2,
-            email: 'z3329234@unsw.edu.au',
-            nameFirst: 'Gary',
-            nameLast: 'Ang',
-            handleStr: 'GaryAng'
-          }
-        )])
-      }
-    ));
-  });
-});
-
 const generateMessage = (length: number): string => {
   let message = '';
   for (let i = 0; i < length; i++) {
     message += String.fromCharCode(Math.floor(Math.random() * 26) % 26 + 97);
   }
   return message;
-};
-
-const sendMessages = (token: string, dmId: number, numberOfMessages: number, length: number) => {
-  for (let i = 0; i < numberOfMessages; i++) {
-    requestSendDm(token, dmId, generateMessage(length));
-  }
 };
 
 const requestClear = () => {
@@ -1010,36 +571,6 @@ const requestLogin = (email: string, password: string) => {
   return JSON.parse(res.getBody() as string);
 };
 
-const requestChannelslistall = (token: string) => {
-  const res = request(
-    'GET',
-    SERVER_URL + '/channels/listall/v2',
-    {
-      qs: {
-        token: token
-      }
-    }
-  );
-  if (res.statusCode !== OK) return { error: 'error' };
-  return JSON.parse(res.getBody() as string);
-};
-
-const requestChannelMessages = (token: string, channelId: number, start: number) => {
-  const res = request(
-    'GET',
-    SERVER_URL + '/channel/messages/v2',
-    {
-      qs: {
-        token: token,
-        channelId: channelId,
-        start: start
-      }
-    }
-  );
-  if (res.statusCode !== OK) return { error: 'error' };
-  return JSON.parse(res.getBody() as string);
-};
-
 const requestDmCreate = (token: string, uIds: number[]) => {
   const res = request(
     'POST',
@@ -1055,63 +586,419 @@ const requestDmCreate = (token: string, uIds: number[]) => {
   return JSON.parse(res.getBody() as string);
 };
 
-const requestSendDm = (token: string, dmId: number, message: string) => {
+// David's tests
+
+function authlogin(email: string, password: string) {
   const res = request(
     'POST',
-    SERVER_URL + '/message/senddm/v1',
+    SERVER_URL + '/auth/login/v2',
+    {
+      json: {
+        email: email,
+        password: password,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.getBody() as string);
+}
+
+function createChannel(token: string, name: string, isPublic: boolean) {
+  const res = request(
+    'POST',
+    SERVER_URL + '/channels/create/v2',
     {
       json: {
         token: token,
-        dmId: dmId,
-        message: message
+        name: name,
+        isPublic: isPublic,
       }
     }
   );
   if (res.statusCode !== OK) return { error: 'error' };
   return JSON.parse(res.getBody() as string);
-};
+}
 
-const requestDmLeave = (token: string, dmId: number) => {
+function joinChannel(token: string, channelId: number) {
   const res = request(
     'POST',
-    SERVER_URL + '/dm/leave/v1',
+    SERVER_URL + '/channel/join/v2',
     {
       json: {
         token: token,
-        dmId: dmId
-      }
-    }
-  );
-  return JSON.parse(res.getBody() as string);
-};
-
-const requestDmMessages = (token: string, dmId: number, start: number) => {
-  const res = request(
-    'GET',
-    SERVER_URL + '/dm/messages/v1',
-    {
-      qs: {
-        token: token,
-        dmId: dmId,
-        start: start
+        channelId: channelId,
       }
     }
   );
   if (res.statusCode !== OK) return { error: 'error' };
   return JSON.parse(res.getBody() as string);
-};
+}
 
-const requestDmDetails = (token: string, dmId: number) => {
+function addownerChannel(token: string, channelId: number, uId: number) {
   const res = request(
-    'GET',
-    SERVER_URL + '/dm/details/v1',
+    'POST',
+    SERVER_URL + '/channel/addowner/v1',
     {
-      qs: {
+      json: {
         token: token,
-        dmId: dmId,
+        channelId: channelId,
+        uId: uId,
       }
     }
   );
   if (res.statusCode !== OK) return { error: 'error' };
-  return JSON.parse(res.getBody() as string);
+  return JSON.parse(res.body as string);
+}
+
+function sendMessage(token: string, channelId: number, message: string) {
+  const res = request(
+    'POST',
+    SERVER_URL + '/message/send/v1',
+    {
+      json: {
+        token: token,
+        channelId: channelId,
+        message: message,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.body as string);
+}
+
+function editMessage(token: string, messageId: number, message: string) {
+  const res = request(
+    'PUT',
+    SERVER_URL + '/message/edit/v1',
+    {
+      json: {
+        token: token,
+        messageId: messageId,
+        message: message,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.body as string);
+}
+
+function removeMessage(token: string, messageId: number) {
+  const res = request(
+    'DELETE',
+    SERVER_URL + '/message/remove/v1',
+    {
+      qs: {
+        token: token,
+        messageId: messageId,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.body as string);
+}
+
+const requestUsersAll = (token: string) => {
+  const res = request(
+    'GET',
+    SERVER_URL + '/users/all/v1',
+    {
+      qs: {
+        token: token,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.body as string);
 };
+
+const requestUserSethandle = (token: string, handleStr: string) => {
+  const res = request(
+    'PUT',
+    SERVER_URL + '/user/profile/sethandle/v1',
+    {
+      json: {
+        token: token,
+        handleStr: handleStr,
+      }
+    }
+  );
+  if (res.statusCode !== OK) return { error: 'error' };
+  return JSON.parse(res.body as string);
+};
+
+describe('Test suite for /channel/join/v2', () => {
+  let usertoken1: string;
+  let usertoken2: string;
+  let usertoken3: string;
+  let channelPublic: number;
+  let channelPrivate: number;
+
+  beforeEach(() => {
+    requestClear();
+    usertoken1 = registerAuth('apple@gmail.com', 'apple10', 'Apple', 'Tree').token;
+    usertoken2 = registerAuth('banana@gmail.com', 'banana10', 'Banana', 'Tree').token;
+    usertoken3 = registerAuth('kakarot@gmail.com', 'kakarot10', 'Kakarot', 'Tree').token;
+    channelPublic = createChannel(usertoken2, 'AERO1', true).channelId;
+    channelPrivate = createChannel(usertoken2, 'AERO2', false).channelId;
+  });
+
+  test('channel join (no error)', () => {
+    expect(joinChannel(usertoken1, channelPublic)).toStrictEqual({});
+  });
+
+  test('channel join (globalperm joining)', () => {
+    expect(joinChannel(usertoken1, channelPrivate)).toStrictEqual({});
+  });
+
+  test('channel join (invalid channelId)', () => {
+    expect(joinChannel(usertoken1, -1)).toStrictEqual({ error: 'error' });
+  });
+
+  test('channel join (user already a member of channel)', () => {
+    joinChannel(usertoken1, channelPublic);
+    expect(joinChannel(usertoken1, channelPublic)).toStrictEqual({ error: 'error' });
+  });
+
+  test('channel join (private channel, restricted permission)', () => {
+    expect(joinChannel(usertoken3, channelPrivate)).toStrictEqual({ error: 'error' });
+  });
+});
+
+describe('Test suite for /channel/addowner/v1', () => {
+  let usertoken1: string;
+  let usertoken2: string;
+  let userId2: number;
+  let usertoken3: string;
+  let channelId1: number;
+
+  beforeEach(() => {
+    requestClear();
+    usertoken1 = registerAuth('apple@gmail.com', 'apple10', 'Apple', 'Tree').token;
+    usertoken2 = registerAuth('banana@gmail.com', 'banana10', 'Banana', 'Tree').token;
+    usertoken3 = registerAuth('kakarot@gmail.com', 'kakarot', 'Kakarot', 'Tree').token;
+    userId2 = authlogin('banana@gmail.com', 'banana10').authUserId;
+    channelId1 = createChannel(usertoken1, 'AERO1', true).channelId;
+  });
+
+  test('channel addowner (no error)', () => {
+    joinChannel(usertoken2, channelId1);
+    expect(addownerChannel(usertoken1, channelId1, userId2)).toStrictEqual({});
+  });
+
+  test('channel addowner (invalid channelId)', () => {
+    expect(addownerChannel(usertoken1, -1, userId2)).toStrictEqual({ error: 'error' });
+  });
+
+  test('channel addowner (invalid uId)', () => {
+    expect(addownerChannel(usertoken1, channelId1, -1)).toStrictEqual({ error: 'error' });
+  });
+
+  test('channel addowner (uId is not a member of channel)', () => {
+    expect(addownerChannel(usertoken1, channelId1, userId2)).toStrictEqual({ error: 'error' });
+  });
+
+  test('channel addowner (uId already owner of channel)', () => {
+    joinChannel(usertoken2, channelId1);
+    addownerChannel(usertoken1, channelId1, userId2);
+    expect(addownerChannel(usertoken1, channelId1, userId2)).toStrictEqual({ error: 'error' });
+  });
+
+  test('channel addowner (token/authuser has no owner permission)', () => {
+    // making user2 and user 3 member of channel, then user2 attempts to add user3 as owner
+    joinChannel(usertoken2, channelId1);
+    joinChannel(usertoken3, channelId1);
+    expect(addownerChannel(usertoken3, channelId1, userId2)).toStrictEqual({ error: 'error' });
+  });
+});
+
+describe('Test suite for /message/send/v1', () => {
+  let usertoken1: string;
+  let usertoken2: string;
+  let channelId1: number;
+  let message: string;
+
+  beforeEach(() => {
+    requestClear();
+    usertoken1 = registerAuth('apple@gmail.com', 'apple10', 'Apple', 'Tree').token;
+    usertoken2 = registerAuth('banana@gmail.com', 'banana10', 'Banana', 'Tree').token;
+    channelId1 = createChannel(usertoken1, 'AERO1', true).channelId;
+  });
+
+  test('message send (no error)', () => {
+    expect(sendMessage(usertoken1, channelId1, 'GOODMorining')).toEqual({
+      messageId: expect.any(Number)
+    });
+  });
+
+  test('message send (invalid channelId)', () => {
+    expect(sendMessage(usertoken1, -1, 'Helloooo!!!!!')).toStrictEqual({ error: 'error' });
+  });
+
+  // message characters cannot be greatethan 1000 or lessthan 1
+  test('message send (message.length > 1000))', () => {
+    message = generateMessage(1200);
+    expect(sendMessage(usertoken1, channelId1, message)).toStrictEqual({ error: 'error' });
+  });
+  test('message send (message.length < 1)', () => {
+    expect(sendMessage(usertoken1, channelId1, '')).toStrictEqual({ error: 'error' });
+  });
+
+  test('message send (token/user is not a member of channel)', () => {
+    expect(sendMessage(usertoken2, channelId1, 'Hi, how are you?')).toStrictEqual({ error: 'error' });
+  });
+});
+
+describe('Test suite for /message/edit/v1', () => {
+  let usertoken1: string;
+  let usertoken2: string;
+  let channelId1: number;
+  let manycharacter: string;
+  let messageId: number;
+
+  beforeEach(() => {
+    requestClear();
+    usertoken1 = registerAuth('apple@gmail.com', 'apple10', 'Apple', 'Tree').token;
+    usertoken2 = registerAuth('banana@gmail.com', 'banana10', 'Banana', 'Tree').token;
+    channelId1 = createChannel(usertoken1, 'AERO1', true).channelId;
+  });
+
+  test('message edit (message edited success)', () => {
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    expect(editMessage(usertoken1, messageId, 'goodbye')).toStrictEqual({});
+  });
+
+  // message is empty string, thus message is deleted
+  test('message edit (message deleted success)', () => {
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    expect(editMessage(usertoken1, messageId, '')).toStrictEqual({});
+  });
+
+  // message characters cannot be greatethan 1000
+  test('message edit (!(message.length > 1000))', () => {
+    manycharacter = 'a'.repeat(1500);
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    expect(editMessage(usertoken1, messageId, manycharacter)).toStrictEqual({ error: 'error' });
+  });
+
+  // messageId does not refer to a valid message within a channel/DM that the authorised user has joined
+  test('message edit (messageId not valid in channels that user has joined)', () => {
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    expect(editMessage(usertoken2, messageId, 'goodbye')).toStrictEqual({ error: 'error' });
+  });
+
+  // the message was not sent by the authorised user making this request
+  test('message edit (not original user who sent the message)', () => {
+    // user2 trys to edit message sent by user1
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    joinChannel(usertoken2, channelId1);
+    expect(editMessage(usertoken2, messageId, 'goodbye')).toStrictEqual({ error: 'error' });
+  });
+
+  // other user's message can be edited by owners of the channel/dm
+  test('message edit (user does not have owner permission in channel)', () => {
+    // members can only edit their own message
+    joinChannel(usertoken2, channelId1);
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    expect(editMessage(usertoken2, messageId, 'goodbye')).toStrictEqual({ error: 'error' });
+  });
+});
+
+describe('Test suite for /message/remove/v1', () => {
+  let usertoken1: string;
+  let usertoken2: string;
+  let channelId1: number;
+  let messageId: number;
+
+  beforeEach(() => {
+    requestClear();
+    usertoken1 = registerAuth('apple@gmail.com', 'apple10', 'Apple', 'Tree').token;
+    usertoken2 = registerAuth('banana@gmail.com', 'banana10', 'Banana', 'Tree').token;
+    channelId1 = createChannel(usertoken1, 'AERO1', true).channelId;
+  });
+
+  test('message remove (no error)', () => {
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    expect(removeMessage(usertoken1, messageId)).toStrictEqual({});
+  });
+
+  // messageId does not refer to a valid message within a channel/DM that the authorised user has joined
+  test('message remove (messsageId not valid in channels that user has joined)', () => {
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    expect(removeMessage(usertoken1, -1)).toStrictEqual({ error: 'error' });
+  });
+
+  test('message remove (not original user who sent the message)', () => {
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    joinChannel(usertoken2, channelId1);
+    expect(removeMessage(usertoken2, messageId)).toStrictEqual({ error: 'error' });
+  });
+
+  // memeber cannot remove other user's message
+  test('message remove (does no have owner permission)', () => {
+    messageId = sendMessage(usertoken1, channelId1, 'Helloooo!!!!!').messageId;
+    joinChannel(usertoken2, channelId1);
+    expect(removeMessage(usertoken2, messageId)).toStrictEqual({ error: 'error' });
+  });
+});
+
+describe('Test suite for /users/all/v1', () => {
+  let usertoken1: string;
+
+  beforeEach(() => {
+    requestClear();
+    usertoken1 = registerAuth('apple@gmail.com', 'apple10', 'Apple', 'Tree').token;
+    registerAuth('banana@gmail.com', 'banana10', 'Banana', 'Tree');
+  });
+
+  test('users all (no error)', () => {
+    expect(requestUsersAll(usertoken1)).toEqual(expect.objectContaining(
+      {
+        users: expect.arrayContaining([
+          {
+            userId: 1,
+            email: 'apple@gmail.com',
+            nameFirst: 'Apple',
+            nameLast: 'Tree',
+            handleStr: 'AppleTree',
+          },
+          {
+            userId: 2,
+            email: 'banana@gmail.com',
+            nameFirst: 'Banana',
+            nameLast: 'Tree',
+            handleStr: 'BananaTree',
+          },
+        ])
+      }));
+  });
+});
+
+describe('Test suite for users/profile/sethandle/v1', () => {
+  let usertoken1: string;
+  let usertoken2: string;
+
+  beforeEach(() => {
+    requestClear();
+    usertoken1 = registerAuth('apple@gmail.com', 'apple10', 'Apple', 'Tree').token;
+    usertoken2 = registerAuth('banana@gmail.com', 'banana10', 'Banana', 'Tree').token;
+  });
+
+  test('user sethandle (no error)', () => {
+    expect(requestUserSethandle(usertoken1, 'SuperMan')).toStrictEqual({});
+  });
+
+  test('user sethandle (handle length not inclusive between 3 and 20 characters', () => {
+    expect(requestUserSethandle(usertoken1, 'S1')).toStrictEqual({ error: 'error' });
+    expect(requestUserSethandle(usertoken1, '123456789101112131415word')).toStrictEqual({ error: 'error' });
+  });
+
+  test('user sethandle (contain character that are not alphanumeric)', () => {
+    expect(requestUserSethandle(usertoken1, 'abc123~~~~~')).toStrictEqual({ error: 'error' });
+  });
+
+  test('user sethandle (handle occupied by another user)', () => {
+    // handle 'superman' has being occupied by user2
+    requestUserSethandle(usertoken2, 'superman');
+    expect(requestUserSethandle(usertoken1, 'superman')).toStrictEqual({ error: 'error' });
+  });
+});

@@ -4,13 +4,15 @@ import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
 import { channelInviteV1, removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1 } from './channel';
-import { getData, setData, dataStr } from './dataStore';
+import { getData, setData, DataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
+import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
+import errorHandler from 'middleware-http-errors';
 
 // Set up web app, use JSON
 const app = express();
@@ -21,6 +23,8 @@ const app = express();
 const generateToken = (uId: number): string => new jose.UnsecuredJWT({ uId: uId }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 const decodeToken = (token: string): number => jose.UnsecuredJWT.decode(token).payload.uId as number;
 app.use(express.json());
+// Use middleware that allows for access from other domains
+app.use(cors());
 // for logging errors
 app.use(morgan('dev'));
 
@@ -130,7 +134,7 @@ app.post('/auth/logout/v1', (req, res) => {
   if (!validToken(token)) {
     res.json({ error: 'error' });
   }
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   for (let i = 0; i < data.tokenArray.length; i++) {
     if (token === data.tokenArray[i]) {
       data.tokenArray.splice(i, 1);
@@ -389,6 +393,19 @@ app.post('/auth/login/v2', (req, res) => {
   }
 });
 
+app.post('/auth/login/v3', (req, res) => {
+  const { email, password } = req.body; // load relevant request information
+  const userId = authLoginV1(email, password).authUserId; // Login the user
+  const token = generateToken(userId); // Generate a new active token for the user
+  const data = getData(); // load the datastore
+  data.tokenArray.push(token); // Add the new active token to the datastore
+  setData(data); // save changes
+  res.json({
+    token: token,
+    authUserId: userId
+  }); // responds to request with the desired information
+});
+
 /*
 Server route for channels/list/all/v2, Validates token is an
 an active user session. Decodes token to get userId and calls
@@ -603,7 +620,7 @@ Arguments:
 
 Return Value:
     Returns {} when user joins the channel succesfully
-    Returns {error: 'error'} on invalid channelId, user is alread a member 
+    Returns {error: 'error'} on invalid channelId, user is alread a member
                         of channel, channel is private and user has no globalperm
 */
 app.post('/channel/join/v2', (req, res) => {
@@ -629,7 +646,7 @@ Arguments:
 
 Return Value:
     Returns {} when uId is added as owner succesfully.
-    Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member 
+    Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member
                         of channel, uId is already owner, authuser has no owner permission.
 */
 app.post('/channel/addowner/v1', (req, res) => {
@@ -650,7 +667,6 @@ Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
     handleStr (string)    - Displayed name of user
-    
 Return Value:
     Returns {} when handleStr is changed succesfully
     Returns {error: 'error'} on incorrect handleStr length, contain non-alphanumeric characters,
@@ -665,17 +681,6 @@ app.put('/user/profile/sethandle/v1', (req, res) => {
     res.json(userProfileSethandleV1(authUserId, handleStr));
   }
 });
-/*
-Server route for dm/messages/v1, calls and responds with the output
-of dmMessages
-
-Arguments:
-    token (string)    - a string pertaining to an active user session
-                        decodes into the user's Id.
-    dmId (number)    - Identification number of the DM whose messages
-                       are to be viewed.
-    start (number)    - The starting index of which the next 50 messages
-                        will be returned from
 
 /*
 Server route for user/all/v1, calls and responds with the output
@@ -684,7 +689,6 @@ of userAllV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-    
 Return Value:
     Returns { users } an array of all the users and their asscoiated detail on success.
 */
@@ -705,7 +709,7 @@ of messageSendV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-    channelId (number)  - Identification of channel that the message 
+    channelId (number)  - Identification of channel that the message
                         is sent.
     message (string)   - string of message that is sent.
 
@@ -732,7 +736,7 @@ of messageEditV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-    channelId (number)  - Identification of channel that the message 
+    channelId (number)  - Identification of channel that the message
                         is edited.
     message (string)   - string of message that is sent to be edited.
 
@@ -759,12 +763,12 @@ of messageRemoveV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-    messageId (number)  - Identification of channel that the message 
+    messageId (number)  - Identification of channel that the message
                         is removed.
 
 Return Value:
     Returns {} when message is removed succesfully
-    Returns {error: 'error'} on invalid messageId,  not the user who sent the 
+    Returns {error: 'error'} on invalid messageId,  not the user who sent the
                               message, have no ownerpermsion to remove message.
 */
 app.delete('/message/remove/v1', (req, res) => {
@@ -785,10 +789,18 @@ app.delete('/clear/v1', (req, res) => {
   res.json({});
 });
 
+// handles errors nicely
+app.use(errorHandler());
+
 // start server
-app.listen(PORT, HOST, () => {
+const server = app.listen(PORT, HOST, () => {
   getData(true);
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
+});
+
+// For coverage, handle Ctrl+C gracefully
+process.on('SIGINT', () => {
+  server.close(() => console.log('Shutting down server gracefully.'));
 });
 
 /*
@@ -801,7 +813,7 @@ Return values :
     - Returns false if the token is not found on the array
 */
 function validToken(token: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   for (const tokenObj of data.tokenArray) {
     if (token === tokenObj) return true;
   }
@@ -817,7 +829,7 @@ Return values :
     - Returns an object containing the user's id and token
 */
 function registerAuthV2(id: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const token: string = generateToken(id);
   data.tokenArray.push(token);
   setData(data);
@@ -851,7 +863,7 @@ Return values :
     - Returns an empty object if the user is not part of any dms
 */
 function dmList(token: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const uId: number = decodeToken(token);
   const dmArray = [];
   for (const dm of data.dms) {
@@ -878,7 +890,7 @@ Return values :
     - Returns { error: 'error  } if the uid is not in the dm members list
 */
 function dmRemove(token: string, dmId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   // Find the dm in the dm array
   for (let i = 0; i < data.dms.length; i++) {
     if (data.dms[i].dmId === dmId) {
@@ -909,7 +921,7 @@ Return values :
     - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
 */
 function channelLeave(userId: number, chId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   // Find channel in channel array
   for (const channel of data.channels) {
     if (channel.channelId === chId) {
