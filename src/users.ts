@@ -69,7 +69,6 @@ export function userSetemailV1(authUserId: number, email: string) {
   return {};
 }
 
-
 // set a new displayed name for user
 function userProfileSethandleV1(authUserId:number, handleStr: string) {
   const data: DataStr = getData();

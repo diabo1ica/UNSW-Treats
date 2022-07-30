@@ -38,8 +38,24 @@ export const requestLogin = (email: string, password: string) => {
   return requestHelper('POST', '/auth/login/v3', { email: email, password: password });
 };
 
+export const requestLogout = (token: string) => {
+  return requestHelper('POST', '/auth/logout/v1', { token: token });
+};
+
+export const requestChannelDetails = (token: string, chId: number) => {
+  return requestHelper('GET', '/channel/details/v2', { token: token, channelId: chId });
+};
+
+export const requestChannelLeave = (token: string, channelId: number) => {
+  return requestHelper('POST', '/channel/leave/v1', { token: token, channelId: channelId });
+};
+
 export const requestChannelslistall = (token: string) => {
   return requestHelper('GET', '/channels/listall/v2', { token: token });
+};
+
+export const requestChannelInvite = (token: string, channelId: number, uId: number) => {
+  return requestHelper('POST', '/channel/invite/v2', { token: token, channelId: channelId, uId: uId });
 };
 
 export const requestChannelMessages = (token: string, channelId: number, start: number) => {
@@ -48,6 +64,14 @@ export const requestChannelMessages = (token: string, channelId: number, start: 
 
 export const requestDmCreate = (token: string, uIds: number[]) => {
   return requestHelper('POST', '/dm/create/v1', { token: token, uIds: uIds });
+};
+
+export const requestDmRemove = (token: string, dmId: number) => {
+  return requestHelper('DELETE', '/dm/remove/v1', { token: token, dmId: dmId });
+};
+
+export const requestDmList = (token: string) => {
+  return requestHelper('GET', '/dm/list/v1', { token: token });
 };
 
 export const requestSendDm = (token: string, dmId: number, message: string) => {
