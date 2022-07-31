@@ -1,5 +1,5 @@
-import { getData, setData, dataStr, dm, dmMember, message } from './dataStore';
-
+import { getData, setData, DataStr, Dm, Message } from './dataStore';
+import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, messageTemplate, getCurrentTime } from './util';
 /*
 Creates a new DM and stores it in dataStore
 
@@ -17,12 +17,12 @@ Return Value:
 */
 
 export function dmCreate(creatorId: number, uIds: number[]) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   if (!uIds.every((uId) => validateUserId(uId)) || isDuplicateUserId(uIds) === true) {
     throw new Error('error'); // check all error cases
   }
 
-  const newDm: dm = dmTemplate(); // create the new DM object
+  const newDm: Dm = dmTemplate(); // create the new DM object
   newDm.creatorId = creatorId; // assign the creator's Id to the creatorId of the DM
   newDm.dmId = generatedmId(); // assign a unique dmId
 
@@ -82,7 +82,7 @@ export function dmMessages(authUserId: number, dmId: number, start: number) {
   const dmObj = getDm(dmId);
   if (dmObj === false || start > dmObj.messages.length || !isDmMember(authUserId, dmObj)) throw new Error('error'); // check for all errors
   let end: number;
-  const messagesArray: message[] = [];
+  const messagesArray: Message[] = [];
   if (start + 50 >= dmObj.messages.length) {
     end = -1;
   } else {
@@ -126,7 +126,7 @@ export function messageSendDm(authUserId: number, dmId: number, message: string)
   newMessage.messageId = generateMessageId(); // generate unique messageid
   newMessage.uId = authUserId;
   newMessage.message = message;
-  newMessage.timeSent = Math.floor((new Date()).getTime() / 1000); // time stamp the message in seconds
+  newMessage.timeSent = getCurrentTime(); // time stamp the message in seconds
   data.dms[data.dms.findIndex((dm) => dm.dmId === dmId)].messages.unshift(newMessage); // push the new message to the beginning of the DM's messages
   setData(data); // Save changes to runtime data and data.json
   return {
@@ -189,11 +189,9 @@ Return Value:
 */
 
 export function dmLeave(authUserId: number, dmId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const dmObj = getDm(dmId);
-  if (!validateUserId(authUserId)) {
-    throw new Error('Invalid userId');
-  } else if (dmObj === false) {
+  if (dmObj === false) {
     throw new Error('Invalid DM');
   } else if (!isDmMember(authUserId, dmObj)) {
     throw new Error('User is not a member of the DM');
@@ -201,89 +199,4 @@ export function dmLeave(authUserId: number, dmId: number) {
   dmObj.members = JSON.parse(JSON.stringify(dmObj.members.filter((obj) => obj.uId !== authUserId))); // Redefines members to a list excluding authorised user
   setData(data); // Save changes to runtime data and data.json
   return {};
-}
-
-// creates a template for new DMs
-const dmTemplate = (): dm => {
-  return {
-    members: [],
-    messages: [],
-    dmId: 0,
-    creatorId: 0,
-    name: '',
-  };
-};
-
-// creates a template for new messages
-const messageTemplate = (): message => {
-  return {
-    messageId: 0,
-    uId: 0,
-    message: '',
-    timeSent: 0,
-  };
-};
-
-// creates a template for new members in the DM
-const dmMemberTemplate = (): dmMember => {
-  return {
-    uId: 0,
-    dmPermsId: 0,
-  };
-};
-
-// Validates the given userId is a registered user
-const validateUserId = (UserId: number) => {
-  const data: dataStr = getData();
-  if (data.users.some((user) => user.userId === UserId)) return true;
-  return false;
-};
-
-// Validates the given array doesn't have any duplicate uIds
-const isDuplicateUserId = (userIds: number[]) => {
-  for (const item of userIds) {
-    if (userIds.filter((uId) => uId === item).length !== 1) {
-      return true;
-    }
-  }
-  return false;
-};
-
-// Validates the dmId refers to a registered DM
-function getDm(dmId: number) {
-  const data: dataStr = getData();
-  for (const item of data.dms) {
-    if (item.dmId === dmId) return item;
-  }
-  return false;
-}
-
-// Validates that the user is a member of the given DM
-function isDmMember(uId: number, dmObj: dm) {
-  if (dmObj.members.some((member) => member.uId === uId)) {
-    return true;
-  }
-  return false;
-}
-
-// generates a unique message id
-function generateMessageId() {
-  let messageId: number;
-  const data = getData();
-  if (data.messageIdCounter === 0) messageId = 1;
-  else messageId = data.messageIdCounter + 1;
-  data.messageIdCounter++;
-  setData(data);
-  return messageId;
-}
-
-// generates a unique dmId
-function generatedmId() {
-  const data = getData();
-  let dmId: number;
-  if (data.dmIdCounter === 0) dmId = 1;
-  else dmId = data.dmIdCounter + 1;
-  data.dmIdCounter++;
-  setData(data);
-  return dmId;
 }

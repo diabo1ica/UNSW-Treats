@@ -2,12 +2,12 @@ import { query } from 'express';
 import createHttpError from 'http-errors';
 import { rootCertificates } from 'tls';
 import { reduceEachTrailingCommentRange } from 'typescript';
-import { getData, dataStr, setData } from './dataStore';
+import { getData, DataStr, setData } from './dataStore';
 import { messageSendDm } from './dm';
 
 // Clears the dataStore
 function clearV1() {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   data.users = [];
   data.channels = [];
   data.userIdCounter = 0;
@@ -29,7 +29,7 @@ export function searchV1 (queryStr: string) {
   if (queryStr.length < 1 || queryStr.length > 1000) {
     throw createHttpError(400, 'queryStr invalid');
   }
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const returnMessage: any[] = [];
   
   for (const channel of data.channels) {

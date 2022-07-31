@@ -1,5 +1,5 @@
 import fs from 'fs';
-interface user {
+interface User {
   nameFirst: string,
   nameLast: string,
   handleStr: string,
@@ -9,43 +9,43 @@ interface user {
   globalPermsId: number,
 }
 
-interface member {
+interface Member {
   uId: number,
   channelPermsId: number
 }
 
-interface message {
+interface Message {
   messageId: number,
   uId: number,
   message: string,
   timeSent: number,
 }
 
-interface channel {
+interface Channel {
   channelId: number,
   name: string,
   isPublic: boolean,
-  members: member[],
-  messages: message[],
+  members: Member[],
+  messages: Message[],
 }
 
-interface dmMember {
+interface DmMember {
   uId: number,
   dmPermsId: number,
 }
 
-interface dm {
-  members: dmMember[],
-  messages: message[],
+interface Dm {
+  members: DmMember[],
+  messages: Message[],
   dmId: number,
   creatorId: number,
   name: string
 }
 
-interface dataStr {
-  users: user[],
-  channels: channel[],
-  dms: dm[],
+interface DataStr {
+  users: User[],
+  channels: Channel[],
+  dms: Dm[],
   tokenArray: string[],
   userIdCounter: number,
   channelIdCounter: number,
@@ -53,7 +53,7 @@ interface dataStr {
   messageIdCounter: number,
 }
 
-let data: dataStr = {
+let data: DataStr = {
   users: [],
   channels: [],
   dms: [],
@@ -93,9 +93,9 @@ function getData(load = false, name = './data.json') {
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData: dataStr, name = './data.json') {
+function setData(newData: DataStr, name = './data.json') {
   fs.writeFileSync(name, JSON.stringify(newData, null, 4));
   data = newData;
 }
 
-export { getData, setData, user, member, channel, dataStr, dm, message, dmMember };
+export { getData, setData, User, Member, Channel, DataStr, Dm, Message, DmMember };

@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
 import { channelInviteV1, removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1 } from './channel';
-import { getData, setData, dataStr } from './dataStore';
+import { getData, setData, DataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
@@ -12,7 +12,9 @@ import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
+import { INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
+import HTTPError from 'http-errors';
 
 // Set up web app, use JSON
 const app = express();
@@ -60,11 +62,11 @@ Response :
     - Returns { error: 'error' } if authRegisterV1 returns an error
     - Returns { error: 'error' } if registerAuthV2 returns an error
 */
-app.post('/auth/register/v2', (req, res) => {
+app.post('/auth/register/v3', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   if (id.error) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid parameters');
   } else {
     res.json(registerAuthV2(id.authUserId));
   }
@@ -129,12 +131,12 @@ Response :
     - Returns {} if the token is successfully removed
     - Returns { error: 'error' } if the token does not exist in the dataStore
 */
-app.post('/auth/logout/v1', (req, res) => {
+app.post('/auth/logout/v2', (req, res) => {
   const { token } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   }
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   for (let i = 0; i < data.tokenArray.length; i++) {
     if (token === data.tokenArray[i]) {
       data.tokenArray.splice(i, 1);
@@ -391,6 +393,19 @@ app.post('/auth/login/v2', (req, res) => {
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.post('/auth/login/v3', (req, res) => {
+  const { email, password } = req.body; // load relevant request information
+  const userId = authLoginV1(email, password).authUserId; // Login the user
+  const token = generateToken(userId); // Generate a new active token for the user
+  const data = getData(); // load the datastore
+  data.tokenArray.push(token); // Add the new active token to the datastore
+  setData(data); // save changes
+  res.json({
+    token: token,
+    authUserId: userId
+  }); // responds to request with the desired information
 });
 
 /*
@@ -654,7 +669,6 @@ Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
     handleStr (string)    - Displayed name of user
-
 Return Value:
     Returns {} when handleStr is changed succesfully
     Returns {error: 'error'} on incorrect handleStr length, contain non-alphanumeric characters,
@@ -677,7 +691,6 @@ of userAllV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-
 Return Value:
     Returns { users } an array of all the users and their asscoiated detail on success.
 */
@@ -802,7 +815,7 @@ Return values :
     - Returns false if the token is not found on the array
 */
 function validToken(token: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   for (const tokenObj of data.tokenArray) {
     if (token === tokenObj) return true;
   }
@@ -818,7 +831,7 @@ Return values :
     - Returns an object containing the user's id and token
 */
 function registerAuthV2(id: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const token: string = generateToken(id);
   data.tokenArray.push(token);
   setData(data);
@@ -852,7 +865,7 @@ Return values :
     - Returns an empty object if the user is not part of any dms
 */
 function dmList(token: string) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   const uId: number = decodeToken(token);
   const dmArray = [];
   for (const dm of data.dms) {
@@ -879,7 +892,7 @@ Return values :
     - Returns { error: 'error  } if the uid is not in the dm members list
 */
 function dmRemove(token: string, dmId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   // Find the dm in the dm array
   for (let i = 0; i < data.dms.length; i++) {
     if (data.dms[i].dmId === dmId) {
@@ -910,7 +923,7 @@ Return values :
     - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
 */
 function channelLeave(userId: number, chId: number) {
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   // Find channel in channel array
   for (const channel of data.channels) {
     if (channel.channelId === chId) {

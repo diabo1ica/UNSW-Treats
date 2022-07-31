@@ -1,5 +1,7 @@
 import validator from 'validator';
-import { getData, setData, user, dataStr } from './dataStore';
+import { getData, setData, User, DataStr } from './dataStore';
+import HTTPError from 'http-errors';
+import { INPUT_ERROR } from './tests/request';
 
 // Creates a user and store it in dataStore
 // Arguments:
@@ -20,10 +22,10 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   !validName(nameLast)) {
     return { error: 'error' };
   }
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   if (data.users.some(obj => obj.email === email)) return { error: 'error' };
 
-  const user: user = userTemplate();
+  const user: User = userTemplate();
   if (data.users.length === 0) {
     user.globalPermsId = 1;
   }
@@ -35,18 +37,7 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   user.password = password;
 
   // Generate handle
-  let handle: string = nameFirst + nameLast;
-  handle = handle.replace(/[^A-Za-z0-9]/gi, '');
-  if (handle.length > 20) handle = handle.slice(0, 20);
-  if (data.users.some(obj => obj.handleStr === handle)) {
-    for (let i = 0; i <= 9; i++) {
-      const numStr: string = i.toString();
-      if (!data.users.some(obj => obj.handleStr === (handle + numStr))) {
-        handle = handle + numStr;
-        break;
-      }
-    }
-  }
+  const handle: string = generateHandle(nameFirst, nameLast);
   user.handleStr = handle;
   data.users.push(user);
   setData(data);
@@ -69,10 +60,7 @@ Return Value:
     Returns {error: 'error'} on password is incorrect
 */
 function authLoginV1(email: string, password: string) {
-  if (validator.isEmail(email) === false) {
-    throw new Error('email is invalid');
-  }
-  const data: dataStr = getData();
+  const data: DataStr = getData();
   for (const item of data.users) {
     if (email === item.email && password === item.password) {
       return {
@@ -80,7 +68,7 @@ function authLoginV1(email: string, password: string) {
       };
     }
   }
-  throw new Error('email or password is incorrect');
+  throw HTTPError(INPUT_ERROR, 'email and/or password is incorrect');
 }
 
 function validName(name: string) {
@@ -90,7 +78,7 @@ function validName(name: string) {
 
 // Creates an empty user template
 function userTemplate() {
-  const user: user = {
+  const user: User = {
     nameFirst: '',
     nameLast: '',
     handleStr: '',
@@ -100,6 +88,23 @@ function userTemplate() {
     globalPermsId: 2,
   };
   return user;
+}
+
+function generateHandle(nameFirst: string, nameLast: string) {
+  const data: DataStr = getData();
+  let handle: string = nameFirst + nameLast;
+  handle = handle.replace(/[^A-Za-z0-9]/gi, '');
+  handle = handle.toLowerCase();
+  if (handle.length > 20) handle = handle.slice(0, 20);
+  if (data.users.some(obj => obj.handleStr === handle)) {
+    for (let i = 0; i <= 9; i++) {
+      const numStr: string = i.toString();
+      if (!data.users.some(obj => obj.handleStr === (handle + numStr))) {
+        return handle + numStr;
+      }
+    }
+  }
+  return handle;
 }
 
 export { authLoginV1, authRegisterV1 };
