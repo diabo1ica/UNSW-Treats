@@ -39,6 +39,7 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   // Generate handle
   let handle: string = nameFirst + nameLast;
   handle = handle.replace(/[^A-Za-z0-9]/gi, '');
+  handle = handle.toLowerCase();
   if (handle.length > 20) handle = handle.slice(0, 20);
   if (data.users.some(obj => obj.handleStr === handle)) {
     for (let i = 0; i <= 9; i++) {
