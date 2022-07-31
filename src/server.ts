@@ -667,7 +667,6 @@ Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
     handleStr (string)    - Displayed name of user
-
 Return Value:
     Returns {} when handleStr is changed succesfully
     Returns {error: 'error'} on incorrect handleStr length, contain non-alphanumeric characters,
@@ -690,7 +689,6 @@ of userAllV1
 Arguments:
     token (string)    - a string pertaining to an active user session
                         decodes into the user's Id.
-
 Return Value:
     Returns { users } an array of all the users and their asscoiated detail on success.
 */
