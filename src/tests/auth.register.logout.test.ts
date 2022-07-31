@@ -1,5 +1,5 @@
 import { requestClear, requestRegister, requestLogout, requestChannelsCreate } from './request';
-import { OK } from './request';
+import { OK, INPUT_ERROR } from './request';
 
 describe('auth path tests', () => {
   beforeEach(() => {
@@ -20,8 +20,7 @@ describe('auth path tests', () => {
       authUserId: 2
     });
     const res3 = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    // expect(res3.statusCode).toStrictEqual(INPUT_ERROR);
-    expect(res3.body).toEqual({ error: 'error' });
+    expect(res3.statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('Test logout', () => {
