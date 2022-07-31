@@ -1,5 +1,9 @@
-import { getData, setData, DataStr, Channel } from './dataStore';
+import { getData, setData, DataStr, Channel, StandUp } from './dataStore';
 import { validateUserId } from './util';
+import HTTPError from 'http-errors';
+import { INPUT_ERROR } from './tests/request';
+import { sortAndDeduplicateDiagnostics } from 'typescript';
+
 
 /*
 Create a channel with given name and whether it is public or private.
@@ -21,7 +25,7 @@ Return Value:
 */
 export function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
-    return { error: 'error' };
+    throw HTTPError(INPUT_ERROR, 'channel name is invalid');
   } // validate channel name is between 1-20 characters inclusive
   const data: DataStr = getData();
   const channels: Channel = channelsTemplate();
@@ -116,13 +120,22 @@ Arguments:
 Return Value:
     Returns {channel}
 */
+function standupTemplate() {
+  const standUp: StandUp = {
+    timeFinish: 0,
+    messageId: 0,
+  }
+
+  return standUp;
+}
+
 function channelsTemplate() {
   const channel: Channel = {
     channelId: 0,
     name: ' ',
     isPublic: true,
     members: [],
-    messages: []
+    standUp: standupTemplate(),
   };
 
   return channel;
