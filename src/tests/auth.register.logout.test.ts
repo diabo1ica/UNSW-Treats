@@ -1,4 +1,4 @@
-import { requestClear, requestRegister, requestLogout, requestChannelsCreate } from './request';
+import { requestClear, requestRegister, requestLogout } from './request';
 import { OK, INPUT_ERROR } from './request';
 
 describe('auth path tests', () => {
@@ -28,7 +28,11 @@ describe('auth path tests', () => {
     const res2 = requestLogout(res.token);
     expect(res2.statusCode).toStrictEqual(OK);
     expect(res2.body).toStrictEqual({});
+    const res3 = requestLogout(res.token);
+    expect(res3.statusCode).toStrictEqual(INPUT_ERROR);
+    /*
     const channel = requestChannelsCreate(res.token, 'Xhorhas', true).body;
     expect(channel).toStrictEqual({ error: 'error' });
+    */
   });
 });
