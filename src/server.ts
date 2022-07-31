@@ -12,7 +12,7 @@ import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
-import { INPUT_ERROR } from './tests/request';
+import { INPUT_ERROR, AUTHORISATION_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
 
@@ -59,14 +59,13 @@ Request :
     - nameLast (string)   - Last name of the user passed as a string
 Response :
     - Returns an object containing the token and id of the user on success
-    - Returns { error: 'error' } if authRegisterV1 returns an error
-    - Returns { error: 'error' } if registerAuthV2 returns an error
+    - Throws Error 400 if authRegisterV1 returns an error
 */
 app.post('/auth/register/v3', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   if (id.error) {
-    throw HTTPError(INPUT_ERROR, 'Invalid parameters');
+    throw HTTPError(INPUT_ERROR, 'Invalid parameters, cannot register');
   } else {
     res.json(registerAuthV2(id.authUserId));
   }
@@ -129,12 +128,12 @@ Request :
     - token (string)      - The token of the user that is trying to log out
 Response :
     - Returns {} if the token is successfully removed
-    - Returns { error: 'error' } if the token does not exist in the dataStore
+    - Throws Error 400 if the token does not exist in the dataStore
 */
 app.post('/auth/logout/v2', (req, res) => {
   const { token } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot log out');
   }
   const data: DataStr = getData();
   for (let i = 0; i < data.tokenArray.length; i++) {
@@ -153,17 +152,25 @@ Request :
     - chId (number)       - The id of the channel
 Response :
     - Returns an object containing the channel's name, isPublic value, owners and members
-    - Returns { error: 'error' } if the token does not exist in the dataStore
-    - Returns { error: 'error' } if the chId refers to a channel that does not exist in the dataStore
-    - Returns { error: 'error' } if the token refers to a uId that isn't a member of the channel
+    - Throws Error 400 if the token does not exist in the dataStore
+    - Throws Error 400 if the chId refers to a channel that does not exist in the dataStore
+    - Throws Error 400 if the token refers to a uId that isn't a member of the channel
 */
-app.get('/channel/details/v2', (req, res) => {
+app.get('/channel/details/v3', (req, res) => {
   const token: string = req.query.token as string;
   const chId: number = parseInt(req.query.channelId as string);
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot access channel details');
   } else {
-    res.json(chDetailsV2(token, chId));
+    const userId = decodeToken(token);
+    const detailsObj = channelDetailsV1(userId, chId);
+    if (detailsObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channel id, cannot acccess token');
+    }
+    if (detailsObj.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Invalid uid, cannot acccess token');
+    }
+    res.json(detailsObj);
   }
 });
 
@@ -206,13 +213,20 @@ Response :
     - Returns { error: 'error  } if channelId does not exist in the channels array
     - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
 */
-app.post('/channel/leave/v1', (req, res) => {
+app.post('/channel/leave/v2', (req, res) => {
   const { token, channelId } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot leave channel');
   } else {
     const userId = decodeToken(token);
-    res.json(channelLeave(userId, channelId));
+    const leaveStatus = channelLeave(userId, channelId);
+    if (leaveStatus.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channel id, cannot leave channel');
+    }
+    if (leaveStatus.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Invalid uid, cannot leave channel');
+    }
+    res.json(leaveStatus);
   }
 });
 
@@ -842,20 +856,6 @@ function registerAuthV2(id: number) {
 }
 
 /*
-Wrapper function for the /channel/details/v2 implementation
-Calls and returns channelDetailsV1 from './channel'
-Arguements :
-    - token (string)      - The token of the user that is trying to access the channel details
-    - chId (number)       - The channel id of the channel to be inspected
-Return values :
-    - Returns the values that will be returned by channelDetailsV1
-*/
-function chDetailsV2(token: string, chId: number) {
-  const userId = decodeToken(token);
-  return channelDetailsV1(userId, chId);
-}
-
-/*
 Wrappper function for the /dm/list/v1 implementation
 Takes in a token, decodes it to a uid then lists all dms with that uid
 Argurments :
@@ -918,9 +918,9 @@ Arguements :
     - chId (number)       - The id of the channel
 Return values :
     - Returns {} once removal is done
-    - Returns { error: 'error' } if the token/uid does not exist in the dataStore
-    - Returns { error: 'error  } if chId does not exist in the channels array
-    - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
+    - Returns { error400: 'error' } if the token/uid does not exist in the dataStore
+    - Returns { error400: 'error  } if chId does not exist in the channels array
+    - Returns { error403: 'error' } if the token points to a uid that doesn't exist in the channel's members array
 */
 function channelLeave(userId: number, chId: number) {
   const data: DataStr = getData();
@@ -935,8 +935,8 @@ function channelLeave(userId: number, chId: number) {
           return {};
         }
       }
-      return { error: 'error' };
+      return { error403: 'error' };
     }
   }
-  return { error: 'error' };
+  return { error400: 'error' };
 }

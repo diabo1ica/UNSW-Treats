@@ -43,11 +43,11 @@ export const requestLogout = (token: string) => {
 };
 
 export const requestChannelDetails = (token: string, chId: number) => {
-  return requestHelper('GET', '/channel/details/v2', { token: token, channelId: chId });
+  return requestHelper('GET', '/channel/details/v3', { token: token, channelId: chId });
 };
 
 export const requestChannelLeave = (token: string, channelId: number) => {
-  return requestHelper('POST', '/channel/leave/v1', { token: token, channelId: channelId });
+  return requestHelper('POST', '/channel/leave/v2', { token: token, channelId: channelId });
 };
 
 export const requestChannelslistall = (token: string) => {
