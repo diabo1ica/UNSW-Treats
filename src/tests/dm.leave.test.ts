@@ -48,14 +48,14 @@ describe('Working cases', () => {
     expect(requestDmLeave(token2, dmId2).body).toStrictEqual({});
     expect(requestDmDetails(token1, dmId2).body).toStrictEqual(expect.objectContaining(
       {
-        name: 'GaryAng, KennethKuo, SteveBerrospi',
+        name: 'garyang, kennethkuo, steveberrospi',
         members: expect.not.arrayContaining([expect.objectContaining(
           {
             uId: userId2,
             email: 'z3329234@unsw.edu.au',
             nameFirst: 'Gary',
             nameLast: 'Ang',
-            handleStr: 'GaryAng'
+            handleStr: 'garyang'
           }
         )])
       }
@@ -63,14 +63,14 @@ describe('Working cases', () => {
     expect(requestDmLeave(token2, dmId1).body).toStrictEqual({});
     expect(requestDmDetails(token1, dmId1).body).toStrictEqual(expect.objectContaining(
       {
-        name: 'DavidPei, GaryAng, KennethKuo, SteveBerrospi',
+        name: 'davidpei, garyang, kennethkuo, steveberrospi',
         members: expect.not.arrayContaining([expect.objectContaining(
           {
             uId: userId2,
             email: 'z3329234@unsw.edu.au',
             nameFirst: 'Gary',
             nameLast: 'Ang',
-            handleStr: 'GaryAng'
+            handleStr: 'garyang'
           }
         )])
       }

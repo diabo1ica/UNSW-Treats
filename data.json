@@ -1,137 +1,33 @@
 {
     "users": [
         {
-            "nameFirst": "Jingisu",
-            "nameLast": "Kan",
-            "handleStr": "JingisuKan",
-            "email": "Alalalyeehoo@gmail.com",
-            "password": "Sk8terboiyo",
+            "nameFirst": "Steve",
+            "nameLast": "Berrospi",
+            "handleStr": "steveberrospi",
+            "email": "z5363495@unsw.edu.au",
+            "password": "aero123",
             "userId": 1,
             "globalPermsId": 1
-        },
-        {
-            "nameFirst": "Gary",
-            "nameLast": "Ang",
-            "handleStr": "GaryAng",
-            "email": "z3329234@unsw.edu.au",
-            "password": "aero321",
-            "userId": 2,
-            "globalPermsId": 2
-        },
-        {
-            "nameFirst": "Kenneth",
-            "nameLast": "Kuo",
-            "handleStr": "KennethKuo",
-            "email": "z1319832@unsw.edu.au",
-            "password": "aero456",
-            "userId": 3,
-            "globalPermsId": 2
-        },
-        {
-            "nameFirst": "David",
-            "nameLast": "Pei",
-            "handleStr": "DavidPei",
-            "email": "z4234824@unsw.edu.au",
-            "password": "aero654",
-            "userId": 4,
-            "globalPermsId": 2
         }
     ],
-    "channels": [],
-    "dms": [
+    "channels": [
         {
+            "channelId": 1,
+            "name": "air",
+            "isPublic": true,
             "members": [
                 {
-                    "uId": 2,
-                    "dmPermsId": 2
-                },
-                {
-                    "uId": 3,
-                    "dmPermsId": 2
-                },
-                {
                     "uId": 1,
-                    "dmPermsId": 1
+                    "channelPermsId": 1
                 }
             ],
-            "messages": [],
-            "dmId": 1,
-            "creatorId": 1,
-            "name": "GaryAng, JingisuKan, KennethKuo"
-        },
-        {
-            "members": [
-                {
-                    "uId": 2,
-                    "dmPermsId": 2
-                },
-                {
-                    "uId": 4,
-                    "dmPermsId": 2
-                },
-                {
-                    "uId": 1,
-                    "dmPermsId": 1
-                }
-            ],
-            "messages": [],
-            "dmId": 2,
-            "creatorId": 1,
-            "name": "DavidPei, GaryAng, JingisuKan"
-        },
-        {
-            "members": [
-                {
-                    "uId": 3,
-                    "dmPermsId": 2
-                },
-                {
-                    "uId": 4,
-                    "dmPermsId": 2
-                },
-                {
-                    "uId": 1,
-                    "dmPermsId": 1
-                }
-            ],
-            "messages": [],
-            "dmId": 3,
-            "creatorId": 1,
-            "name": "DavidPei, JingisuKan, KennethKuo"
-        },
-        {
-            "members": [
-                {
-                    "uId": 2,
-                    "dmPermsId": 2
-                },
-                {
-                    "uId": 3,
-                    "dmPermsId": 2
-                },
-                {
-                    "uId": 4,
-                    "dmPermsId": 2
-                },
-                {
-                    "uId": 1,
-                    "dmPermsId": 1
-                }
-            ],
-            "messages": [],
-            "dmId": 4,
-            "creatorId": 1,
-            "name": "DavidPei, GaryAng, JingisuKan, KennethKuo"
+            "messages": []
         }
     ],
-    "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTE4NjczNTcwNywiaXNzIjoiMTY1OTE4NjczNTcwNyJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTE4NjczNTczNiwiaXNzIjoiMTY1OTE4NjczNTczNiJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjMsImlhdCI6MTY1OTE4NjczNTc2MCwiaXNzIjoiMTY1OTE4NjczNTc2MCJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjQsImlhdCI6MTY1OTE4NjczNTc4NSwiaXNzIjoiMTY1OTE4NjczNTc4NSJ9."
-    ],
-    "userIdCounter": 4,
-    "channelIdCounter": 0,
-    "dmIdCounter": 4,
+    "dms": [],
+    "tokenArray": [],
+    "userIdCounter": 1,
+    "channelIdCounter": 1,
+    "dmIdCounter": 0,
     "messageIdCounter": 0
 }
