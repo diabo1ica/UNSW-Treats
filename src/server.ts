@@ -345,12 +345,12 @@ Request :
 Response :
     - Returns an array of objects where each object contains dmId and the name of the dm
     - Returns an empty object if the user is not part of any dms
-    - Returns { error: 'error' } if the token points to a uid that does not exist in the dataStore
+    - Throws Error 400 if the token points to a uid that does not exist in the dataStore
 */
-app.get('/dm/list/v1', (req, res) => {
+app.get('/dm/list/v2', (req, res) => {
   const token = req.query.token as string;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot access dm list');
   } else {
     res.json(dmList(token));
   }
@@ -363,18 +363,25 @@ Request :
     - dmId  (number)      - the id of the dm that will be removed
 Response  :
     - Returns {} once removal is successful
-    - Returns { error: 'error' } if the dmId points to a dm that does not exist in the dataStore
-    - Returns { error: 'error' } if the token points to a uid that is not the uid of the dm creator
-    - Returns { error: 'error  } if the token points to a uid that is not in the dm members list
-    - Returns { error: 'error' } if the token points to a uid that does not exist in the dataStore
+    - Throws Error 400 if the dmId points to a dm that does not exist in the dataStore
+    - Throws Error 403 if the token points to a uid that is not the uid of the dm creator
+    - Throws Error 403 if the token points to a uid that is not in the dm members list
+    - Throws Error 400 if the token points to a uid that does not exist in the dataStore
 */
-app.delete('/dm/remove/v1', (req, res) => {
+app.delete('/dm/remove/v2', (req, res) => {
   const token = req.query.token as string;
   const dmId = parseInt(req.query.dmId as string);
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot remove dm');
   } else {
-    res.json(dmRemove(token, dmId));
+    const removeStatus = dmRemove(token, dmId);
+    if (removeStatus.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channel id, cannot remove dm');
+    }
+    if (removeStatus.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Invalid uid, cannot remove dm');
+    }
+    res.json(removeStatus);
   }
 });
 
@@ -887,9 +894,9 @@ Arguements :
     - dmId (number)       - The id of the dm that will be removed
 Return values :
     - Returns {} once removal is done
-    - Returns { error: 'error' } if the dmId does not exist in the dataStore
-    - Returns { error: 'error' } if the uid of the token is not the dm creator
-    - Returns { error: 'error  } if the uid is not in the dm members list
+    - Returns { error400: 'error' } if the dmId does not exist in the dataStore
+    - Returns { error403: 'error' } if the uid of the token is not the dm creator
+    - Returns { error403: 'error  } if the uid is not in the dm members list
 */
 function dmRemove(token: string, dmId: number) {
   const data: DataStr = getData();
@@ -905,10 +912,10 @@ function dmRemove(token: string, dmId: number) {
           return {};
         }
       }
-      return { error: 'error' };
+      return { error403: 'error' };
     }
   }
-  return { error: 'error' };
+  return { error400: 'error' };
 }
 
 /*

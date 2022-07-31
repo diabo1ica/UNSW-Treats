@@ -67,11 +67,11 @@ export const requestDmCreate = (token: string, uIds: number[]) => {
 };
 
 export const requestDmRemove = (token: string, dmId: number) => {
-  return requestHelper('DELETE', '/dm/remove/v1', { token: token, dmId: dmId });
+  return requestHelper('DELETE', '/dm/remove/v2', { token: token, dmId: dmId });
 };
 
 export const requestDmList = (token: string) => {
-  return requestHelper('GET', '/dm/list/v1', { token: token });
+  return requestHelper('GET', '/dm/list/v2', { token: token });
 };
 
 export const requestSendDm = (token: string, dmId: number, message: string) => {
