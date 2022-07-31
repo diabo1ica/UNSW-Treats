@@ -12,7 +12,9 @@ import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
+import { INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
+import HTTPError from 'http-errors';
 
 // Set up web app, use JSON
 const app = express();
@@ -60,11 +62,11 @@ Response :
     - Returns { error: 'error' } if authRegisterV1 returns an error
     - Returns { error: 'error' } if registerAuthV2 returns an error
 */
-app.post('/auth/register/v2', (req, res) => {
+app.post('/auth/register/v3', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   if (id.error) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid parameters');
   } else {
     res.json(registerAuthV2(id.authUserId));
   }
@@ -129,10 +131,10 @@ Response :
     - Returns {} if the token is successfully removed
     - Returns { error: 'error' } if the token does not exist in the dataStore
 */
-app.post('/auth/logout/v1', (req, res) => {
+app.post('/auth/logout/v2', (req, res) => {
   const { token } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   }
   const data: DataStr = getData();
   for (let i = 0; i < data.tokenArray.length; i++) {

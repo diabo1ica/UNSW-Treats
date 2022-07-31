@@ -20,7 +20,7 @@ describe('channel details tests', () => {
         email: 'Alalalyeehoo@gmail.com',
         nameFirst: 'Jingisu',
         nameLast: 'Kan',
-        handleStr: 'JingisuKan'
+        handleStr: 'jingisukan'
       }],
       allMembers: []
     });

@@ -27,21 +27,21 @@ describe('channel leave tests', () => {
         email: 'z3329234@unsw.edu.au',
         nameFirst: 'Gary',
         nameLast: 'Ang',
-        handleStr: 'GaryAng'
+        handleStr: 'garyang'
       },
       {
         uId: expect.any(Number),
         email: 'z1319832@unsw.edu.au',
         nameFirst: 'Kenneth',
         nameLast: 'Kuo',
-        handleStr: 'KennethKuo'
+        handleStr: 'kennethkuo'
       },
       {
         uId: expect.any(Number),
         email: 'z4234824@unsw.edu.au',
         nameFirst: 'David',
         nameLast: 'Pei',
-        handleStr: 'DavidPei'
+        handleStr: 'davidpei'
       }]
     });
   });

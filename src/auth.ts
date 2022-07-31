@@ -37,18 +37,7 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   user.password = password;
 
   // Generate handle
-  let handle: string = nameFirst + nameLast;
-  handle = handle.replace(/[^A-Za-z0-9]/gi, '');
-  if (handle.length > 20) handle = handle.slice(0, 20);
-  if (data.users.some(obj => obj.handleStr === handle)) {
-    for (let i = 0; i <= 9; i++) {
-      const numStr: string = i.toString();
-      if (!data.users.some(obj => obj.handleStr === (handle + numStr))) {
-        handle = handle + numStr;
-        break;
-      }
-    }
-  }
+  const handle: string = generateHandle(nameFirst, nameLast);
   user.handleStr = handle;
   data.users.push(user);
   setData(data);
@@ -99,6 +88,23 @@ function userTemplate() {
     globalPermsId: 2,
   };
   return user;
+}
+
+function generateHandle(nameFirst: string, nameLast: string) {
+  const data: DataStr = getData();
+  let handle: string = nameFirst + nameLast;
+  handle = handle.replace(/[^A-Za-z0-9]/gi, '');
+  handle = handle.toLowerCase();
+  if (handle.length > 20) handle = handle.slice(0, 20);
+  if (data.users.some(obj => obj.handleStr === handle)) {
+    for (let i = 0; i <= 9; i++) {
+      const numStr: string = i.toString();
+      if (!data.users.some(obj => obj.handleStr === (handle + numStr))) {
+        return handle + numStr;
+      }
+    }
+  }
+  return handle;
 }
 
 export { authLoginV1, authRegisterV1 };

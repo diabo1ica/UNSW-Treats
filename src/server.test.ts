@@ -120,7 +120,6 @@ describe('channels path tests', () => {
     requestClear();
     userID = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan').token;
   });
-
   test('ChannelsCreate Successfull', () => {
     expect(requestChannelsCreate(userID, 'Channel1', true)).toStrictEqual(expect.objectContaining({
       channelId: expect.any(Number),
@@ -203,7 +202,7 @@ describe('users path tests', () => {
         email: 'Alalalyeehoo@gmail.com',
         nameFirst: 'Jingisu',
         nameLast: 'Kan',
-        handleStr: 'JingisuKan',
+        handleStr: 'jingisukan',
       }
     });
   });
@@ -221,7 +220,7 @@ describe('users path tests', () => {
         email: 'Iloveyou@gmail.com',
         nameFirst: 'Kennt',
         nameLast: 'Alex',
-        handleStr: 'JingisuKan',
+        handleStr: 'jingisukan',
       }
     });
   });
@@ -249,7 +248,7 @@ const requestClear = () => {
 const registerAuth = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request(
     'POST',
-    SERVER_URL + '/auth/register/v2',
+    SERVER_URL + '/auth/register/v3',
     {
       json: {
         email: email,
@@ -266,7 +265,7 @@ const registerAuth = (email: string, password: string, nameFirst: string, nameLa
 const requestRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request(
     'POST',
-    SERVER_URL + '/auth/register/v2',
+    SERVER_URL + '/auth/register/v3',
     {
       json: {
         email: email,
@@ -669,14 +668,14 @@ describe('Test suite for /users/all/v1', () => {
             email: 'apple@gmail.com',
             nameFirst: 'Apple',
             nameLast: 'Tree',
-            handleStr: 'AppleTree',
+            handleStr: 'appletree',
           },
           {
             userId: 2,
             email: 'banana@gmail.com',
             nameFirst: 'Banana',
             nameLast: 'Tree',
-            handleStr: 'BananaTree',
+            handleStr: 'bananatree',
           },
         ])
       }));
