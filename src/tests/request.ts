@@ -31,7 +31,7 @@ export const requestClear = () => {
 };
 
 export const requestRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
-  return requestHelper('POST', '/auth/register/v2', { email: email, password: password, nameFirst: nameFirst, nameLast: nameLast });
+  return requestHelper('POST', '/auth/register/v3', { email: email, password: password, nameFirst: nameFirst, nameLast: nameLast });
 };
 
 export const requestLogin = (email: string, password: string) => {
@@ -39,7 +39,7 @@ export const requestLogin = (email: string, password: string) => {
 };
 
 export const requestLogout = (token: string) => {
-  return requestHelper('POST', '/auth/logout/v1', { token: token });
+  return requestHelper('POST', '/auth/logout/v2', { token: token });
 };
 
 export const requestChannelDetails = (token: string, chId: number) => {
