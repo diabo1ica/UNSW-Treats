@@ -21,6 +21,10 @@ describe('auth path tests', () => {
     });
     const res3 = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
     expect(res3.statusCode).toStrictEqual(INPUT_ERROR);
+    const res4 = requestRegister('kl@gmail.com', 'Ss', 'Jingisu', 'Kan');
+    expect(res4.statusCode).toStrictEqual(INPUT_ERROR);
+    const res5 = requestRegister('Alalaly@gmail.com', 'Sk8terboiyo', '', 'Kanaskhdsfhewfbsdkvbdshvbfdhvbdfvbdsfhvbdvbjvbsuivbfjbvfdjkbvjfbvjbvkjfdbvkhdfbvfdbvdfbvhfdbvkbvjcvkhfdbvfbvc vhfbvjdfbvjsdfbvjsfbvkjdfbvjdbajfd');
+    expect(res5.statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('Test logout', () => {
