@@ -29,15 +29,15 @@ describe('channelDetails tests', () => {
   });
 
   test('Invalid authId and channelId', () => {
-    expect(channelDetailsV1(2, 2)).toStrictEqual({ error: 'error' });
+    expect(channelDetailsV1(2, 2)).toStrictEqual({ error400: 'Invalid channel id' });
   });
 
   test('Invalid channelId', () => {
-    expect(channelDetailsV1(1, 2)).toStrictEqual({ error: 'error' });
+    expect(channelDetailsV1(1, 2)).toStrictEqual({ error400: 'Invalid channel id' });
   });
 
   test('Valid channelId but invalid authId', () => {
-    expect(channelDetailsV1(2, 1)).toStrictEqual({ error: 'error' });
+    expect(channelDetailsV1(2, 1)).toStrictEqual({ error403: 'Invalid uid' });
   });
 });
 

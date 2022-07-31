@@ -17,7 +17,7 @@ import { validateUserId, getChannel, isMember } from './util';
 function channelDetailsV1(authUserId: number, channelId: number) {
   const data: DataStr = getData();
   if (!data.channels.some(obj => obj.channelId === channelId)) {
-    return { error: 'error' };
+    return { error400: 'Invalid channel id' };
   }
   let object: Channel;
   for (const channel of data.channels) {
@@ -27,7 +27,7 @@ function channelDetailsV1(authUserId: number, channelId: number) {
     }
   }
   if (!object.members.some(obj => obj.uId === authUserId)) {
-    return { error: 'error' };
+    return { error403: 'Invalid uid' };
   }
   // Filter owmer members in members array
   const owner = [];
