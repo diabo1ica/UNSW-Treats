@@ -99,6 +99,10 @@ export const requestMessagePin = (token: string, messageId: number) => {
   return requestHelper('POST', '/message/pin/v1', { token: token, messageId: messageId });
 };
 
+export const requestMessageReact = (token: string, messageId: number, reactId: number) => {
+  return requestHelper('POST', '/message/react/v1', { token: token, messageId: messageId, reactId: reactId });
+};
+
 export const requestStartStandUp = (token: string, channelId: number, length: number) => {
   return requestHelper('POST', '/standup/start/v1', { token: token, channelId: channelId, length: length });
 };
