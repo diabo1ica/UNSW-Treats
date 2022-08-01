@@ -1,7 +1,5 @@
 import { getData, setData, DataStr, Channel } from './dataStore';
 import { validateUserId } from './util';
-import HTTPError from 'http-errors';
-import { INPUT_ERROR } from './tests/request';
 
 
 /*
@@ -24,7 +22,7 @@ Return Value:
 */
 export function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
-    throw HTTPError(INPUT_ERROR, 'channel name is invalid');
+    return { error400: 'Invalid Channel Name'};
   } // validate channel name is between 1-20 characters inclusive
   const data: DataStr = getData();
   const channels: Channel = channelsTemplate();

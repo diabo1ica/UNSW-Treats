@@ -89,13 +89,18 @@ Return Value:
     less than 1 or more than 20 characters
 */
 
-app.post('/channels/create/v2', (req, res) => {
-  const { token, name, isPublic } = req.body;
+app.post('/channels/create/v3', (req, res) => {
+  const { name, isPublic } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels Create');
   } else {
     const authUserId = decodeToken(token);
-    res.json(channelsCreateV1(authUserId, name, isPublic));
+    const detailsObj = channelsCreateV1(authUserId, name, isPublic);
+    if (detailsObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid Channels name');
+    }
+    res.json(detailsObj);
   }
 });
 
