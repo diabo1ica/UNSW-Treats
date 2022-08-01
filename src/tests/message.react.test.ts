@@ -61,7 +61,7 @@ describe('Working cases', () => {
     requestJoinChannel(user1.token, channelId);
   });
 
-   test('2 users react to a message in DM', () => {
+  test('2 users react to a message in DM', () => {
     expect(requestMessageReact(user1.token, messageId1, THUMBSUP).statusCode).toStrictEqual(OK);
     expect(requestMessageReact(user2.token, messageId1, THUMBSUP).statusCode).toStrictEqual(OK);
     expect(requestDmMessages(user2.token, dmId, 0).body.messages).toStrictEqual([
@@ -97,7 +97,7 @@ describe('Working cases', () => {
         }],
         isPinned: true
       }
-    ])
+    ]);
   });
 
   test('1 user reacts to a message in channel (member who hasn\'t reacted calls channelDetails)', () => {
@@ -115,9 +115,9 @@ describe('Working cases', () => {
         }],
         isPinned: false
       }
-    ])
+    ]);
   });
-  
+
   test('1 user reacts to message in DM (member who hasn\'t reacted calls dmDetails)', () => {
     expect(requestMessageReact(user1.token, messageId1, THUMBSUP).statusCode).toStrictEqual(OK);
     expect(requestDmMessages(user2.token, dmId, 0).body.messages).toStrictEqual([
