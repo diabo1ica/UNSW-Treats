@@ -1,3 +1,4 @@
+import { IncomingHttpHeaders } from 'http';
 import request, { HttpVerb } from 'sync-request';
 import config from '../config.json';
 const PORT: number = parseInt(process.env.PORT || config.port);
@@ -94,12 +95,16 @@ export const requestChannelsCreate = (token: string, name: string, isPublic: boo
   return requestHelper('POST', '/channels/create/v2', { token: token, name: name, isPublic: isPublic });
 };
 
-const requestHelper = (method: HttpVerb, route: string, payload: object) => {
+const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   let qs = {};
   let json = {};
+  const headers: IncomingHttpHeaders = {};
+  if (payload.token !== undefined) headers.token = payload.token;
+  payload = JSON.parse(JSON.stringify(payload));
+  delete payload.token;
   if (['GET', 'DELETE'].includes(method)) qs = payload;
   else json = payload;
-  const res = request(method, SERVER_URL + route, { qs: qs, json: json });
-
+  const res = request(method, SERVER_URL + route, { headers: headers, qs: qs, json: json });
   return { statusCode: res.statusCode, body: JSON.parse(res.body as string) };
 };
+

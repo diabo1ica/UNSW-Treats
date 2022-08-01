@@ -8,13 +8,76 @@
             "password": "Sk8terboiyo",
             "userId": 1,
             "globalPermsId": 1
+        },
+        {
+            "nameFirst": "Gary",
+            "nameLast": "Ang",
+            "handleStr": "garyang",
+            "email": "z3329234@unsw.edu.au",
+            "password": "aero321",
+            "userId": 2,
+            "globalPermsId": 2
+        },
+        {
+            "nameFirst": "Kenneth",
+            "nameLast": "Kuo",
+            "handleStr": "kennethkuo",
+            "email": "z1319832@unsw.edu.au",
+            "password": "aero456",
+            "userId": 3,
+            "globalPermsId": 2
+        },
+        {
+            "nameFirst": "David",
+            "nameLast": "Pei",
+            "handleStr": "davidpei",
+            "email": "z4234824@unsw.edu.au",
+            "password": "aero654",
+            "userId": 4,
+            "globalPermsId": 2
+        },
+        {
+            "nameFirst": "Arlong",
+            "nameLast": "Hui",
+            "handleStr": "arlonghui",
+            "email": "z6789654@unsw.edu.au",
+            "password": "aero897",
+            "userId": 5,
+            "globalPermsId": 2
         }
     ],
-    "channels": [],
+    "channels": [
+        {
+            "channelId": 1,
+            "name": "Xhorhas",
+            "isPublic": true,
+            "members": [
+                {
+                    "uId": 2,
+                    "channelPermsId": 2
+                },
+                {
+                    "uId": 3,
+                    "channelPermsId": 2
+                },
+                {
+                    "uId": 4,
+                    "channelPermsId": 2
+                }
+            ],
+            "messages": []
+        }
+    ],
     "dms": [],
-    "tokenArray": [],
-    "userIdCounter": 1,
-    "channelIdCounter": 0,
+    "tokenArray": [
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTM0NDY5Njg3OCwiaXNzIjoiMTY1OTM0NDY5Njg3OCJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTM0NDY5Njk0NCwiaXNzIjoiMTY1OTM0NDY5Njk0NCJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjMsImlhdCI6MTY1OTM0NDY5Njk3MywiaXNzIjoiMTY1OTM0NDY5Njk3MyJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjQsImlhdCI6MTY1OTM0NDY5Njk5NywiaXNzIjoiMTY1OTM0NDY5Njk5NyJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjUsImlhdCI6MTY1OTM0NDY5NzAyNCwiaXNzIjoiMTY1OTM0NDY5NzAyNCJ9."
+    ],
+    "userIdCounter": 5,
+    "channelIdCounter": 1,
     "dmIdCounter": 0,
     "messageIdCounter": 0
 }

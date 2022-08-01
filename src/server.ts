@@ -89,7 +89,8 @@ Return Value:
 */
 
 app.post('/channels/create/v2', (req, res) => {
-  const { token, name, isPublic } = req.body;
+  const { name, isPublic } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -112,7 +113,7 @@ Return Value:
 */
 
 app.get('/channels/list/v2', (req, res) => {
-  const token = req.query.token as string;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -131,7 +132,7 @@ Response :
     - Throws Error 400 if the token does not exist in the dataStore
 */
 app.post('/auth/logout/v2', (req, res) => {
-  const { token } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token, cannot log out');
   }
@@ -157,8 +158,11 @@ Response :
     - Throws Error 400 if the token refers to a uId that isn't a member of the channel
 */
 app.get('/channel/details/v3', (req, res) => {
-  const token: string = req.query.token as string;
+  const token: string = req.header('token');
+  console.log(token);
+  console.log(decodeToken(token));
   const chId: number = parseInt(req.query.channelId as string);
+  console.log('chId : ', chId);
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token, cannot access channel details');
   } else {
@@ -193,7 +197,8 @@ Return Value:
 */
 
 app.post('/channel/invite/v2', (req, res) => {
-  const { token, channelId, uId } = req.body;
+  const { channelId, uId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -214,7 +219,8 @@ Response :
     - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
 */
 app.post('/channel/leave/v2', (req, res) => {
-  const { token, channelId } = req.body;
+  const { channelId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token, cannot leave channel');
   } else {
@@ -246,7 +252,7 @@ Return Value:
 */
 
 app.get('/user/profile/v2', (req, res) => {
-  const token = req.query.token as string;
+  const token: string = req.header('token');
   const uID: number = parseInt(req.query.uId as string);
   if (!validToken(token)) {
     res.json({ error: 'error' });
@@ -277,7 +283,8 @@ Return Value:
 */
 
 app.post('/channel/removeowner/v1', (req, res) => {
-  const { token, channelId, uId } = req.body;
+  const { channelId, uId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -304,7 +311,8 @@ Return Value:
 */
 
 app.put('/user/profile/setname/v1', (req, res) => {
-  const { token, nameFirst, nameLast } = req.body;
+  const { nameFirst, nameLast } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -329,7 +337,8 @@ Return Value:
 */
 
 app.put('/user/profile/setemail/v1', (req, res) => {
-  const { token, email } = req.body;
+  const { email } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -348,7 +357,7 @@ Response :
     - Throws Error 400 if the token points to a uid that does not exist in the dataStore
 */
 app.get('/dm/list/v2', (req, res) => {
-  const token = req.query.token as string;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token, cannot access dm list');
   } else {
@@ -369,7 +378,7 @@ Response  :
     - Throws Error 400 if the token points to a uid that does not exist in the dataStore
 */
 app.delete('/dm/remove/v2', (req, res) => {
-  const token = req.query.token as string;
+  const token: string = req.header('token');
   const dmId = parseInt(req.query.dmId as string);
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token, cannot remove dm');
@@ -445,7 +454,7 @@ Return Value:
 
 app.get('/channels/listall/v2', (req, res) => {
   try {
-    const token = req.query.token as string;
+    const token: string = req.header('token');
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(channelsListallV1(decodeToken(token))); // respond to request with list of all channels
   } catch (err) {
@@ -477,7 +486,7 @@ Return Value:
 
 app.get('/channel/messages/v2', (req, res) => {
   try {
-    const token = req.query.token as string;
+    const token: string = req.header('token');
     const channelId = JSON.parse(req.query.channelId as string);
     const start = JSON.parse(req.query.start as string);
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
@@ -506,7 +515,8 @@ Return Value:
 
 app.post('/dm/create/v1', (req, res) => {
   try {
-    const { token, uIds } = req.body;
+    const token: string = req.header('token');
+    const { uIds } = req.body;
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
   } catch (err) {
@@ -532,7 +542,7 @@ Return Value:
 
 app.get('/dm/details/v1', (req, res) => {
   try {
-    const token = req.query.token as string;
+    const token: string = req.header('token');
     const dmId = JSON.parse(req.query.dmId as string);
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(dmDetails(decodeToken(token), dmId)); // respond to request with details of the DM
@@ -559,7 +569,8 @@ Return Value:
 
 app.post('/dm/leave/v1', (req, res) => {
   try {
-    const { token, dmId } = req.body;
+    const { dmId } = req.body;
+    const token: string = req.header('token');
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(dmLeave(decodeToken(token), dmId)); // respond to request with empty object
   } catch (err) {
@@ -590,7 +601,8 @@ Return Value:
 
 app.post('/message/senddm/v1', (req, res) => {
   try {
-    const { token, dmId, message } = req.body;
+    const { dmId, message } = req.body;
+    const token: string = req.header('token');
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
   } catch (err) {
@@ -621,7 +633,7 @@ Return Value:
 
 app.get('/dm/messages/v1', (req, res) => {
   try {
-    const token = req.query.token as string;
+    const token: string = req.header('token');
     const dmId = JSON.parse(req.query.dmId as string);
     const start = JSON.parse(req.query.start as string);
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
@@ -647,7 +659,8 @@ Return Value:
                         of channel, channel is private and user has no globalperm
 */
 app.post('/channel/join/v2', (req, res) => {
-  const { token, channelId } = req.body;
+  const { channelId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -673,7 +686,8 @@ Return Value:
                         of channel, uId is already owner, authuser has no owner permission.
 */
 app.post('/channel/addowner/v1', (req, res) => {
-  const { token, channelId, uId } = req.body;
+  const { channelId, uId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -696,7 +710,8 @@ Return Value:
                                 the handleStr is occupied by another user.
 */
 app.put('/user/profile/sethandle/v1', (req, res) => {
-  const { token, handleStr } = req.body;
+  const { handleStr } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -716,7 +731,7 @@ Return Value:
     Returns { users } an array of all the users and their asscoiated detail on success.
 */
 app.get('/users/all/v1', (req, res, next) => {
-  const token: string = req.query.token as string;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   }
@@ -743,7 +758,8 @@ Return Value:
                             usr is a part of.
 */
 app.post('/message/send/v1', (req, res) => {
-  const { token, channelId, message } = req.body;
+  const { channelId, message } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -770,7 +786,8 @@ Return Value:
                               to edit other's message.
 */
 app.put('/message/edit/v1', (req, res) => {
-  const { token, messageId, message } = req.body;
+  const { messageId, message } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
@@ -795,7 +812,7 @@ Return Value:
                               message, have no ownerpermsion to remove message.
 */
 app.delete('/message/remove/v1', (req, res) => {
-  const token: string = req.query.token as string;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
