@@ -1,5 +1,5 @@
 import { getData, setData, DataStr, Channel, Message, User } from './dataStore';
-import { validateUserId, getChannel, isMember, sortMessages, isReacted, getChannelMessages } from './util';
+import { validateUserId, getChannel, isMember, sortMessages, isReacted, getChannelMessages, getCurrentTime } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 
@@ -136,10 +136,10 @@ Return Value:
 function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const data: DataStr = getData();
   const channelObj = getChannel(channelId);
-  if (getChannel(channelId) === false) {
+  if (getChannel(channelId) === undefined) {
     return { error: 'error' };
   }
-  if (!validateUserId(uId) || channelObj === false) {
+  if (!validateUserId(uId) || channelObj === undefined) {
     return { error: 'error' };
   } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
     return { error: 'error' };
@@ -271,7 +271,6 @@ Return Value:
 function messageSendV1(authUserId: number, channelId: number, message: string) {
   const data: DataStr = getData();
   const channelObj = getChannel(channelId);
-  const currTime: number = parseInt(new Date().toISOString());
   if (message.length > 1000) {
     return { error: 'error' };
   }
@@ -280,7 +279,7 @@ function messageSendV1(authUserId: number, channelId: number, message: string) {
   }
 
   // check validity of channelId
-  if (channelObj === false) {
+  if (channelObj === undefined) {
     return { error: 'error' };
   }
   // check if authuserId is member of channel
@@ -291,11 +290,15 @@ function messageSendV1(authUserId: number, channelId: number, message: string) {
   for (const channel of data.channels) {
     if (channel.channelId === channelId) {
       data.messageIdCounter += 1;
-      channel.messages.push({
+      data.messages.unshift({
         messageId: data.messageIdCounter,
         uId: authUserId,
         message: message,
-        timeSent: currTime,
+        timeSent: getCurrentTime(),
+        isPinned: false,
+        reacts: [],
+        channelId: channelId,
+        dmId: undefined,
       });
       setData(data);
       return { messageId: data.messageIdCounter };
@@ -327,13 +330,13 @@ function messageEditV1(authUserId: number, messageId: number, message: string) {
   }
   // check if messageId is in channel, if not check in dm
   for (const channel of data.channels) {
-    if (channel.messages.some(obj => obj.messageId === messageId)) {
+    if (data.messages.some(obj => obj.messageId === messageId)) {
       // check if user is member in channel
       if (!isMember(authUserId, channel)) {
         return { error: 'error' };
       }
       if (isOwner(authUserId, channel)) {
-        return editMessage(authUserId, messageId, message);
+        return editMessage(messageId, message);
       }
       if (!isSender(authUserId, messageId, channel)) {
         return { error: 'error' };
@@ -342,10 +345,10 @@ function messageEditV1(authUserId: number, messageId: number, message: string) {
   }
   // check for messageId in dm
   for (const dm of data.dms) {
-    if (dm.messages.some(obj => obj.messageId === messageId)) {
+    if (data.messages.some(obj => obj.messageId === messageId)) {
       for (const item of dm.members) {
         if (item.uId === authUserId && item.dmPermsId === 1) {
-          return editMessage(authUserId, messageId, message);
+          return editMessage(messageId, message);
         }
       }
       // check if user is in dm
@@ -355,7 +358,7 @@ function messageEditV1(authUserId: number, messageId: number, message: string) {
         }
       }
       // check if is original sender
-      for (const item2 of dm.messages) {
+      for (const item2 of data.messages) {
         if (item2.messageId === messageId && item2.uId !== authUserId) {
           return { error: 'error' };
         }
@@ -384,13 +387,13 @@ function messageRemoveV1(authUserId: number, messageId: number) {
 
   // check if messageId is in channel, if not check in dm
   for (const channel of data.channels) {
-    if (channel.messages.some(obj => obj.messageId === messageId)) {
+    if (data.messages.some(obj => obj.messageId === messageId)) {
       // check if user is member in channel
       if (!isMember(authUserId, channel)) {
         return { error: 'error' };
       }
       if (isOwner(authUserId, channel)) {
-        return removeMessage(authUserId, messageId);
+        return removeMessage(messageId);
       }
       if (!isSender(authUserId, messageId, channel)) {
         return { error: 'error' };
@@ -398,10 +401,10 @@ function messageRemoveV1(authUserId: number, messageId: number) {
     }
   }
   for (const dm of data.dms) {
-    if (dm.messages.some(obj => obj.messageId === messageId)) {
+    if (data.messages.some(obj => obj.messageId === messageId)) {
       for (const item of dm.members) {
         if (item.uId === authUserId && item.dmPermsId === 1) {
-          return removeMessage(authUserId, messageId);
+          return removeMessage(messageId);
         }
       }
       // check if user is in channel
@@ -411,7 +414,7 @@ function messageRemoveV1(authUserId: number, messageId: number) {
         }
       }
       // check if is original sender
-      for (const item2 of dm.messages) {
+      for (const item2 of data.messages) {
         if (item2.messageId === messageId && item2.uId !== authUserId) {
           return { error: 'error' };
         }
@@ -433,90 +436,86 @@ function isOwner(userId: number, channelObj: Channel) {
   return false;
 }
 // helper function to edit message, reduce nesting
-function editMessage(authUserId: number, messageId: number, message: string) {
+function editMessage(messageId: number, message: string) {
   const data: DataStr = getData();
   let index = 0;
 
-  for (const channel of data.channels) {
-    if (channel.messages.some(obj => obj.messageId === messageId)) {
-      // delete message
-      if (message === '') {
-        for (const item of channel.messages) {
-          if (item.messageId === messageId) {
-            channel.messages.splice(index, 1);
-          }
-          index++;
+  if (data.messages.some(obj => obj.messageId === messageId)) {
+    // delete message
+    if (message === '') {
+      for (const item of data.messages) {
+        if (item.messageId === messageId) {
+          data.messages.splice(index, 1);
         }
-      } else {
-        for (const item of channel.messages) {
-          if (item.messageId === messageId) {
-            item.message = message;
-          }
+        index++;
+      }
+    } else {
+      for (const item of data.messages) {
+        if (item.messageId === messageId) {
+          item.message = message;
         }
       }
     }
   }
 
-  for (const dm of data.dms) {
-    if (dm.messages.some(obj => obj.messageId === messageId)) {
-      // delete message
-      if (message === '') {
-        for (const item of dm.messages) {
-          if (item.messageId === messageId) {
-            dm.messages.splice(index, 1);
-          }
-          index++;
+  if (data.messages.some(obj => obj.messageId === messageId)) {
+    // delete message
+    if (message === '') {
+      for (const item of data.messages) {
+        if (item.messageId === messageId) {
+          data.messages.splice(index, 1);
         }
-      } else {
-        for (const item of dm.messages) {
-          if (item.messageId === messageId) {
-            item.message = message;
-          }
+        index++;
+      }
+    } else {
+      for (const item of data.messages) {
+        if (item.messageId === messageId) {
+          item.message = message;
         }
       }
     }
   }
+
   setData(data);
   return ({});
 }
 
+
 // helper function to remove message, reduce nesting
-function removeMessage(authUserId: number, messageId: number) {
+function removeMessage(messageId: number) {
   const data: DataStr = getData();
   let index = 0;
 
-  for (const channel of data.channels) {
-    if (channel.messages.some(obj => obj.messageId === messageId)) {
-      // delete message
-      for (const item of channel.messages) {
-        if (item.messageId === messageId) {
-          channel.messages.splice(index, 1);
-          break;
-        }
-        index++;
+  if (data.messages.some(obj => obj.messageId === messageId)) {
+    // delete message
+    for (const item of data.messages) {
+      if (item.messageId === messageId) {
+        data.messages.splice(index, 1);
+        break;
       }
+      index++;
     }
   }
 
-  for (const dm of data.dms) {
-    if (dm.messages.some(obj => obj.messageId === messageId)) {
-      // delete message
-      for (const item of dm.messages) {
-        if (item.messageId === messageId) {
-          dm.messages.splice(index, 1);
-          break;
-        }
-        index++;
+  if (data.messages.some(obj => obj.messageId === messageId)) {
+    // delete message
+    for (const item of data.messages) {
+      if (item.messageId === messageId) {
+        data.messages.splice(index, 1);
+        break;
       }
+      index++;
     }
   }
+
   setData(data);
   return ({});
 }
 
 // check if user is sent the message
 function isSender(userId: number, messageId: number, channelObj: Channel) {
-  for (const item of channelObj.messages) {
+  const data = getData();
+  for (const item of data.messages) {
     if (item.messageId === messageId) {
       if (item.uId === userId) {
         return true;
@@ -547,7 +546,7 @@ Return Value:
 
 export function removeowner (authUserId: number, channelId: number, uId: number) {
   const channelObj = getChannel(channelId);
-  if (!validateUserId(uId) || channelObj === false) {
+  if (!validateUserId(uId) || channelObj === undefined) {
     return { error: 'error' };
   } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
     return { error: 'error' };
@@ -572,5 +571,4 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
 
   return {};
 }
-
 export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1, channelAddownerV1, messageEditV1, messageSendV1, messageRemoveV1 };
