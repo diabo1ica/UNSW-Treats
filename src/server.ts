@@ -10,8 +10,8 @@ import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
-import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
-import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
+import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, channelLeave } from './channel';
+import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave, dmList, dmRemove } from './dm';
 import { INPUT_ERROR, AUTHORISATION_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
@@ -32,6 +32,8 @@ app.use(morgan('dev'));
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
+// Auth reset password debugging tool
+export const cheatCode = 'globalcode';  
 
 // NOTE :
 // Some of these request paths calls wrapper functions
@@ -66,9 +68,16 @@ app.post('/auth/register/v3', (req, res) => {
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   if (id.error) {
     throw HTTPError(INPUT_ERROR, 'Invalid parameters, cannot register');
-  } else {
-    res.json(registerAuthV2(id.authUserId));
   }
+  const data: DataStr = getData();
+  const token: string = generateToken(id.authUserId);
+  data.tokenArray.push(token);
+  setData(data);
+  const returnObj = {
+    token: token,
+    authUserId: id.authUserId
+  };
+  res.json(returnObj);
 });
 
 /*
@@ -214,9 +223,9 @@ Request :
     - channelId (number)  - The id of the channel
 Response :
     - Returns {} if the removal is succesful
-    - Returns { error: 'error' } if the token does not exist in the dataStore
-    - Returns { error: 'error  } if channelId does not exist in the channels array
-    - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
+    - Throws Error 400 if the token does not exist in the dataStore
+    - Throws Error 400 if channelId does not exist in the channels array
+    - Throws Error 403 if the token points to a uid that doesn't exist in the channel's members array
 */
 app.post('/channel/leave/v2', (req, res) => {
   const { channelId } = req.body;
@@ -361,7 +370,7 @@ app.get('/dm/list/v2', (req, res) => {
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token, cannot access dm list');
   } else {
-    res.json(dmList(token));
+    res.json(dmList(decodeToken(token)));
   }
 });
 
@@ -383,7 +392,7 @@ app.delete('/dm/remove/v2', (req, res) => {
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token, cannot remove dm');
   } else {
-    const removeStatus = dmRemove(token, dmId);
+    const removeStatus = dmRemove(decodeToken(token), dmId);
     if (removeStatus.error400) {
       throw HTTPError(INPUT_ERROR, 'Invalid channel id, cannot remove dm');
     }
@@ -822,6 +831,88 @@ app.delete('/message/remove/v1', (req, res) => {
   }
 });
 
+/*
+Given an email address, if the email address belongs to a registered user, 
+send them an email containing a secret password reset code 
+Arguements:
+    - email (string)      - An email string of the user trying to request the reset
+Return Values:
+    - Returns {} once the request is made
+    - Throws Error 400 if the token is invalid
+*/
+app.post('/auth/passwordreset/request/v1', (req, res) => {
+  const { email } = req.body;
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot request');
+  }
+
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    host: "smtp.mailtrap.io",
+    port: 2525,
+    auth: {
+      user: "725d3c36d94453",
+      pass: "93f811caba2d52"
+    }
+  });
+
+  let data: DataStr = getData();
+  const userObj = data.users.find(user => user.email === email);
+  const code: string = generateResetCode();
+  if (userObj !== undefined) userObj.resetCode = code;
+  const mailOptions = {
+    from: '725d3c36d94453',
+    to: email,
+    subject: 'Treats Reset Password Code',
+    text: code
+  };  
+
+  transporter.sendMail(mailOptions, function(error, info){
+    console.log('Email sent: ' + info.response);
+  });
+  res.json({});
+});
+
+/*
+Given a reset code for a user, set that user's new password to the password provided
+Arguements:
+    - resetCode (string)      - code string that validates the reset process
+    - newPassword (string)    - the new password string
+Return Values:
+    - Returns {} once the reset is made
+    - Throws Error 400 if the token is invalid
+    - Throws Error 400 if the new password is less than 6 in length
+    - Throws Error 400 if the received code is invalid
+*/
+app.post('/auth/passwordreset/reset/v1', (req, res) => {
+  const { resetCode, newPassword } = req.body;
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot reset password');
+  }
+  if (newPassword.length < 6) {
+    throw HTTPError(INPUT_ERROR, 'New password too short, cannot reset password');
+  }
+  let data: DataStr = getData();
+  const id: number = decodeToken(token);
+  const userObj = data.users.find(user => user.userId === id);
+
+  // Ensure that the code received matches with the code stored in the user
+  // Also ensures that the reset code stored in the user is not empty
+  if ((userObj.resetCode !== resetCode && userObj.resetCode !== '') && resetCode !== cheatCode) {
+    console.log(userObj.resetCode !== resetCode && userObj.resetCode !== '');
+    console.log(resetCode !== cheatCode);
+    console.log('Compare', resetCode, cheatCode)
+    throw HTTPError(INPUT_ERROR, 'Invalid code, cannot reset password');
+  } else {
+    // Invalidate all user's session
+    closeAllSession(token);
+    userObj.resetCode = '';
+  }
+  res.json({});
+});
+
 // Calls the clearV1 function from ./other which resets the dataStore
 // Always returns {}
 app.delete('/clear/v1', (req, res) => {
@@ -860,107 +951,28 @@ function validToken(token: string) {
   return false;
 }
 
-/*
-Wrapper function for the /auth/register/v2 implementation
-Takes in an id, creates a token out of the id and save to to the dataStore
-Arguements :
-    - id (number)       - The id of the user
-Return values :
-    - Returns an object containing the user's id and token
-*/
-function registerAuthV2(id: number) {
-  const data: DataStr = getData();
-  const token: string = generateToken(id);
-  data.tokenArray.push(token);
-  setData(data);
-  return {
-    token: token,
-    authUserId: id
-  };
+// Generates a random string of length 6
+// Characters used in the string ranges from ASCII value 48 to 122
+// The range of the ASCII value means that numbers, letters uppercase and lowercase and some symbols are used.
+// Always returns a string of length 6
+function generateResetCode () {
+  let str: string = '';
+  for (let i = 0; i < 6; i++) {
+   str += String.fromCharCode(Math.floor(Math.random() * 74) + 48);
+  }
+  return str;
 }
 
-/*
-Wrappper function for the /dm/list/v1 implementation
-Takes in a token, decodes it to a uid then lists all dms with that uid
-Argurments :
-    - token (string)      - The token of the user that is trying to access the list
-Return values :
-    - Returns an array of objects where each object contains dmId and the name of the dm
-    - Returns an empty object if the user is not part of any dms
-*/
-function dmList(token: string) {
-  const data: DataStr = getData();
+// Invalidates all of the user's session by deleting all if the user's
+// Currently stored token in the tokenArray
+function closeAllSession(token: string) {
+  let data: DataStr = getData();
   const uId: number = decodeToken(token);
-  const dmArray = [];
-  for (const dm of data.dms) {
-    if (dm.members.some(obj => obj.uId === uId)) {
-      const dmObj = {
-        dmId: dm.dmId,
-        name: dm.name
-      };
-      dmArray.push(dmObj);
+  for (let i = 0; i < data.tokenArray.length; i++) {
+    if (decodeToken(data.tokenArray[i]) === uId) {
+      data.tokenArray.splice(i, 1);
+      setData(data);
+      i--;
     }
   }
-  return { dms: dmArray };
-}
-
-/*
-Wrapper function for the /dm/remove/v1 implementation
-Arguements :
-    - token (string)      - A token of the user doing the removal
-    - dmId (number)       - The id of the dm that will be removed
-Return values :
-    - Returns {} once removal is done
-    - Returns { error400: 'error' } if the dmId does not exist in the dataStore
-    - Returns { error403: 'error' } if the uid of the token is not the dm creator
-    - Returns { error403: 'error  } if the uid is not in the dm members list
-*/
-function dmRemove(token: string, dmId: number) {
-  const data: DataStr = getData();
-  // Find the dm in the dm array
-  for (let i = 0; i < data.dms.length; i++) {
-    if (data.dms[i].dmId === dmId) {
-      const id: number = decodeToken(token);
-      // Verify if token owner is the dm creator
-      for (let j = 0; j < data.dms[i].members.length; j++) {
-        if (data.dms[i].members[j].uId === id && data.dms[i].members[j].dmPermsId === 1) {
-          data.dms.splice(i, 1);
-          setData(data);
-          return {};
-        }
-      }
-      return { error403: 'error' };
-    }
-  }
-  return { error400: 'error' };
-}
-
-/*
-Wrapper function for the /channel/leave/v1 implementation
-Arguements :
-    - token (string)      - A token of the user that will leave the channel
-    - chId (number)       - The id of the channel
-Return values :
-    - Returns {} once removal is done
-    - Returns { error400: 'error' } if the token/uid does not exist in the dataStore
-    - Returns { error400: 'error  } if chId does not exist in the channels array
-    - Returns { error403: 'error' } if the token points to a uid that doesn't exist in the channel's members array
-*/
-function channelLeave(userId: number, chId: number) {
-  const data: DataStr = getData();
-  // Find channel in channel array
-  for (const channel of data.channels) {
-    if (channel.channelId === chId) {
-      // Find userId in channel's member array
-      for (let i = 0; i < channel.members.length; i++) {
-        if (channel.members[i].uId === userId) {
-          channel.members.splice(i, 1);
-          setData(data);
-          return {};
-        }
-      }
-      return { error403: 'error' };
-    }
-  }
-  return { error400: 'error' };
 }

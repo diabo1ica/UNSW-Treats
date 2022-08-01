@@ -95,6 +95,14 @@ export const requestChannelsCreate = (token: string, name: string, isPublic: boo
   return requestHelper('POST', '/channels/create/v2', { token: token, name: name, isPublic: isPublic });
 };
 
+export const requestResetReq= (token: string, email: string) => {
+  return requestHelper('POST', '/auth/passwordreset/request/v1', { token: token, email: email});
+};
+
+export const requestResetPassword = (token: string, resetCode: string, newPassword: string) => {
+  return requestHelper('POST', '/auth/passwordreset/reset/v1', { token: token, resetCode: resetCode, newPassword: newPassword});
+};
+
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   let qs = {};
   let json = {};
@@ -107,4 +115,3 @@ const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   const res = request(method, SERVER_URL + route, { headers: headers, qs: qs, json: json });
   return { statusCode: res.statusCode, body: JSON.parse(res.body as string) };
 };
-

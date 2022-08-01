@@ -573,4 +573,34 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   return {};
 }
 
-export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1, channelAddownerV1, messageEditV1, messageSendV1, messageRemoveV1 };
+/*
+Wrapper function for the /channel/leave/v1 implementation
+Arguements :
+    - token (string)      - A token of the user that will leave the channel
+    - chId (number)       - The id of the channel
+Return values :
+    - Returns {} once removal is done
+    - Returns { error400: 'error' } if the token/uid does not exist in the dataStore
+    - Returns { error400: 'error  } if chId does not exist in the channels array
+    - Returns { error403: 'error' } if the token points to a uid that doesn't exist in the channel's members array
+*/
+function channelLeave(userId: number, chId: number) {
+  const data: DataStr = getData();
+  // Find channel in channel array
+  for (const channel of data.channels) {
+    if (channel.channelId === chId) {
+      // Find userId in channel's member array
+      for (let i = 0; i < channel.members.length; i++) {
+        if (channel.members[i].uId === userId) {
+          channel.members.splice(i, 1);
+          setData(data);
+          return {};
+        }
+      }
+      return { error403: 'error' };
+    }
+  }
+  return { error400: 'error' };
+}
+
+export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1, channelAddownerV1, messageEditV1, messageSendV1, messageRemoveV1, channelLeave };

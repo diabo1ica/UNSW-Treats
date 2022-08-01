@@ -200,3 +200,57 @@ export function dmLeave(authUserId: number, dmId: number) {
   setData(data); // Save changes to runtime data and data.json
   return {};
 }
+
+/*
+Wrappper function for the /dm/list/v1 implementation
+Takes in a token, decodes it to a uid then lists all dms with that uid
+Argurments :
+    - token (string)      - The token of the user that is trying to access the list
+Return values :
+    - Returns an array of objects where each object contains dmId and the name of the dm
+    - Returns an empty object if the user is not part of any dms
+*/
+export function dmList(uId: number) {
+  const data: DataStr = getData();
+  const dmArray = [];
+  for (const dm of data.dms) {
+    if (dm.members.some(obj => obj.uId === uId)) {
+      const dmObj = {
+        dmId: dm.dmId,
+        name: dm.name
+      };
+      dmArray.push(dmObj);
+    }
+  }
+  return { dms: dmArray };
+}
+
+/*
+Wrapper function for the /dm/remove/v1 implementation
+Arguements :
+    - token (string)      - A token of the user doing the removal
+    - dmId (number)       - The id of the dm that will be removed
+Return values :
+    - Returns {} once removal is done
+    - Returns { error400: 'error' } if the dmId does not exist in the dataStore
+    - Returns { error403: 'error' } if the uid of the token is not the dm creator
+    - Returns { error403: 'error  } if the uid is not in the dm members list
+*/
+export function dmRemove(id: number, dmId: number) {
+  const data: DataStr = getData();
+  // Find the dm in the dm array
+  for (let i = 0; i < data.dms.length; i++) {
+    if (data.dms[i].dmId === dmId) {
+      // Verify if token owner is the dm creator
+      for (let j = 0; j < data.dms[i].members.length; j++) {
+        if (data.dms[i].members[j].uId === id && data.dms[i].members[j].dmPermsId === 1) {
+          data.dms.splice(i, 1);
+          setData(data);
+          return {};
+        }
+      }
+      return { error403: 'error' };
+    }
+  }
+  return { error400: 'error' };
+}
