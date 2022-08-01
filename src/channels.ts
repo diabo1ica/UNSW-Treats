@@ -1,4 +1,4 @@
-import { getData, setData, DataStr, Channel, StandUp } from './dataStore';
+import { getData, setData, DataStr, Channel } from './dataStore';
 import { validateUserId } from './util';
 import HTTPError from 'http-errors';
 import { INPUT_ERROR } from './tests/request';
@@ -119,14 +119,6 @@ Arguments:
 Return Value:
     Returns {channel}
 */
-function standupTemplate() {
-  const standUp: StandUp = {
-    timeFinish: 0,
-    messageId: 0,
-  }
-
-  return standUp;
-}
 
 function channelsTemplate() {
   const channel: Channel = {
@@ -134,7 +126,7 @@ function channelsTemplate() {
     name: ' ',
     isPublic: true,
     members: [],
-    standUp: standupTemplate(),
+    messages:[]
   };
 
   return channel;
