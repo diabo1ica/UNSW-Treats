@@ -64,7 +64,7 @@ export const requestChannelMessages = (token: string, channelId: number, start: 
 };
 
 export const requestDmCreate = (token: string, uIds: number[]) => {
-  return requestHelper('POST', '/dm/create/v1', { token: token, uIds: uIds });
+  return requestHelper('POST', '/dm/create/v2', { token: token, uIds: uIds });
 };
 
 export const requestDmRemove = (token: string, dmId: number) => {
@@ -88,7 +88,7 @@ export const requestDmMessages = (token: string, dmId: number, start: number) =>
 };
 
 export const requestDmDetails = (token: string, dmId: number) => {
-  return requestHelper('GET', '/dm/details/v1', { token: token, dmId: dmId });
+  return requestHelper('GET', '/dm/details/v2', { token: token, dmId: dmId });
 };
 
 export const requestChannelsCreate = (token: string, name: string, isPublic: boolean) => {
