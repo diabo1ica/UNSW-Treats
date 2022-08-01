@@ -206,3 +206,24 @@ export function dmLeave(authUserId: number, dmId: number) {
   setData(data); // Save changes to runtime data and data.json
   return {};
 }
+
+export function sendLaterDm(authUserId: number, dmId: number, message: string, timeSent: number) {
+  const data = getData();
+  const dmObj = getDm(dmId);
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (message.length < 1) throw HTTPError(INPUT_ERROR, 'Empty message');
+  if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message greater than 1000 characters');
+  if (timeSent < getCurrentTime()) throw HTTPError(INPUT_ERROR, 'Cannot send message into the past!');
+  if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'Not a member of the DM');
+  const newMessage = dmMessageTemplate();
+  newMessage.messageId = generateMessageId();
+  newMessage.timeSent = timeSent;
+  newMessage.message = message;
+  newMessage.uId = authUserId;
+  newMessage.dmId = dmId;
+  data.messages.unshift(newMessage);
+  setData(data);
+  return {
+    messageId: newMessage.messageId
+  };
+}

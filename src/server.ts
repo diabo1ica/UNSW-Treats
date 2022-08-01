@@ -11,7 +11,7 @@ import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, u
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
-import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
+import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave, sendLaterDm } from './dm';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
@@ -643,6 +643,13 @@ app.get('/dm/messages/v2', (req, res) => {
   const start = JSON.parse(req.query.start as string);
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
   res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
+});
+
+app.post('/message/sendlaterdm/v1', (req, res) => {
+  const token = req.header('token');
+  const { dmId, message, timeSent } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(sendLaterDm(decodeToken(token), dmId, message, timeSent));
 });
 
 /*
