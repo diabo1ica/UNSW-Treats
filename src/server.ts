@@ -12,7 +12,7 @@ import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
-import { INPUT_ERROR } from './tests/request';
+import { INPUT_ERROR, AUTHORISATION_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
 
@@ -117,10 +117,10 @@ Return Value:
     Returns {error: 'error'} on invalid/inactive token
 */
 
-app.get('/channels/list/v2', (req, res) => {
-  const token = req.query.token as string;
+app.get('/channels/list/v3', (req, res) => {
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels List');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelsListV1(authUserId));
@@ -190,13 +190,21 @@ Return Value:
     already a member of the channel | authorised user is not a member of the channel
 */
 
-app.post('/channel/invite/v2', (req, res) => {
-  const { token, channelId, uId } = req.body;
+app.post('/channel/invite/v3', (req, res) => {
+  const { channelId, uId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(channelInviteV1(authUserId, channelId, uId));
+    const statusObj = channelInviteV1(authUserId, channelId, uId);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channelId, Invalid Uid, Uid is already a member');
+    }
+    if (statusObj.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Valid ChannelId but authUserId is not a member');
+    }
+    res.json(statusObj);
   }
 });
 

@@ -135,12 +135,15 @@ function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const data: DataStr = getData();
   const channelObj = getChannel(channelId);
   if (getChannel(channelId) === false) {
-    return { error: 'error' };
+    return { error400: 'Invalid ChannelId' };
   }
   if (!validateUserId(uId) || channelObj === false) {
-    return { error: 'error' };
-  } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
-    return { error: 'error' };
+    return { error400: 'uId does not refer to valid user' };
+  } if (isMember(uId, channelObj)) {
+    return { error400: 'uId is already a member' };
+  }
+  if (!isMember(authUserId, channelObj)) {
+    return { error403: 'ChannelId is valid but authUserId is not a member' };
   }
 
   for (const item of data.users) {
