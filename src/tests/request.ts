@@ -95,6 +95,10 @@ export const requestChannelsCreate = (token: string, name: string, isPublic: boo
   return requestHelper('POST', '/channels/create/v3', { token: token, name: name, isPublic: isPublic });
 };
 
+export const requestChannelsList = (token: string) => {
+  return requestHelper('GET', '/channels/list/v3', {token: token});
+};
+
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   let qs = {};
   let json = {};
