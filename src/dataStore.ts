@@ -1,8 +1,5 @@
 import fs from 'fs';
-export const THUMBSUP = 1;
-export const VALIDREACTS = [THUMBSUP];
-
-export interface User {
+interface User {
   nameFirst: string,
   nameLast: string,
   handleStr: string,
@@ -10,60 +7,46 @@ export interface User {
   password: string,
   userId: number,
   globalPermsId: number,
+  resetCode: string
 }
 
-export interface Member {
+interface Member {
   uId: number,
   channelPermsId: number
 }
 
-export interface React {
-  reactId: number,
-  uIds: number[],
-  isThisUserReacted?: boolean
-}
-
-export interface Message {
+interface Message {
   messageId: number,
   uId: number,
   message: string,
   timeSent: number,
-  isPinned: boolean,
-  reacts: React[],
-  dmId: number,
-  channelId: number,
 }
 
-export interface StandUp {
-  timeFinish: number,
-  messageId: number,
-}
-
-export interface Channel {
+interface Channel {
   channelId: number,
   name: string,
   isPublic: boolean,
   members: Member[],
-  standUp: StandUp,
+  messages: Message[],
 }
 
-export interface DmMember {
+interface DmMember {
   uId: number,
   dmPermsId: number,
 }
 
-export interface Dm {
+interface Dm {
   members: DmMember[],
+  messages: Message[],
   dmId: number,
   creatorId: number,
   name: string
 }
 
-export interface DataStr {
+interface DataStr {
   users: User[],
   channels: Channel[],
   dms: Dm[],
-  messages: Message[],
   tokenArray: string[],
   userIdCounter: number,
   channelIdCounter: number,
@@ -75,7 +58,6 @@ let data: DataStr = {
   users: [],
   channels: [],
   dms: [],
-  messages: [],
   tokenArray: [],
   userIdCounter: 0,
   channelIdCounter: 0,
@@ -100,19 +82,22 @@ Example usage
 */
 
 // Use get() to access the data
-export function getData(load = false, name = 'data.json') {
+function getData(load = false, name = './data.json') {
   if (load === true && fs.existsSync(name)) {
-    const loadedData = JSON.parse(fs.readFileSync('./' + name, { encoding: 'utf8' }));
+    const loadedData = JSON.parse(fs.readFileSync(name, { encoding: 'utf8' }));
     data.users = loadedData.users;
     data.channels = loadedData.channels;
     data.dms = loadedData.dms;
-    console.log(`'${name}' successfully loaded`);
+    console.log('\'data.json\' successfully loaded');
   }
   return data;
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-export function setData(newData: DataStr, name = './data.json') {
+function setData(newData: DataStr, name = './data.json') {
   fs.writeFileSync(name, JSON.stringify(newData, null, 4));
   data = newData;
 }
+
+export { getData, setData, User, Member, Channel, DataStr, Dm, Message, DmMember };
+
