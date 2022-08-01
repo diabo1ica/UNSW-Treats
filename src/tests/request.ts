@@ -52,7 +52,7 @@ export const requestChannelLeave = (token: string, channelId: number) => {
 };
 
 export const requestChannelslistall = (token: string) => {
-  return requestHelper('GET', '/channels/listall/v2', { token: token });
+  return requestHelper('GET', '/channels/listall/v3', { token: token });
 };
 
 export const requestChannelInvite = (token: string, channelId: number, uId: number) => {

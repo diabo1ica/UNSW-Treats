@@ -1,4 +1,5 @@
 import { requestRegister, requestClear, requestChannelslistall, requestLogin, requestChannelsCreate } from './request';
+import { OK, AUTHORISATION_ERROR } from './request';
 
 let channelId1: number, channelId2: number, channelId3: number, channelId4: number;
 let token1: string, token2: string, token3: string, token4:string;
@@ -17,7 +18,7 @@ describe('Error cases', () => {
   });
 
   test('Invalid token', () => {
-    expect(requestChannelslistall(token2 + '3').body).toStrictEqual({ error: 'error' });
+    expect(requestChannelslistall(token2 + '3').statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });
 
@@ -39,7 +40,9 @@ describe('Working cases', () => {
   });
 
   test('Correct output (list 4 channels)', () => {
-    expect(requestChannelslistall(token1).body).toStrictEqual(expect.objectContaining(
+    const res = requestChannelslistall(token1);
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.body).toStrictEqual(expect.objectContaining(
       {
         channels: expect.arrayContaining([
           {
