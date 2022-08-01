@@ -95,12 +95,24 @@ export const requestChannelsCreate = (token: string, name: string, isPublic: boo
   return requestHelper('POST', '/channels/create/v2', { token: token, name: name, isPublic: isPublic });
 };
 
+export const requestMessagePin = (token: string, messageId: number) => {
+  return requestHelper('POST', '/message/pin/v1', { token: token, messageId: messageId });
+};
+
 export const requestStartStandUp = (token: string, channelId: number, length: number) => {
   return requestHelper('POST', '/standup/start/v1', { token: token, channelId: channelId, length: length });
 };
 
 export const requestSendLaterDm = (token: string, dmId: number, message: string, timeSent: number) => {
   return requestHelper('POST', '/message/sendlaterdm/v1', { token: token, dmId: dmId, message: message, timeSent: timeSent });
+};
+
+export const requestSendChannelMessage = (token: string, channelId: number, message: string) => {
+  return requestHelper('POST', '/message/send/v2', { token: token, channelId: channelId, message: message });
+};
+
+export const requestJoinChannel = (token: string, channelId: number) => {
+  return requestHelper('POST', '/channel/join/v3', { token: token, channelId: channelId });
 };
 
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
