@@ -493,6 +493,13 @@ app.post('/dm/create/v1', (req, res) => {
   }
 });
 
+app.post('/dm/create/v2', (req, res) => {
+  const token = req.header('token');
+  const { uIds } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
+});
+
 /*
 Server route for dm/details/v1, calls and responds with the output
 of dmDetails

@@ -20,9 +20,8 @@ Return Value:
 
 export function dmCreate(creatorId: number, uIds: number[]) {
   const data: DataStr = getData();
-  if (!uIds.every((uId) => validateUserId(uId)) || isDuplicateUserId(uIds) === true) {
-    throw new Error('error'); // check all error cases
-  }
+  if (!uIds.every((uId) => validateUserId(uId))) throw HTTPError(INPUT_ERROR, 'An invalid uId was given');
+  if (isDuplicateUserId(uIds)) throw HTTPError(INPUT_ERROR, 'Duplicate uIds have been given');
 
   const newDm: Dm = dmTemplate(); // create the new DM object
   newDm.creatorId = creatorId; // assign the creator's Id to the creatorId of the DM
