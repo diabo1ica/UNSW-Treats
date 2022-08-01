@@ -76,7 +76,7 @@ export const requestDmList = (token: string) => {
 };
 
 export const requestSendDm = (token: string, dmId: number, message: string) => {
-  return requestHelper('POST', '/message/senddm/v1', { token: token, dmId: dmId, message: message });
+  return requestHelper('POST', '/message/senddm/v2', { token: token, dmId: dmId, message: message });
 };
 
 export const requestDmLeave = (token: string, dmId: number) => {
