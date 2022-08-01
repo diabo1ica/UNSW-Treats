@@ -92,7 +92,7 @@ export const requestDmDetails = (token: string, dmId: number) => {
 };
 
 export const requestChannelsCreate = (token: string, name: string, isPublic: boolean) => {
-  return requestHelper('POST', '/channels/create/v2', { token: token, name: name, isPublic: isPublic });
+  return requestHelper('POST', '/channels/create/v3', { token: token, name: name, isPublic: isPublic });
 };
 
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
