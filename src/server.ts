@@ -12,7 +12,7 @@ import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
-import { INPUT_ERROR } from './tests/request';
+import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
 
@@ -608,6 +608,14 @@ app.get('/dm/messages/v1', (req, res) => {
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.get('/dm/messages/v2', (req, res) => {
+  const token = req.header('token');
+  const dmId = JSON.parse(req.query.dmId as string);
+  const start = JSON.parse(req.query.start as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
 });
 
 /*

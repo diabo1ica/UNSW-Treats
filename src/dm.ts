@@ -1,5 +1,7 @@
 import { getData, setData, DataStr, Dm, Message } from './dataStore';
-import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, messageTemplate, getCurrentTime } from './util';
+import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
+import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, dmMessageTemplate, getCurrentTime, sortMessages, getDmMessages, isReacted } from './util';
+import HTTPError from 'http-errors';
 /*
 Creates a new DM and stores it in dataStore
 
@@ -79,21 +81,24 @@ Return Value:
 */
 
 export function dmMessages(authUserId: number, dmId: number, start: number) {
+  const data = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false || start > dmObj.messages.length || !isDmMember(authUserId, dmObj)) throw new Error('error'); // check for all errors
+  sortMessages(data.messages);
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  const dmMessagesArr: Message[] = JSON.parse(JSON.stringify(getDmMessages(dmId)));
+  if (start > dmMessagesArr.length) throw HTTPError(INPUT_ERROR, 'Start is greater than message count');
+  if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the DM'); // check for all errors
+  for (let message of dmMessagesArr) {
+    delete message.channelId;
+    delete message.dmId;
+    message.reacts.forEach(react => {react.isThisUserReacted = isReacted(authUserId, message, react.reactId)});
+  }
   let end: number;
-  const messagesArray: Message[] = [];
-  if (start + 50 >= dmObj.messages.length) {
-    end = -1;
-  } else {
-    end = start + 50;
-  } // Determine whether there are more messages in the DM after the first 50 from start.
-  for (const item of dmObj.messages.slice(start, start + 50)) {
-    messagesArray.push(item);
-  } // extract the 50 most recent messages relative to start from the DM
-
+  if (start + 50 >= dmMessagesArr.length) end = -1;
+  else end = start + 50; // Determine whether there are more messages in the DM after the first 50 from start.
+  setData(data);
   return {
-    messages: messagesArray,
+    messages: dmMessagesArr.slice(start, start + 50), // extract the 50 most recent messages relative to start from the DM
     start: start,
     end: end,
   };

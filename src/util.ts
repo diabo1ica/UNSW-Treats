@@ -3,7 +3,6 @@ import { getData, setData, Dm, Message, DmMember, DataStr, Channel } from './dat
 export const dmTemplate = (): Dm => {
   return {
     members: [],
-    messages: [],
     dmId: 0,
     creatorId: 0,
     name: '',
@@ -11,12 +10,29 @@ export const dmTemplate = (): Dm => {
 };
 
 // creates a template for new messages
-export const messageTemplate = (): Message => {
+export const dmMessageTemplate = (): Message => {
   return {
     messageId: 0,
     uId: 0,
     message: '',
     timeSent: 0,
+    isPinned: false,
+    reacts: [],
+    dmId: 0,
+    channelId: undefined,
+  };
+};
+
+export const channelMessageTemplate = (): Message => {
+  return {
+    messageId: 0,
+    uId: 0,
+    message: '',
+    timeSent: 0,
+    isPinned: false,
+    reacts: [],
+    channelId: 0,
+    dmId: undefined,
   };
 };
 
@@ -47,11 +63,9 @@ export const isDuplicateUserId = (userIds: number[]) => {
 // Validates the dmId refers to a registered DM
 export function getDm(dmId: number) {
   const data: DataStr = getData();
-  for (const item of data.dms) {
-    if (item.dmId === dmId) return item;
-  }
-  return false;
+  return data.dms.find(dm => dm.dmId === dmId);
 }
+
 
 // Validates that the user is a member of the given DM
 export function isDmMember(uId: number, dmObj: Dm) {
@@ -98,4 +112,28 @@ export function isMember(userId: number, channelObj: Channel) {
 
 export function getCurrentTime() {
   return Math.floor((new Date()).getTime() / 1000);
+}
+
+export function getDmMessages(dmId: number): Message[] {
+  const data = getData();
+  return data.messages.filter(message => message.dmId === dmId && isMessageSent(message));
+}
+
+export function sortMessages(messages: Message[]) {
+  messages.sort((message1, message2) => message2.timeSent - message1.timeSent);
+}
+
+export function isMessageSent(message: Message) {
+  return message.timeSent <= getCurrentTime();
+}
+
+export function getReact(message: Message, reactId: number) {
+  return message.reacts.find(react => react.reactId === reactId);
+}
+
+export function isReacted(userId: number, message: Message, reactId: number) {
+  const react = getReact(message, reactId);
+  if (react === undefined) return false;
+  if (react.uIds.some(uId => uId === userId)) return true;
+  else return false;
 }
