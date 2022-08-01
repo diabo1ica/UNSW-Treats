@@ -16,7 +16,7 @@ import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
 import { startStandUp } from './standup';
-import { messagePin } from './message';
+import { messagePin, messageReact } from './message';
 
 // Set up web app, use JSON
 const app = express();
@@ -666,6 +666,13 @@ app.post('/message/sendlaterdm/v1', (req, res) => {
   const { dmId, message, timeSent } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(sendLaterDm(decodeToken(token), dmId, message, timeSent));
+});
+
+app.post('/message/react/v1', (req, res) => {
+  const token = req.header('token');
+  const { messageId, reactId } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(messageReact(decodeToken(token), messageId, reactId));
 });
 
 app.post('/standup/start/v1', (req, res) => {
