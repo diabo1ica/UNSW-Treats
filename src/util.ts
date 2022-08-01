@@ -96,12 +96,7 @@ export function generatedmId() {
 // Validates the dmId refers to a registered DM
 export function getChannel(channelId: number) {
   const data: DataStr = getData();
-  for (const item of data.channels) {
-    if (item.channelId === channelId) {
-      return item;
-    }
-  }
-  return false;
+  return data.channels.find(channel => channel.channelId === channelId);
 }
 
 // Validates that the user is a member of the given channel
@@ -116,6 +111,11 @@ export function getCurrentTime() {
 export function getDmMessages(dmId: number): Message[] {
   const data = getData();
   return data.messages.filter(message => message.dmId === dmId && isMessageSent(message));
+}
+
+export function getChannelMessages(channelid: number) {
+  const data = getData();
+  return data.messages.filter(message => message.channelId === channelid && isMessageSent(message));
 }
 
 export function sortMessages(messages: Message[]) {

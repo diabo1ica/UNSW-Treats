@@ -1,5 +1,7 @@
 import { getData, setData, DataStr, Channel, Message, User } from './dataStore';
-import { validateUserId, getChannel, isMember } from './util';
+import { validateUserId, getChannel, isMember, sortMessages, isReacted, getChannelMessages } from './util';
+import HTTPError from 'http-errors';
+import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -178,29 +180,27 @@ Return Value:
 */
 
 function channelMessagesV1(authUserId: number, channelId: number, start: number) {
+  const data = getData();
   const channelObj = getChannel(channelId);
-  if (validateUserId(authUserId) === false) {
-    throw new Error('Invalid authUserId');
-  } else if (channelObj === false) {
-    throw new Error('Invalid channelId');
-  } else if (start > channelObj.messages.length) {
-    throw new Error('Start is ahead of final message');
-  } else if (isMember(authUserId, channelObj) === false) {
-    throw new Error('User is not a member of the channel');
+  sortMessages(data.messages);
+  if (channelObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid channel');
+  const channelMessagesArr: Message[] = JSON.parse(JSON.stringify(getChannelMessages(channelId)));
+  if (start > channelMessagesArr.length) throw HTTPError(INPUT_ERROR, 'Start is greater than message count');
+  if (!isMember(authUserId, channelObj)) throw HTTPError(AUTHORISATION_ERROR, 'User is not a member of the channel');
+  for (let message of channelMessagesArr) {
+    delete message.channelId;
+    delete message.dmId;
+    message.reacts.forEach(react => {react.isThisUserReacted = isReacted(authUserId, message, react.reactId)});
   }
   let end: number;
-  const messagesArray: Message[] = [];
-  if (start + 50 >= channelObj.messages.length) {
+  if (start + 50 >= channelMessagesArr.length) {
     end = -1;
   } else {
     end = start + 50;
   } // Determine whether there are more messages in the channel after the first 50 from start.
-  for (const item of channelObj.messages.slice(start, start + 50)) {
-    messagesArray.push(item);
-  } // extract the 50 most recent messages relative to start from the channel
-
+  setData(data);
   return {
-    messages: messagesArray,
+    messages: channelMessagesArr.slice(start, start + 50), // extract the 50 most recent messages relative to start from the channel
     start: start,
     end: end,
   };

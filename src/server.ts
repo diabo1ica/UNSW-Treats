@@ -466,6 +466,14 @@ app.get('/channel/messages/v2', (req, res) => {
   }
 });
 
+app.get('/channel/messages/v3', (req, res) => {
+  const token = req.header('token');
+  const channelId = JSON.parse(req.query.channelId as string);
+  const start = JSON.parse(req.query.start as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(channelMessagesV1(decodeToken(token), channelId, start)); // respond to request with list of message in channel
+});
+
 /*
 Server route for dm/create/v1, calls and responds with the output
 of dmCreate
