@@ -125,13 +125,17 @@ Return Value:
 export function messageSendDm(authUserId: number, dmId: number, message: string) {
   const data = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false || message.length < 1 || message.length > 1000 || !isDmMember(authUserId, dmObj)) throw new Error('error'); // check for all errors
-  const newMessage = messageTemplate();// generate a messageTemplate for the relevant information
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (message.length < 1) throw HTTPError(INPUT_ERROR, 'Empty message');
+  if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message greater than 1000 characters');
+  if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the DM'); // check for all errors
+  const newMessage = dmMessageTemplate();// generate a messageTemplate for the relevant information
   newMessage.messageId = generateMessageId(); // generate unique messageid
   newMessage.uId = authUserId;
   newMessage.message = message;
   newMessage.timeSent = getCurrentTime(); // time stamp the message in seconds
-  data.dms[data.dms.findIndex((dm) => dm.dmId === dmId)].messages.unshift(newMessage); // push the new message to the beginning of the DM's messages
+  newMessage.dmId = dmId;
+  data.messages.unshift(newMessage); // push the new message to the beginning of the DM's messages
   setData(data); // Save changes to runtime data and data.json
   return {
     messageId: newMessage.messageId

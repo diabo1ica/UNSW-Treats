@@ -589,6 +589,13 @@ app.post('/message/senddm/v1', (req, res) => {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
 });
+
+app.post('/message/senddm/v2', (req, res) => {
+  const token = req.header('token');
+  const { dmId, message } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
+});
 /*
 Server route for dm/messages/v1, calls and responds with the output
 of dmMessages
