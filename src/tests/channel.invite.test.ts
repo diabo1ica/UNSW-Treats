@@ -1,4 +1,4 @@
-import { requestClear, requestRegister, requestLogin, requestChannelsCreate, requestChannelInvite, requestChannelDetails, requestChannelLeave } from './request';
+import { requestClear, requestRegister, requestLogin, requestChannelsCreate, requestChannelInvite, requestChannelDetails, requestChannelLeave, INPUT_ERROR } from './request';
 
 describe('channel path tests', () => {
     let userID2 : number;
@@ -20,6 +20,6 @@ describe('channel path tests', () => {
     });
   
     test('ChannelInvite Unsuccessfull', () => {
-      expect(requestChannelInvite(token, channelID, -123).statusCode).toStrictEqual({ error: 'error' });
+      expect(requestChannelInvite(token, channelID, -123).statusCode).toStrictEqual(INPUT_ERROR);
     });
 });
