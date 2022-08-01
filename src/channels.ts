@@ -1,5 +1,7 @@
 import { getData, setData, DataStr, Channel } from './dataStore';
+import { INPUT_ERROR } from './tests/request';
 import { validateUserId } from './util';
+import HTTPError from 'http-errors';
 
 /*
 Create a channel with given name and whether it is public or private.
@@ -92,10 +94,7 @@ Return Value:
 */
 export function channelsListallV1(authUserId: number) {
   const data: DataStr = getData();
-  if (validateUserId(authUserId) === false) {
-    throw new Error('Invalid authUserId');
-  } // check userId is valid
-
+  if (!validateUserId(authUserId)) throw HTTPError(INPUT_ERROR, 'Invalid authUserId'); // check userId is valid
   const allChannels: any[] = [];
   for (const item of data.channels) {
     allChannels.push({
@@ -122,7 +121,10 @@ function channelsTemplate() {
     name: ' ',
     isPublic: true,
     members: [],
-    messages: []
+    standUp: {
+      timeFinish: undefined,
+      messageId: 0,
+    }
   };
 
   return channel;

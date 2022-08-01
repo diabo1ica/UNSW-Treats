@@ -432,6 +432,12 @@ app.get('/channels/listall/v2', (req, res) => {
   }
 });
 
+app.get('/channels/listall/v3', (req, res) => {
+  const token = req.header('token');
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(channelsListallV1(decodeToken(token))); // respond to request with list of all channels
+});
+
 /*
 Server route for channel/messages/v2, calls and responds with the ouput
 of channelMessagesV1
