@@ -480,7 +480,6 @@ function editMessage(messageId: number, message: string) {
   return ({});
 }
 
-
 // helper function to remove message, reduce nesting
 function removeMessage(messageId: number) {
   const data: DataStr = getData();
