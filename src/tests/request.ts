@@ -60,7 +60,7 @@ export const requestChannelInvite = (token: string, channelId: number, uId: numb
 };
 
 export const requestChannelMessages = (token: string, channelId: number, start: number) => {
-  return requestHelper('GET', '/channel/messages/v2', { token: token, channelId: channelId, start: start });
+  return requestHelper('GET', '/channel/messages/v3', { token: token, channelId: channelId, start: start });
 };
 
 export const requestDmCreate = (token: string, uIds: number[]) => {
