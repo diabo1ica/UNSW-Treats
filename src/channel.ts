@@ -187,10 +187,10 @@ function channelMessagesV1(authUserId: number, channelId: number, start: number)
   const channelMessagesArr: Message[] = JSON.parse(JSON.stringify(getChannelMessages(channelId)));
   if (start > channelMessagesArr.length) throw HTTPError(INPUT_ERROR, 'Start is greater than message count');
   if (!isMember(authUserId, channelObj)) throw HTTPError(AUTHORISATION_ERROR, 'User is not a member of the channel');
-  for (let message of channelMessagesArr) {
+  for (const message of channelMessagesArr) {
     delete message.channelId;
     delete message.dmId;
-    message.reacts.forEach(react => {react.isThisUserReacted = isReacted(authUserId, message, react.reactId)});
+    message.reacts.forEach(react => { react.isThisUserReacted = isReacted(authUserId, message, react.reactId); });
   }
   let end: number;
   if (start + 50 >= channelMessagesArr.length) {
