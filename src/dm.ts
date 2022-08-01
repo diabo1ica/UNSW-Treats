@@ -200,11 +200,8 @@ Return Value:
 export function dmLeave(authUserId: number, dmId: number) {
   const data: DataStr = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false) {
-    throw new Error('Invalid DM');
-  } else if (!isDmMember(authUserId, dmObj)) {
-    throw new Error('User is not a member of the DM');
-  } // check for all errors
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'User is not a member of the DM'); // check for all errors
   dmObj.members = JSON.parse(JSON.stringify(dmObj.members.filter((obj) => obj.uId !== authUserId))); // Redefines members to a list excluding authorised user
   setData(data); // Save changes to runtime data and data.json
   return {};

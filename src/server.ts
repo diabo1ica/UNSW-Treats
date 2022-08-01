@@ -560,6 +560,13 @@ app.post('/dm/leave/v1', (req, res) => {
   }
 });
 
+app.post('/dm/leave/v2', (req, res) => {
+  const token = req.header('token');
+  const { dmId } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmLeave(decodeToken(token), dmId)); // respond to request with empty object
+});
+
 /*
 Server route message/senddm/v1, calls and responds with the output
 of messageSendDm
