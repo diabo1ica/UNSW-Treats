@@ -56,7 +56,7 @@ export const requestChannelslistall = (token: string) => {
 };
 
 export const requestChannelInvite = (token: string, channelId: number, uId: number) => {
-  return requestHelper('POST', '/channel/invite/v2', { token: token, channelId: channelId, uId: uId });
+  return requestHelper('POST', '/channel/invite/v3', { token: token, channelId: channelId, uId: uId });
 };
 
 export const requestChannelMessages = (token: string, channelId: number, start: number) => {
