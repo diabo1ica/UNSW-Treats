@@ -1,5 +1,5 @@
 import { getData, setData, Message, VALIDREACTS } from './dataStore';
-import { getChannel, isDmMember, getDm, getMessage, isMember, getChannelPerms, MEMBER, getDmPerms, getReact, isReacted,} from './util';
+import { getChannel, isDmMember, getDm, getMessage, isMember, getChannelPerms, MEMBER, getDmPerms, getReact, isReacted } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 

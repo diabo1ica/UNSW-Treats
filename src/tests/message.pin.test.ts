@@ -71,9 +71,9 @@ describe('Working cases', () => {
         reacts: [],
         isPinned: true,
       }
-    ])
+    ]);
   });
-  
+
   test('Pin a message in DM and call dmDetails', () => {
     expect(requestMessagePin(user1.token, messageId1).statusCode).toStrictEqual(OK);
     expect(requestDmMessages(user2.token, dmId, 0).body.messages).toStrictEqual([
@@ -85,6 +85,6 @@ describe('Working cases', () => {
         reacts: [],
         isPinned: true,
       }
-    ])
+    ]);
   });
 });

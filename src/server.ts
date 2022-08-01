@@ -682,7 +682,6 @@ app.post('/message/pin/v1', (req, res) => {
   res.json(messagePin(decodeToken(token), messageId));
 });
 
-
 /*
 Server route for channel/join/v2, calls and responds with the output
 of channelJoinV1
