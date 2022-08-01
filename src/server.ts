@@ -527,6 +527,12 @@ app.get('/dm/details/v1', (req, res) => {
   }
 });
 
+app.get('/dm/details/v2', (req, res) => {
+  const token = req.header('token');
+  const dmId = JSON.parse(req.query.dmId as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmDetails(decodeToken(token), dmId)); // respond to request with details of the DM
+});
 /*
 Server route for dm/leave/v1, calls and responds with the output
 of dmLeave

@@ -157,7 +157,8 @@ Return Value:
 export function dmDetails(authUserId: number, dmId: number) {
   const data = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false || isDmMember(authUserId, dmObj) === false) throw new Error('error'); // check for all errors
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (isDmMember(authUserId, dmObj) === false) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the DM'); // check for all errors
   const members = [];
   let member: any;
   for (const user of data.users) {
