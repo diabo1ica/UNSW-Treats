@@ -2,7 +2,6 @@ import { getData, setData, DataStr, Channel, StandUp } from './dataStore';
 import { validateUserId } from './util';
 import HTTPError from 'http-errors';
 import { INPUT_ERROR } from './tests/request';
-import { sortAndDeduplicateDiagnostics } from 'typescript';
 
 
 /*
