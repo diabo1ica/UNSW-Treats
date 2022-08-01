@@ -88,10 +88,10 @@ export function dmMessages(authUserId: number, dmId: number, start: number) {
   const dmMessagesArr: Message[] = JSON.parse(JSON.stringify(getDmMessages(dmId)));
   if (start > dmMessagesArr.length) throw HTTPError(INPUT_ERROR, 'Start is greater than message count');
   if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the DM'); // check for all errors
-  for (let message of dmMessagesArr) {
+  for (const message of dmMessagesArr) {
     delete message.channelId;
     delete message.dmId;
-    message.reacts.forEach(react => {react.isThisUserReacted = isReacted(authUserId, message, react.reactId)});
+    message.reacts.forEach(react => { react.isThisUserReacted = isReacted(authUserId, message, react.reactId); });
   }
   let end: number;
   if (start + 50 >= dmMessagesArr.length) end = -1;

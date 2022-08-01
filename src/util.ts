@@ -66,7 +66,6 @@ export function getDm(dmId: number) {
   return data.dms.find(dm => dm.dmId === dmId);
 }
 
-
 // Validates that the user is a member of the given DM
 export function isDmMember(uId: number, dmObj: Dm) {
   return dmObj.members.some((member) => member.uId === uId);
