@@ -84,7 +84,7 @@ export const requestDmLeave = (token: string, dmId: number) => {
 };
 
 export const requestDmMessages = (token: string, dmId: number, start: number) => {
-  return requestHelper('GET', '/dm/messages/v1', { token: token, dmId: dmId, start: start });
+  return requestHelper('GET', '/dm/messages/v2', { token: token, dmId: dmId, start: start });
 };
 
 export const requestDmDetails = (token: string, dmId: number) => {
