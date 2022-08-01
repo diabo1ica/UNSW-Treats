@@ -108,6 +108,11 @@ export function getCurrentTime() {
   return Math.floor((new Date()).getTime() / 1000);
 }
 
+export function getMessage(messageId: number) {
+  const data: DataStr = getData();
+  return data.messages.find(message => message.messageId === messageId);
+}
+
 export function getDmMessages(dmId: number): Message[] {
   const data = getData();
   return data.messages.filter(message => message.dmId === dmId && isMessageSent(message));
@@ -126,6 +131,14 @@ export function isMessageSent(message: Message) {
   return message.timeSent <= getCurrentTime();
 }
 
+export function getDmPerms(userId: number, dm: Dm) {
+  return dm.members.find(member => member.uId === userId).dmPermsId;
+}
+
+export function getChannelPerms (userId: number, channel: Channel) {
+  return channel.members.find(member => member.uId === userId).channelPermsId;
+}
+
 export function getReact(message: Message, reactId: number) {
   return message.reacts.find(react => react.reactId === reactId);
 }
@@ -136,3 +149,6 @@ export function isReacted(userId: number, message: Message, reactId: number) {
   if (react.uIds.some(uId => uId === userId)) return true;
   else return false;
 }
+
+export const OWNER = 1;
+export const MEMBER = 2;

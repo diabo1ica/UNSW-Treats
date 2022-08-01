@@ -16,6 +16,7 @@ import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
 import { startStandUp } from './standup';
+import { messagePin } from './message';
 
 // Set up web app, use JSON
 const app = express();
@@ -673,6 +674,14 @@ app.post('/standup/start/v1', (req, res) => {
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(startStandUp(decodeToken(token), channelId, length));
 });
+
+app.post('/message/pin/v1', (req, res) => {
+  const token = req.header('token');
+  const { messageId } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(messagePin(decodeToken(token), messageId));
+});
+
 
 /*
 Server route for channel/join/v2, calls and responds with the output
