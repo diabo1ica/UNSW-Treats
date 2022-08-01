@@ -3,10 +3,10 @@ import { OK, INPUT_ERROR } from './request';
 
 describe('channels path tests', () => {
   let userID : string;
-  let token;
   beforeEach(() => {
     requestClear();
-    userID = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan').body.token;
+    requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
+    userID = requestLogin('Alalalyeehoo@gmail.com', 'Sk8terboiyo').body.token;
   });
   test('ChannelsCreate Successfull', () => {
     expect(requestChannelsCreate(userID, 'Channel1', true).statusCode).toStrictEqual(OK);
@@ -16,6 +16,6 @@ describe('channels path tests', () => {
   });
 
   test('ChannelsCreate Unsuccessfull', () => {
-    expect(requestChannelsCreate(userID, 'Iloveyoubabyandwillmarryyouchannel', true).statusCode).toStrictEqual({INPUT_ERROR});
+    expect(requestChannelsCreate(userID, 'Iloveyoubabyandwillmarryyouchannel', true).statusCode).toStrictEqual(INPUT_ERROR);
   });
-  });
+});
