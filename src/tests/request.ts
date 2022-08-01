@@ -80,7 +80,7 @@ export const requestSendDm = (token: string, dmId: number, message: string) => {
 };
 
 export const requestDmLeave = (token: string, dmId: number) => {
-  return requestHelper('POST', '/dm/leave/v1', { token: token, dmId: dmId });
+  return requestHelper('POST', '/dm/leave/v2', { token: token, dmId: dmId });
 };
 
 export const requestDmMessages = (token: string, dmId: number, start: number) => {
