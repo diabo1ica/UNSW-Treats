@@ -100,7 +100,7 @@ export const requestChannelsList = (token: string) => {
 };
 
 export const requestUserProfile = (token: string, uId: number) => {
-  return requestHelper('GET', 'user/profile/v3', {token: token, uId: uId});
+  return requestHelper('GET', '/user/profile/v3', {token: token, uId: uId});
 };
 
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
