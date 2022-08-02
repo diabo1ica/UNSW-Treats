@@ -314,13 +314,18 @@ Return Value:
     between 1 and 50 characters inclusive
 */
 
-app.put('/user/profile/setname/v1', (req, res) => {
-  const { token, nameFirst, nameLast } = req.body;
+app.put('/user/profile/setname/v2', (req, res) => {
+  const { nameFirst, nameLast } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(userSetNameV1(authUserId, nameFirst, nameLast));
+    const statusObj = userSetNameV1(authUserId, nameFirst, nameLast);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid nameFirst or nameLast' );
+    }
+    res.json(statusObj);
   }
 });
 
@@ -339,13 +344,18 @@ Return Value:
     is not a valid email | email address is being used by another user
 */
 
-app.put('/user/profile/setemail/v1', (req, res) => {
-  const { token, email } = req.body;
+app.put('/user/profile/setemail/v2', (req, res) => {
+  const { email } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(userSetemailV1(authUserId, email));
+    const statusObj = userSetemailV1(authUserId, email);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid email' );
+    }
+    res.json(statusObj);
   }
 });
 
