@@ -552,8 +552,8 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   const channelObj = getChannel(channelId);
   if (!validateUserId(uId) || channelObj === false) {
     return { error400: 'Invalid Uid or Invalid ChannelId'};
-  } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
-    return { error: 'error' };
+  } if (!isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
+    return { error400: 'Uid is a member or authUserId is not a member' };
   }
 
   let num = 0;
