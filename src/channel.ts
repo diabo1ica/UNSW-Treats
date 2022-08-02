@@ -551,7 +551,7 @@ Return Value:
 export function removeowner (authUserId: number, channelId: number, uId: number) {
   const channelObj = getChannel(channelId);
   if (!validateUserId(uId) || channelObj === false) {
-    return { error: 'error' };
+    return { error400: 'Invalid Uid or Invalid ChannelId'};
   } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
     return { error: 'error' };
   }
@@ -564,9 +564,12 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   }
 
   for (const member of channelObj.members) {
+    if (member.uId === authUserId && member.channelPermsId === 2) {
+      return { error403: 'ChannelId is valid but authUserId is not the owner' };
+    }
     if (member.uId === uId) {
       if (member.channelPermsId === 2 || num === 1) {
-        return { error: 'error' }; // if user doesn't have owner permissions return error
+        return { error400: 'uId is not an owner of the channel or uId is the only owner of the channel' }; // if user doesn't have owner permissions return error
       } else {
         member.channelPermsId = 2; // set the user's permissions to member permissions
       }
