@@ -15,7 +15,7 @@ import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave, dmList, dmRemo
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
-import { startStandUp } from './standup';
+import { startStandUp, activeStandUp, sendStandUp } from './standup';
 import { messagePin, messageReact } from './message';
 
 // Set up web app, use JSON
@@ -143,7 +143,7 @@ Response :
 app.post('/auth/logout/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot log out');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot log out');
   }
   const data: DataStr = getData();
   for (let i = 0; i < data.tokenArray.length; i++) {
@@ -173,7 +173,7 @@ app.get('/channel/details/v3', (req, res) => {
   const chId: number = parseInt(req.query.channelId as string);
   console.log('chId : ', chId);
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot access channel details');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot access channel details');
   } else {
     const userId = decodeToken(token);
     const detailsObj = channelDetailsV1(userId, chId);
@@ -231,7 +231,7 @@ app.post('/channel/leave/v2', (req, res) => {
   const { channelId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot leave channel');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot leave channel');
   } else {
     const userId = decodeToken(token);
     const leaveStatus = channelLeave(userId, channelId);
@@ -368,7 +368,7 @@ Response :
 app.get('/dm/list/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot access dm list');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot access dm list');
   } else {
     res.json(dmList(decodeToken(token)));
   }
@@ -390,7 +390,7 @@ app.delete('/dm/remove/v2', (req, res) => {
   const token: string = req.header('token');
   const dmId = parseInt(req.query.dmId as string);
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot remove dm');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot remove dm');
   } else {
     const removeStatus = dmRemove(decodeToken(token), dmId);
     if (removeStatus.error400) {
@@ -722,6 +722,23 @@ app.post('/standup/start/v1', (req, res) => {
   res.json(startStandUp(decodeToken(token), channelId, length));
 });
 
+// For a given channel, return whether a standup is active in it, and what time the standup finishes.
+app.get('/standup/active/v1', (req, res) => {
+  const token = req.header('token');
+  const channelId = parseInt(req.query.channelId as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(activeStandUp(decodeToken(token), channelId));
+});
+
+// For a given channel, if a standup is currently active in the channel, send a message to get buffered in the standup queue.
+app.post('/standup/send/v1', (req, res) => {
+  const token = req.header('token');
+  const { channelId, message } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message too long');
+  res.json(sendStandUp(decodeToken(token), channelId, message));
+});
+
 app.post('/message/pin/v1', (req, res) => {
   const token = req.header('token');
   const { messageId } = req.body;
@@ -909,8 +926,8 @@ app.delete('/message/remove/v1', (req, res) => {
 });
 
 /*
-Given an email address, if the email address belongs to a registered user, 
-send them an email containing a secret password reset code 
+Given an email address, if the email address belongs to a registered user,
+send them an email containing a secret password reset code
 Arguements:
     - email (string)      - An email string of the user trying to request the reset
 Return Values:
@@ -921,29 +938,29 @@ app.post('/auth/passwordreset/request/v1', (req, res) => {
   const { email } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot request');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot request');
   }
   // Close all user's session
   closeAllSession(token);
 
   const nodemailer = require('nodemailer');
   const transporter = nodemailer.createTransport({
-    host: "smtp.mailtrap.io",
+    host: 'smtp.mailtrap.io',
     port: 2525,
     auth: {
-      user: "725d3c36d94453",
-      pass: "93f811caba2d52"
+      user: '725d3c36d94453',
+      pass: '93f811caba2d52'
     }
   });
 
-  let data: DataStr = getData();
+  const data: DataStr = getData();
   const userObj = data.users.find(user => user.email === email);
   const code: string = generateResetCode(userObj.userId);
   if (userObj !== undefined) {
     const resetObj = {
       uId: userObj.userId,
       resetCode: code
-    }
+    };
     data.resetArray.push(resetObj);
     setData(data);
   }
@@ -953,11 +970,9 @@ app.post('/auth/passwordreset/request/v1', (req, res) => {
     to: email,
     subject: 'Treats Reset Password Code',
     text: code
-  };  
+  };
 
-  transporter.sendMail(mailOptions, function(error, info){
-    console.log('Email sent: ' + info.response);
-  });
+  transporter.sendMail(mailOptions);
   res.json({});
 });
 
@@ -976,7 +991,7 @@ app.post('/auth/passwordreset/reset/v1', (req, res) => {
   if (newPassword.length < 6) {
     throw HTTPError(INPUT_ERROR, 'New password too short, cannot reset password');
   }
-  let data: DataStr = getData(); 
+  const data: DataStr = getData();
   const resetObj = data.resetArray.find(obj => obj.resetCode === resetCode);
   // Ensure that the code received matches with the code stored in the user
   // Also ensures that the reset code stored in the user is not empty
@@ -985,7 +1000,7 @@ app.post('/auth/passwordreset/reset/v1', (req, res) => {
   }
   // Delete all valid reset code stored for the user
   const id: number = resetObj.uId;
-  for (let i = 0; i < data.resetArray.length ; i++) {
+  for (let i = 0; i < data.resetArray.length; i++) {
     if (data.resetArray[i].uId === id) {
       data.resetArray.splice(i, 1);
       setData(data);
@@ -1038,9 +1053,9 @@ function validToken(token: string) {
 // The range of the ASCII value means that numbers, letters uppercase and lowercase and some symbols are used.
 // the random string of length 6 is then appended with the user's uId
 function generateResetCode (uId: number) {
-  let str: string = '';
+  let str = '';
   for (let i = 0; i < 6; i++) {
-   str += String.fromCharCode(Math.floor(Math.random() * 74) + 48);
+    str += String.fromCharCode(Math.floor(Math.random() * 74) + 48);
   }
   return str + uId.toString();
 }
@@ -1048,7 +1063,7 @@ function generateResetCode (uId: number) {
 // Invalidates all of the user's session by deleting all if the user's
 // Currently stored token in the tokenArray
 function closeAllSession(token: string) {
-  let data: DataStr = getData();
+  const data: DataStr = getData();
   const uId: number = decodeToken(token);
   for (let i = 0; i < data.tokenArray.length; i++) {
     if (decodeToken(data.tokenArray[i]) === uId) {
