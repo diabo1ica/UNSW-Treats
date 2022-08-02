@@ -30,7 +30,7 @@ export function userProfileV1(authUserId: number, uId: number) {
     }
   }
 
-  return { error: 'error' };
+  return { error400: 'Invalid Uid' };
 }
 
 function validName(name: string) {
