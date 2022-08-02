@@ -744,7 +744,7 @@ Return Value:
     Returns {error: 'error'} on invalid channelId, user is alread a member
                         of channel, channel is private and user has no globalperm
 */
-app.post('/channel/join/v2', (req, res) => {
+app.post('/channel/join/v3', (req, res) => {
   const { channelId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
@@ -843,7 +843,7 @@ Return Value:
                             messageId being valid, but not included in channel that
                             usr is a part of.
 */
-app.post('/message/send/v1', (req, res) => {
+app.post('/message/send/v2', (req, res) => {
   const { channelId, message } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {

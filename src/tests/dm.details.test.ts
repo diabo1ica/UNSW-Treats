@@ -48,28 +48,28 @@ describe('Working cases', () => {
     expect(res.statusCode).toStrictEqual(OK);
     expect(res.body).toStrictEqual(expect.objectContaining(
       {
-        name: 'DavidPei, GaryAng, SteveBerrospi',
+        name: 'davidpei, garyang, steveberrospi',
         members: expect.arrayContaining([expect.objectContaining(
           {
             uId: userId1,
             email: 'z5363495@unsw.edu.au',
             nameFirst: 'Steve',
             nameLast: 'Berrospi',
-            handleStr: 'SteveBerrospi'
+            handleStr: 'steveberrospi'
           }), expect.objectContaining(
           {
             uId: userId2,
             email: 'z3329234@unsw.edu.au',
             nameFirst: 'Gary',
             nameLast: 'Ang',
-            handleStr: 'GaryAng'
+            handleStr: 'garyang'
           }), expect.objectContaining(
           {
             uId: userId4,
             email: 'z4234824@unsw.edu.au',
             nameFirst: 'David',
             nameLast: 'Pei',
-            handleStr: 'DavidPei'
+            handleStr: 'davidpei'
           }
         )
         ])

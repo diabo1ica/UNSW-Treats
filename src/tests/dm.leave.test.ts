@@ -51,7 +51,7 @@ describe('Working cases', () => {
     expect(res.body).toStrictEqual({});
     expect(requestDmDetails(token1, dmId2).body).toStrictEqual(expect.objectContaining(
       {
-        name: 'GaryAng, KennethKuo, SteveBerrospi',
+        name: 'garyang, kennethkuo, steveberrospi',
         members: expect.not.arrayContaining([expect.objectContaining(
           {
             uId: userId2,
@@ -68,7 +68,7 @@ describe('Working cases', () => {
     expect(res.body).toStrictEqual({});
     expect(requestDmDetails(token1, dmId1).body).toStrictEqual(expect.objectContaining(
       {
-        name: 'DavidPei, GaryAng, KennethKuo, SteveBerrospi',
+        name: 'davidpei, garyang, kennethkuo, steveberrospi',
         members: expect.not.arrayContaining([expect.objectContaining(
           {
             uId: userId2,

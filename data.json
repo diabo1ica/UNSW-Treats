@@ -10,32 +10,28 @@
             "globalPermsId": 1
         }
     ],
-    "channels": [],
-    "dms": [],
-    "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTQyMTg3MDU5OSwiaXNzIjoiMTY1OTQyMTg3MDU5OSJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTQyMTg3MDYyMSwiaXNzIjoiMTY1OTQyMTg3MDYyMSJ9."
+    "channels": [
+        {
+            "channelId": 1,
+            "name": "air",
+            "isPublic": true,
+            "members": [
+                {
+                    "uId": 1,
+                    "channelPermsId": 1
+                }
+            ],
+            "standUp": {
+                "messageId": 0
+            }
+        }
     ],
+    "dms": [],
+    "messages": [],
+    "tokenArray": [],
     "userIdCounter": 1,
-    "channelIdCounter": 0,
+    "channelIdCounter": 1,
     "dmIdCounter": 0,
     "messageIdCounter": 0,
-    "resetArray": [
-        {
-            "uId": 1,
-            "resetCode": "]U8Q@<1"
-        },
-        {
-            "uId": 1,
-            "resetCode": "g=ojlB1"
-        },
-        {
-            "uId": 1,
-            "resetCode": "B@nAt51"
-        },
-        {
-            "uId": 1,
-            "resetCode": "teLc6b1"
-        }
-    ]
+    "resetArray": []
 }
