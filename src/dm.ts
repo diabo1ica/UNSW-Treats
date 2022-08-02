@@ -1,5 +1,7 @@
 import { getData, setData, DataStr, Dm, Message } from './dataStore';
-import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, messageTemplate, getCurrentTime } from './util';
+import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
+import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, dmMessageTemplate, getCurrentTime, sortMessages, getDmMessages, isReacted } from './util';
+import HTTPError from 'http-errors';
 /*
 Creates a new DM and stores it in dataStore
 
@@ -18,9 +20,8 @@ Return Value:
 
 export function dmCreate(creatorId: number, uIds: number[]) {
   const data: DataStr = getData();
-  if (!uIds.every((uId) => validateUserId(uId)) || isDuplicateUserId(uIds) === true) {
-    throw new Error('error'); // check all error cases
-  }
+  if (!uIds.every((uId) => validateUserId(uId))) throw HTTPError(INPUT_ERROR, 'An invalid uId was given');
+  if (isDuplicateUserId(uIds)) throw HTTPError(INPUT_ERROR, 'Duplicate uIds have been given');
 
   const newDm: Dm = dmTemplate(); // create the new DM object
   newDm.creatorId = creatorId; // assign the creator's Id to the creatorId of the DM
@@ -79,21 +80,24 @@ Return Value:
 */
 
 export function dmMessages(authUserId: number, dmId: number, start: number) {
+  const data = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false || start > dmObj.messages.length || !isDmMember(authUserId, dmObj)) throw new Error('error'); // check for all errors
+  sortMessages(data.messages);
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  const dmMessagesArr: Message[] = JSON.parse(JSON.stringify(getDmMessages(dmId)));
+  if (start > dmMessagesArr.length) throw HTTPError(INPUT_ERROR, 'Start is greater than message count');
+  if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the DM'); // check for all errors
+  for (const message of dmMessagesArr) {
+    delete message.channelId;
+    delete message.dmId;
+    message.reacts.forEach(react => { react.isThisUserReacted = isReacted(authUserId, message, react.reactId); });
+  }
   let end: number;
-  const messagesArray: Message[] = [];
-  if (start + 50 >= dmObj.messages.length) {
-    end = -1;
-  } else {
-    end = start + 50;
-  } // Determine whether there are more messages in the DM after the first 50 from start.
-  for (const item of dmObj.messages.slice(start, start + 50)) {
-    messagesArray.push(item);
-  } // extract the 50 most recent messages relative to start from the DM
-
+  if (start + 50 >= dmMessagesArr.length) end = -1;
+  else end = start + 50; // Determine whether there are more messages in the DM after the first 50 from start.
+  setData(data);
   return {
-    messages: messagesArray,
+    messages: dmMessagesArr.slice(start, start + 50), // extract the 50 most recent messages relative to start from the DM
     start: start,
     end: end,
   };
@@ -121,13 +125,17 @@ Return Value:
 export function messageSendDm(authUserId: number, dmId: number, message: string) {
   const data = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false || message.length < 1 || message.length > 1000 || !isDmMember(authUserId, dmObj)) throw new Error('error'); // check for all errors
-  const newMessage = messageTemplate();// generate a messageTemplate for the relevant information
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (message.length < 1) throw HTTPError(INPUT_ERROR, 'Empty message');
+  if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message greater than 1000 characters');
+  if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the DM'); // check for all errors
+  const newMessage = dmMessageTemplate();// generate a messageTemplate for the relevant information
   newMessage.messageId = generateMessageId(); // generate unique messageid
   newMessage.uId = authUserId;
   newMessage.message = message;
   newMessage.timeSent = getCurrentTime(); // time stamp the message in seconds
-  data.dms[data.dms.findIndex((dm) => dm.dmId === dmId)].messages.unshift(newMessage); // push the new message to the beginning of the DM's messages
+  newMessage.dmId = dmId;
+  data.messages.unshift(newMessage); // push the new message to the beginning of the DM's messages
   setData(data); // Save changes to runtime data and data.json
   return {
     messageId: newMessage.messageId
@@ -153,7 +161,8 @@ Return Value:
 export function dmDetails(authUserId: number, dmId: number) {
   const data = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false || isDmMember(authUserId, dmObj) === false) throw new Error('error'); // check for all errors
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (isDmMember(authUserId, dmObj) === false) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the DM'); // check for all errors
   const members = [];
   let member: any;
   for (const user of data.users) {
@@ -191,11 +200,8 @@ Return Value:
 export function dmLeave(authUserId: number, dmId: number) {
   const data: DataStr = getData();
   const dmObj = getDm(dmId);
-  if (dmObj === false) {
-    throw new Error('Invalid DM');
-  } else if (!isDmMember(authUserId, dmObj)) {
-    throw new Error('User is not a member of the DM');
-  } // check for all errors
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'User is not a member of the DM'); // check for all errors
   dmObj.members = JSON.parse(JSON.stringify(dmObj.members.filter((obj) => obj.uId !== authUserId))); // Redefines members to a list excluding authorised user
   setData(data); // Save changes to runtime data and data.json
   return {};
@@ -253,4 +259,25 @@ export function dmRemove(id: number, dmId: number) {
     }
   }
   return { error400: 'error' };
+}
+
+export function sendLaterDm(authUserId: number, dmId: number, message: string, timeSent: number) {
+  const data = getData();
+  const dmObj = getDm(dmId);
+  if (dmObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (message.length < 1) throw HTTPError(INPUT_ERROR, 'Empty message');
+  if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message greater than 1000 characters');
+  if (timeSent < getCurrentTime()) throw HTTPError(INPUT_ERROR, 'Cannot send message into the past!');
+  if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'Not a member of the DM');
+  const newMessage = dmMessageTemplate();
+  newMessage.messageId = generateMessageId();
+  newMessage.timeSent = timeSent;
+  newMessage.message = message;
+  newMessage.uId = authUserId;
+  newMessage.dmId = dmId;
+  data.messages.unshift(newMessage);
+  setData(data);
+  return {
+    messageId: newMessage.messageId
+  };
 }

@@ -1,4 +1,5 @@
 import { requestClear, requestRegister, requestLogin, requestDmCreate, requestDmLeave, requestDmDetails } from './request';
+import { OK, AUTHORISATION_ERROR, INPUT_ERROR } from './request';
 let userId2: number, userId3: number, userId4: number;
 let dmId1: number, dmId2: number;
 let token1: string, token2: string, token4: string;
@@ -18,15 +19,15 @@ describe('Error cases', () => {
   });
 
   test('Invalid token', () => {
-    expect(requestDmLeave('-123', dmId1).body).toStrictEqual({ error: 'error' });
+    expect(requestDmLeave('-123', dmId1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('dmId refers to invalid DM', () => {
-    expect(requestDmLeave(token1, -dmId1).body).toStrictEqual({ error: 'error' });
+    expect(requestDmLeave(token1, -dmId1).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('dmId is valid but user is not a member of the DM', () => {
-    expect(requestDmLeave(token4, dmId2).body).toStrictEqual({ error: 'error' });
+    expect(requestDmLeave(token4, dmId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });
 
@@ -45,32 +46,36 @@ describe('Working cases', () => {
   });
 
   test('Correct Output', () => {
-    expect(requestDmLeave(token2, dmId2).body).toStrictEqual({});
+    const res = requestDmLeave(token2, dmId2);
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.body).toStrictEqual({});
     expect(requestDmDetails(token1, dmId2).body).toStrictEqual(expect.objectContaining(
       {
-        name: 'garyang, kennethkuo, steveberrospi',
+        name: 'GaryAng, KennethKuo, SteveBerrospi',
         members: expect.not.arrayContaining([expect.objectContaining(
           {
             uId: userId2,
             email: 'z3329234@unsw.edu.au',
             nameFirst: 'Gary',
             nameLast: 'Ang',
-            handleStr: 'garyang'
+            handleStr: 'GaryAng'
           }
         )])
       }
     ));
-    expect(requestDmLeave(token2, dmId1).body).toStrictEqual({});
+    const res1 = requestDmLeave(token2, dmId1);
+    expect(res1.statusCode).toStrictEqual(OK);
+    expect(res.body).toStrictEqual({});
     expect(requestDmDetails(token1, dmId1).body).toStrictEqual(expect.objectContaining(
       {
-        name: 'davidpei, garyang, kennethkuo, steveberrospi',
+        name: 'DavidPei, GaryAng, KennethKuo, SteveBerrospi',
         members: expect.not.arrayContaining([expect.objectContaining(
           {
             uId: userId2,
             email: 'z3329234@unsw.edu.au',
             nameFirst: 'Gary',
             nameLast: 'Ang',
-            handleStr: 'garyang'
+            handleStr: 'GaryAng'
           }
         )])
       }

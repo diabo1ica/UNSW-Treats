@@ -11,10 +11,12 @@ import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, u
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, channelLeave } from './channel';
-import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave, dmList, dmRemove } from './dm';
-import { INPUT_ERROR, AUTHORISATION_ERROR } from './tests/request';
+import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave, dmList, dmRemove, sendLaterDm } from './dm';
+import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
+import { startStandUp } from './standup';
+import { messagePin, messageReact } from './message';
 
 // Set up web app, use JSON
 const app = express();
@@ -469,6 +471,12 @@ app.get('/channels/listall/v2', (req, res) => {
   }
 });
 
+app.get('/channels/listall/v3', (req, res) => {
+  const token = req.header('token');
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(channelsListallV1(decodeToken(token))); // respond to request with list of all channels
+});
+
 /*
 Server route for channel/messages/v2, calls and responds with the ouput
 of channelMessagesV1
@@ -503,6 +511,14 @@ app.get('/channel/messages/v2', (req, res) => {
   }
 });
 
+app.get('/channel/messages/v3', (req, res) => {
+  const token = req.header('token');
+  const channelId = JSON.parse(req.query.channelId as string);
+  const start = JSON.parse(req.query.start as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(channelMessagesV1(decodeToken(token), channelId, start)); // respond to request with list of message in channel
+});
+
 /*
 Server route for dm/create/v1, calls and responds with the output
 of dmCreate
@@ -529,6 +545,13 @@ app.post('/dm/create/v1', (req, res) => {
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.post('/dm/create/v2', (req, res) => {
+  const token = req.header('token');
+  const { uIds } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
 });
 
 /*
@@ -558,6 +581,12 @@ app.get('/dm/details/v1', (req, res) => {
   }
 });
 
+app.get('/dm/details/v2', (req, res) => {
+  const token = req.header('token');
+  const dmId = JSON.parse(req.query.dmId as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmDetails(decodeToken(token), dmId)); // respond to request with details of the DM
+});
 /*
 Server route for dm/leave/v1, calls and responds with the output
 of dmLeave
@@ -584,6 +613,13 @@ app.post('/dm/leave/v1', (req, res) => {
     console.log(err);
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.post('/dm/leave/v2', (req, res) => {
+  const token = req.header('token');
+  const { dmId } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmLeave(decodeToken(token), dmId)); // respond to request with empty object
 });
 
 /*
@@ -615,6 +651,13 @@ app.post('/message/senddm/v1', (req, res) => {
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.post('/message/senddm/v2', (req, res) => {
+  const token = req.header('token');
+  const { dmId, message } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
 });
 /*
 Server route for dm/messages/v1, calls and responds with the output
@@ -648,6 +691,42 @@ app.get('/dm/messages/v1', (req, res) => {
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.get('/dm/messages/v2', (req, res) => {
+  const token = req.header('token');
+  const dmId = JSON.parse(req.query.dmId as string);
+  const start = JSON.parse(req.query.start as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
+});
+
+app.post('/message/sendlaterdm/v1', (req, res) => {
+  const token = req.header('token');
+  const { dmId, message, timeSent } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(sendLaterDm(decodeToken(token), dmId, message, timeSent));
+});
+
+app.post('/message/react/v1', (req, res) => {
+  const token = req.header('token');
+  const { messageId, reactId } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(messageReact(decodeToken(token), messageId, reactId));
+});
+
+app.post('/standup/start/v1', (req, res) => {
+  const token = req.header('token');
+  const { channelId, length } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(startStandUp(decodeToken(token), channelId, length));
+});
+
+app.post('/message/pin/v1', (req, res) => {
+  const token = req.header('token');
+  const { messageId } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(messagePin(decodeToken(token), messageId));
 });
 
 /*

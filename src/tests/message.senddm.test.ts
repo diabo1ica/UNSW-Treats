@@ -1,4 +1,4 @@
-import { requestClear, requestRegister, requestLogin, requestDmCreate, requestSendDm, generateMessage } from './request';
+import { requestClear, requestRegister, requestLogin, requestDmCreate, requestSendDm, generateMessage, INPUT_ERROR, AUTHORISATION_ERROR, OK } from './request';
 let userId2: number, userId3: number, userId4: number;
 let dmId1: number, dmId2: number, dmId3: number, dmId4: number;
 let token1: string, token2: string, token3: string;
@@ -19,24 +19,24 @@ describe('Error cases', () => {
   });
 
   test('dmId is invalid', () => {
-    expect(requestSendDm(token1, -dmId2, 'HELLO').body).toStrictEqual({ error: 'error' });
+    expect(requestSendDm(token1, -dmId2, 'HELLO').statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('Message is empty (less than 1 character)', () => {
-    expect(requestSendDm(token3, dmId1, '').body).toStrictEqual({ error: 'error' });
+    expect(requestSendDm(token3, dmId1, '').statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('Message is over 1000 characters', () => {
     const message = generateMessage(1200);
-    expect(requestSendDm(token2, dmId3, message).body).toStrictEqual({ error: 'error' });
+    expect(requestSendDm(token2, dmId3, message).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('dmId is valid but authorised user is not a member', () => {
-    expect(requestSendDm(token3, dmId4, 'HIIII').body).toStrictEqual({ error: 'error' });
+    expect(requestSendDm(token3, dmId4, 'HIIII').statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('Invalid token', () => {
-    expect(requestSendDm('-' + token3, dmId1, 'HLELO').body).toStrictEqual({ error: 'error' });
+    expect(requestSendDm('-' + token3, dmId1, 'HLELO').statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });
 
@@ -57,7 +57,9 @@ describe('Working cases', () => {
   });
 
   test('Correct output', () => {
-    expect(requestSendDm(token1, dmId3, 'yooooooooooooooooo').body).toStrictEqual(expect.objectContaining(
+    const res = requestSendDm(token1, dmId3, 'yooooooooooooooooo');
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.body).toStrictEqual(expect.objectContaining(
       {
         messageId: expect.any(Number)
       }

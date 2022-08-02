@@ -1,18 +1,21 @@
 {
     "users": [
         {
-            "nameFirst": "Jingisu",
-            "nameLast": "Kan",
-            "handleStr": "jingisukan",
-            "email": "diabolica657@gmail.com",
-            "password": "Sk8terboiyo",
+            "nameFirst": "Steve",
+            "nameLast": "Berrospi",
+            "handleStr": "steveberrospi",
+            "email": "z5363495@unsw.edu.au",
+            "password": "aero123",
             "userId": 1,
             "globalPermsId": 1
         }
     ],
     "channels": [],
     "dms": [],
-    "tokenArray": [],
+    "tokenArray": [
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTQyMTg3MDU5OSwiaXNzIjoiMTY1OTQyMTg3MDU5OSJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTQyMTg3MDYyMSwiaXNzIjoiMTY1OTQyMTg3MDYyMSJ9."
+    ],
     "userIdCounter": 1,
     "channelIdCounter": 0,
     "dmIdCounter": 0,
@@ -25,6 +28,14 @@
         {
             "uId": 1,
             "resetCode": "g=ojlB1"
+        },
+        {
+            "uId": 1,
+            "resetCode": "B@nAt51"
+        },
+        {
+            "uId": 1,
+            "resetCode": "teLc6b1"
         }
     ]
 }

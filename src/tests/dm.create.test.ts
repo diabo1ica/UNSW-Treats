@@ -1,4 +1,4 @@
-import { requestClear, requestRegister, requestLogin, requestDmCreate } from './request';
+import { requestClear, requestRegister, requestLogin, requestDmCreate, OK, INPUT_ERROR, AUTHORISATION_ERROR } from './request';
 let userId2: number, userId3: number, userId4: number;
 let token1: string;
 
@@ -13,17 +13,17 @@ describe('Error cases', () => {
   });
   test('Invalid token', () => {
     const uIds = [userId2, userId3, userId4];
-    expect(requestDmCreate('-' + token1, uIds).body).toStrictEqual({ error: 'error' });
+    expect(requestDmCreate('-' + token1, uIds).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('uIds contains an invalid uId', () => {
     const uIds = [userId2, -userId3, userId4];
-    expect(requestDmCreate(token1, uIds).body).toStrictEqual({ error: 'error' });
+    expect(requestDmCreate(token1, uIds).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('Duplicate \'uIds\' in uIds', () => {
     const uIds = [userId2, userId2, userId4];
-    expect(requestDmCreate(token1, uIds).body).toStrictEqual({ error: 'error' });
+    expect(requestDmCreate(token1, uIds).statusCode).toStrictEqual(INPUT_ERROR);
   });
 });
 
@@ -39,6 +39,8 @@ describe('Working cases', () => {
 
   test('Correct output', () => {
     const uIds = [userId2, userId3, userId4];
-    expect(requestDmCreate(token1, uIds).body).toStrictEqual({ dmId: expect.any(Number) });
+    const res = requestDmCreate(token1, uIds);
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.body).toStrictEqual({ dmId: expect.any(Number) });
   });
 });

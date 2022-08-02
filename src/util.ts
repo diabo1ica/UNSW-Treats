@@ -3,7 +3,6 @@ import { getData, setData, Dm, Message, DmMember, DataStr, Channel } from './dat
 export const dmTemplate = (): Dm => {
   return {
     members: [],
-    messages: [],
     dmId: 0,
     creatorId: 0,
     name: '',
@@ -11,12 +10,29 @@ export const dmTemplate = (): Dm => {
 };
 
 // creates a template for new messages
-export const messageTemplate = (): Message => {
+export const dmMessageTemplate = (): Message => {
   return {
     messageId: 0,
     uId: 0,
     message: '',
     timeSent: 0,
+    isPinned: false,
+    reacts: [],
+    dmId: 0,
+    channelId: undefined,
+  };
+};
+
+export const channelMessageTemplate = (): Message => {
+  return {
+    messageId: 0,
+    uId: 0,
+    message: '',
+    timeSent: 0,
+    isPinned: false,
+    reacts: [],
+    channelId: 0,
+    dmId: undefined,
   };
 };
 
@@ -47,10 +63,7 @@ export const isDuplicateUserId = (userIds: number[]) => {
 // Validates the dmId refers to a registered DM
 export function getDm(dmId: number) {
   const data: DataStr = getData();
-  for (const item of data.dms) {
-    if (item.dmId === dmId) return item;
-  }
-  return false;
+  return data.dms.find(dm => dm.dmId === dmId);
 }
 
 // Validates that the user is a member of the given DM
@@ -83,12 +96,7 @@ export function generatedmId() {
 // Validates the dmId refers to a registered DM
 export function getChannel(channelId: number) {
   const data: DataStr = getData();
-  for (const item of data.channels) {
-    if (item.channelId === channelId) {
-      return item;
-    }
-  }
-  return false;
+  return data.channels.find(channel => channel.channelId === channelId);
 }
 
 // Validates that the user is a member of the given channel
@@ -99,3 +107,48 @@ export function isMember(userId: number, channelObj: Channel) {
 export function getCurrentTime() {
   return Math.floor((new Date()).getTime() / 1000);
 }
+
+export function getMessage(messageId: number) {
+  const data: DataStr = getData();
+  return data.messages.find(message => message.messageId === messageId);
+}
+
+export function getDmMessages(dmId: number): Message[] {
+  const data = getData();
+  return data.messages.filter(message => message.dmId === dmId && isMessageSent(message));
+}
+
+export function getChannelMessages(channelid: number) {
+  const data = getData();
+  return data.messages.filter(message => message.channelId === channelid && isMessageSent(message));
+}
+
+export function sortMessages(messages: Message[]) {
+  messages.sort((message1, message2) => message2.timeSent - message1.timeSent);
+}
+
+export function isMessageSent(message: Message) {
+  return message.timeSent <= getCurrentTime();
+}
+
+export function getDmPerms(userId: number, dm: Dm) {
+  return dm.members.find(member => member.uId === userId).dmPermsId;
+}
+
+export function getChannelPerms (userId: number, channel: Channel) {
+  return channel.members.find(member => member.uId === userId).channelPermsId;
+}
+
+export function getReact(message: Message, reactId: number) {
+  return message.reacts.find(react => react.reactId === reactId);
+}
+
+export function isReacted(userId: number, message: Message, reactId: number) {
+  const react = getReact(message, reactId);
+  if (react === undefined) return false;
+  if (react.uIds.some(uId => uId === userId)) return true;
+  else return false;
+}
+
+export const OWNER = 1;
+export const MEMBER = 2;
