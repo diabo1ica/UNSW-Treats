@@ -107,6 +107,14 @@ export const requestChannelRemoveOwner = (token: string, channelId: number, uId:
   return requestHelper('POST', '/channel/removeowner/v2', {token: token, channelId: channelId, uId: uId});
 };
 
+export const requestSetname = (token: string, nameFirst: string, nameLast: string) => {
+  return requestHelper('PUT', '/user/profile/setname/v2', {token: token, nameFirst: nameFirst, nameLast: nameLast});
+};
+
+export const requestSetemail = (token: string, email: string) => {
+  return requestHelper('PUT', '/user/profile/setemail/v2', {token: token, email: email});
+};
+
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   let qs = {};
   let json = {};
