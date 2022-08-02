@@ -1,4 +1,3 @@
-import { getCurrentTime } from '../util';
 import { AUTHORISATION_ERROR, INPUT_ERROR, OK, requestChannelsCreate, requestClear, requestRegister, requestStartStandUp, requestStandUpActive } from './request';
 import { sleepFor } from './sleep';
 
@@ -6,7 +5,7 @@ let channelId: number;
 let token1: string, token2: string;
 let timeFinish: number;
 const length = 10;
-describe('Error cases', () => {
+describe('Test standup active', () => {
   beforeEach(() => {
     requestClear();
     token1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').body.token;
@@ -21,7 +20,7 @@ describe('Error cases', () => {
     expect(res.body).toStrictEqual({
       isActive: true,
       timeFinish: timeFinish
-    })
+    });
   });
 
   test('Standup is active invalid parameters', () => {
@@ -39,10 +38,10 @@ describe('Error cases', () => {
   test('Standup is inactive valid', () => {
     sleepFor(length * 1000);
     const res = requestStandUpActive(token1, channelId);
-      expect(res.statusCode).toStrictEqual(OK);
-      expect(res.body).toStrictEqual({
-        isActive: false,
-        timeFinish: timeFinish
-      });
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.body).toStrictEqual({
+      isActive: false,
+      timeFinish: timeFinish
+    });
   });
 });

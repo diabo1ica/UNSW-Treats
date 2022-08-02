@@ -34,7 +34,7 @@ describe('channel details tests', () => {
     // Invalid token
     requestLogout(userToken);
     const details2 = requestChannelDetails(userToken, channelId);
-    expect(details2.statusCode).toStrictEqual(INPUT_ERROR);
+    expect(details2.statusCode).toStrictEqual(AUTHORISATION_ERROR);
     // Invalid uid
     const token2 = requestRegister('Alalaly@gmail.com', 'Sk8teroiyob', 'sk8sk8', 'hiyahiya').body.token;
     const details3 = requestChannelDetails(token2, channelId);

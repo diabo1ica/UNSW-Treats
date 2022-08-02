@@ -1,5 +1,5 @@
 import { requestClear, requestRegister, requestDmCreate, requestDmList } from './request';
-import { OK, INPUT_ERROR } from './request';
+import { OK, AUTHORISATION_ERROR } from './request';
 
 describe('dm list tests', () => {
   let tokenId1: string;
@@ -51,6 +51,6 @@ describe('dm list tests', () => {
 
   test('Test error dm list', () => {
     const list = requestDmList('hiyahiyahiyahiyahiya');
-    expect(list.statusCode).toStrictEqual(INPUT_ERROR);
+    expect(list.statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });

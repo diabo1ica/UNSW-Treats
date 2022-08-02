@@ -95,14 +95,13 @@ export const requestChannelsCreate = (token: string, name: string, isPublic: boo
   return requestHelper('POST', '/channels/create/v2', { token: token, name: name, isPublic: isPublic });
 };
 
-
-export const requestResetReq= (token: string, email: string) => {
-  return requestHelper('POST', '/auth/passwordreset/request/v1', { token: token, email: email});
+export const requestResetReq = (token: string, email: string) => {
+  return requestHelper('POST', '/auth/passwordreset/request/v1', { token: token, email: email });
 };
 
 export const requestResetPassword = (resetCode: string, newPassword: string) => {
-  return requestHelper('POST', '/auth/passwordreset/reset/v1', { resetCode: resetCode, newPassword: newPassword});
-}
+  return requestHelper('POST', '/auth/passwordreset/reset/v1', { resetCode: resetCode, newPassword: newPassword });
+};
 
 export const requestMessagePin = (token: string, messageId: number) => {
   return requestHelper('POST', '/message/pin/v1', { token: token, messageId: messageId });
@@ -114,6 +113,14 @@ export const requestMessageReact = (token: string, messageId: number, reactId: n
 
 export const requestStartStandUp = (token: string, channelId: number, length: number) => {
   return requestHelper('POST', '/standup/start/v1', { token: token, channelId: channelId, length: length });
+};
+
+export const requestStandUpActive = (token: string, channelId: number) => {
+  return requestHelper('GET', '/standup/active/v1', { token: token, channelId: channelId });
+};
+
+export const requestSendStandUp = (token: string, channelId: number, message: string) => {
+  return requestHelper('POST', '/standup/send/v1', { token: token, channelId: channelId, message: message });
 };
 
 export const requestSendLaterDm = (token: string, dmId: number, message: string, timeSent: number) => {

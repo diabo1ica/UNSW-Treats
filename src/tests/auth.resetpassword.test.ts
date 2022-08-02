@@ -1,9 +1,9 @@
 import { requestClear, requestRegister, requestResetPassword, requestResetReq } from './request';
-import { OK, INPUT_ERROR } from './request';
+import { OK, INPUT_ERROR, AUTHORISATION_ERROR } from './request';
 
 describe('auth reset password tests', () => {
   let token: string;
-  let email: string = 'diabolica657@gmail.com';
+  const email = 'diabolica657@gmail.com';
   beforeEach(() => {
     requestClear();
     token = requestRegister(email, 'Sk8terboiyo', 'Jingisu', 'Kan').body.token;
@@ -12,7 +12,7 @@ describe('auth reset password tests', () => {
   test('Test valid requests', () => {
     expect(requestResetReq(token, email).statusCode).toStrictEqual(OK);
   });
-  
+
   test('Test error cases', () => {
     expect(requestResetReq(token, email).statusCode).toStrictEqual(OK);
     // Test invalid password
@@ -20,6 +20,6 @@ describe('auth reset password tests', () => {
     // Test invalid reset code
     expect(requestResetPassword('GGSTCoomer', 'ehetenandayo').statusCode).toStrictEqual(INPUT_ERROR);
     // Test user's session after request
-    expect(requestResetReq(token, email).statusCode).toStrictEqual(INPUT_ERROR);
+    expect(requestResetReq(token, email).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });
