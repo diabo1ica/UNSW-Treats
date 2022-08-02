@@ -103,6 +103,10 @@ export const requestUserProfile = (token: string, uId: number) => {
   return requestHelper('GET', '/user/profile/v3', {token: token, uId: uId});
 };
 
+export const requestChannelRemoveOwner = (token: string, channelId: number, uId: number) => {
+  return requestHelper('POST', '/channel/removeowner/v2', {token: token, channelId: channelId, uId: uId});
+};
+
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   let qs = {};
   let json = {};
