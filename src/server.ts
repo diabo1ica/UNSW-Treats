@@ -246,12 +246,11 @@ Return Value:
 
 app.get('/user/profile/v3', (req, res) => {
   const token: string = req.header('token');
-  const { uID } = req.body;
+  const uID: number = parseInt(req.query.uId as string);
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
-    const authUserId = decodeToken(token);
-    const statusObj = userProfileV1(authUserId, uID);
+    const statusObj = userProfileV1(uID);
     if (statusObj.error400) {
       throw HTTPError(INPUT_ERROR, 'Invalid Uid');
     }

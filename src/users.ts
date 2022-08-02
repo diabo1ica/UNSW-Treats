@@ -13,7 +13,7 @@ Return Value:
     return {error: 'error'} on invalud uId
 */
 
-export function userProfileV1(authUserId: number, uId: number) {
+export function userProfileV1(uId: number) {
   const data: DataStr = getData();
 
   for (const item of data.users) {
