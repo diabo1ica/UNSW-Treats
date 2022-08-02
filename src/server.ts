@@ -12,7 +12,7 @@ import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
-import { INPUT_ERROR, AUTHORISATION_ERROR } from './tests/request';
+import { INPUT_ERROR, AUTHORISATION_ERROR, requestChannelRemoveOwner } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
 
@@ -278,14 +278,23 @@ Return Value:
     permissions
 */
 
-app.post('/channel/removeowner/v1', (req, res) => {
-  const { token, channelId, uId } = req.body;
+app.post('/channel/removeowner/v2', (req, res) => {
+  const { channelId, uId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
     res.json({ error: 'error' });
   } else {
     const authUserId = decodeToken(token);
-    res.json(removeowner(authUserId, channelId, uId));
+    const statusObj = removeowner(authUserId, channelId, uId);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channelId, Invalid Uid, Uid is already a member');
+    }
+    if (statusObj.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Valid ChannelId but authUserId is not a member');
+    }
+    res.json(statusObj);
   }
+  
 });
 
 /*
