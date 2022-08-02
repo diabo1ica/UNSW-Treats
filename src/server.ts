@@ -244,14 +244,18 @@ Return Value:
     refer to a valid user
 */
 
-app.get('/user/profile/v2', (req, res) => {
-  const token = req.query.token as string;
+app.get('/user/profile/v3', (req, res) => {
+  const token: string = req.header('token');
   const uID: number = parseInt(req.query.uId as string);
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(userProfileV1(authUserId, uID));
+    const statusObj = userProfileV1(authUserId, uID);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channelId, Invalid Uid, Uid is already a member');
+    }
+    res.json(statusObj);
   }
 });
 
