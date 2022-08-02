@@ -246,7 +246,7 @@ Return Value:
 
 app.get('/user/profile/v3', (req, res) => {
   const token: string = req.header('token');
-  const uID: number = parseInt(req.query.uId as string);
+  const uID = req.body;
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
