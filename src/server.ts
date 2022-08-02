@@ -32,8 +32,6 @@ app.use(morgan('dev'));
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
-// Auth reset password debugging tool
-export const cheatCode = 'globalcode';  
 
 // NOTE :
 // Some of these request paths calls wrapper functions
@@ -846,6 +844,8 @@ app.post('/auth/passwordreset/request/v1', (req, res) => {
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token, cannot request');
   }
+  // Close all user's session
+  closeAllSession(token);
 
   const nodemailer = require('nodemailer');
   const transporter = nodemailer.createTransport({
@@ -859,8 +859,16 @@ app.post('/auth/passwordreset/request/v1', (req, res) => {
 
   let data: DataStr = getData();
   const userObj = data.users.find(user => user.email === email);
-  const code: string = generateResetCode();
-  if (userObj !== undefined) userObj.resetCode = code;
+  const code: string = generateResetCode(userObj.userId);
+  if (userObj !== undefined) {
+    const resetObj = {
+      uId: userObj.userId,
+      resetCode: code
+    }
+    data.resetArray.push(resetObj);
+    setData(data);
+  }
+
   const mailOptions = {
     from: '725d3c36d94453',
     to: email,
@@ -881,34 +889,29 @@ Arguements:
     - newPassword (string)    - the new password string
 Return Values:
     - Returns {} once the reset is made
-    - Throws Error 400 if the token is invalid
     - Throws Error 400 if the new password is less than 6 in length
     - Throws Error 400 if the received code is invalid
 */
 app.post('/auth/passwordreset/reset/v1', (req, res) => {
   const { resetCode, newPassword } = req.body;
-  const token: string = req.header('token');
-  if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot reset password');
-  }
   if (newPassword.length < 6) {
     throw HTTPError(INPUT_ERROR, 'New password too short, cannot reset password');
   }
-  let data: DataStr = getData();
-  const id: number = decodeToken(token);
-  const userObj = data.users.find(user => user.userId === id);
-
+  let data: DataStr = getData(); 
+  const resetObj = data.resetArray.find(obj => obj.resetCode === resetCode);
   // Ensure that the code received matches with the code stored in the user
   // Also ensures that the reset code stored in the user is not empty
-  if ((userObj.resetCode !== resetCode && userObj.resetCode !== '') && resetCode !== cheatCode) {
-    console.log(userObj.resetCode !== resetCode && userObj.resetCode !== '');
-    console.log(resetCode !== cheatCode);
-    console.log('Compare', resetCode, cheatCode)
+  if (resetObj === undefined && resetCode !== '') {
     throw HTTPError(INPUT_ERROR, 'Invalid code, cannot reset password');
-  } else {
-    // Invalidate all user's session
-    closeAllSession(token);
-    userObj.resetCode = '';
+  }
+  // Delete all valid reset code stored for the user
+  const id: number = resetObj.uId;
+  for (let i = 0; i < data.resetArray.length ; i++) {
+    if (data.resetArray[i].uId === id) {
+      data.resetArray.splice(i, 1);
+      setData(data);
+      i--;
+    }
   }
   res.json({});
 });
@@ -951,16 +954,16 @@ function validToken(token: string) {
   return false;
 }
 
-// Generates a random string of length 6
-// Characters used in the string ranges from ASCII value 48 to 122
+// Generates a random string of length > 6
+// First 6 characters used in the string ranges from ASCII value 48 to 122
 // The range of the ASCII value means that numbers, letters uppercase and lowercase and some symbols are used.
-// Always returns a string of length 6
-function generateResetCode () {
+// the random string of length 6 is then appended with the user's uId
+function generateResetCode (uId: number) {
   let str: string = '';
   for (let i = 0; i < 6; i++) {
    str += String.fromCharCode(Math.floor(Math.random() * 74) + 48);
   }
-  return str;
+  return str + uId.toString();
 }
 
 // Invalidates all of the user's session by deleting all if the user's

@@ -7,7 +7,6 @@ interface User {
   password: string,
   userId: number,
   globalPermsId: number,
-  resetCode: string
 }
 
 interface Member {
@@ -43,6 +42,11 @@ interface Dm {
   name: string
 }
 
+interface Reset {
+  uId: number,
+  resetCode: string
+}
+
 interface DataStr {
   users: User[],
   channels: Channel[],
@@ -52,6 +56,7 @@ interface DataStr {
   channelIdCounter: number,
   dmIdCounter: number,
   messageIdCounter: number,
+  resetArray: Reset[]
 }
 
 let data: DataStr = {
@@ -63,6 +68,7 @@ let data: DataStr = {
   channelIdCounter: 0,
   dmIdCounter: 0,
   messageIdCounter: 0,
+  resetArray: []
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1

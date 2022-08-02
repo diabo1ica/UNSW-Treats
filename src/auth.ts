@@ -86,7 +86,6 @@ function userTemplate() {
     password: '',
     userId: 0,
     globalPermsId: 2,
-    resetCode: ''
   };
   return user;
 }

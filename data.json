@@ -1,10 +1,30 @@
 {
-    "users": [],
+    "users": [
+        {
+            "nameFirst": "Jingisu",
+            "nameLast": "Kan",
+            "handleStr": "jingisukan",
+            "email": "diabolica657@gmail.com",
+            "password": "Sk8terboiyo",
+            "userId": 1,
+            "globalPermsId": 1
+        }
+    ],
     "channels": [],
     "dms": [],
     "tokenArray": [],
-    "userIdCounter": 0,
+    "userIdCounter": 1,
     "channelIdCounter": 0,
     "dmIdCounter": 0,
-    "messageIdCounter": 0
+    "messageIdCounter": 0,
+    "resetArray": [
+        {
+            "uId": 1,
+            "resetCode": "]U8Q@<1"
+        },
+        {
+            "uId": 1,
+            "resetCode": "g=ojlB1"
+        }
+    ]
 }

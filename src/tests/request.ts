@@ -99,8 +99,8 @@ export const requestResetReq= (token: string, email: string) => {
   return requestHelper('POST', '/auth/passwordreset/request/v1', { token: token, email: email});
 };
 
-export const requestResetPassword = (token: string, resetCode: string, newPassword: string) => {
-  return requestHelper('POST', '/auth/passwordreset/reset/v1', { token: token, resetCode: resetCode, newPassword: newPassword});
+export const requestResetPassword = (resetCode: string, newPassword: string) => {
+  return requestHelper('POST', '/auth/passwordreset/reset/v1', { resetCode: resetCode, newPassword: newPassword});
 };
 
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
