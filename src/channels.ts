@@ -122,7 +122,10 @@ function channelsTemplate() {
     name: ' ',
     isPublic: true,
     members: [],
-    messages: []
+    standUp: {
+      timeFinish: undefined,
+      messageId: 0,
+    }
   };
 
   return channel;

@@ -3,7 +3,6 @@ import { getData, setData, Dm, Message, DmMember, DataStr, Channel } from './dat
 export const dmTemplate = (): Dm => {
   return {
     members: [],
-    messages: [],
     dmId: 0,
     creatorId: 0,
     name: '',
@@ -17,6 +16,10 @@ export const messageTemplate = (): Message => {
     uId: 0,
     message: '',
     timeSent: 0,
+    isPinned: false,
+    reacts: [],
+    dmId: 0,
+    channelId: undefined,
   };
 };
 
@@ -98,4 +101,37 @@ export function isMember(userId: number, channelObj: Channel) {
 
 export function getCurrentTime() {
   return Math.floor((new Date()).getTime() / 1000);
+}
+
+// check if owner permission in channel
+export function isChannelOwner(userId: number, channelObj: Channel) {
+  for (const item of channelObj.members) {
+    if (item.uId === userId && item.channelPermsId === 1) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// check if owner permission in dm
+export function isDmOwner(userId: number, dmObj: Dm) {
+  for (const item of dmObj.members) {
+    if (item.uId === userId && item.dmPermsId === 1) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// check if user is sent the message
+export function isSender(userId: number, messageId: number) {
+  const data: DataStr = getData();
+  for (const item of data.messages) {
+    if (item.messageId === messageId) {
+      if (item.uId === userId) {
+        return true;
+      }
+    }
+  }
+  return false;
 }

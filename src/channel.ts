@@ -1,5 +1,8 @@
-import { getData, setData, DataStr, Channel, Message, User } from './dataStore';
-import { validateUserId, getChannel, isMember } from './util';
+import HTTPError from 'http-errors';
+import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataStore';
+import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
+import { validateUserId, getChannel, getDm, isMember, isDmMember } from './util';
+import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
 
 // Display channel details of channel with channelId
 // Arguements:
@@ -84,7 +87,7 @@ function channelJoinV1(authUserId: number, channelId: number) {
       // check if user is already a member
       for (const item of channel.members) {
         if (item.uId === authUserId) {
-          return { error: 'error' };
+          throw HTTPError(INPUT_ERROR, 'already joined channel');
         }
       }
       // check if user is global owner
@@ -99,7 +102,7 @@ function channelJoinV1(authUserId: number, channelId: number) {
       }
       // check if channel is private
       if (channel.isPublic === false) {
-        return { error: 'error' };
+        throw HTTPError(AUTHORISATION_ERROR, 'you are restricted to join private channel');
       }
       channel.members.push({
         uId: authUserId,
@@ -110,7 +113,7 @@ function channelJoinV1(authUserId: number, channelId: number) {
       return {};
     }
   }
-  return { error: 'error' };
+  throw HTTPError(INPUT_ERROR, 'channel is not found');
 }
 
 /*
@@ -220,23 +223,22 @@ Return Value:
     Returns {} when uId is added as owner succesfully.
     Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member
 */
-function channelAddownerV1(authUserId: number, channelId: number, uId: number) {
+export function channelAddownerV1(authUserId: number, channelId: number, uId: number) {
   const data: DataStr = getData();
-  // const channelObj = getChannel(channelId);
 
   // checking if uId is not valid
   if (!validateUserId(uId)) {
-    return { error: 'error' };
+    throw HTTPError(INPUT_ERROR, 'uId is invalid');
   }
 
   for (const channel of data.channels) {
     if (channel.channelId === channelId) {
       // check is uId is not member
-      if (isMember(uId, channel) === false) return { error: 'error' };
+      if (isMember(uId, channel) === false) throw HTTPError(INPUT_ERROR, 'uId is not a member of channel');
       // check if uId already owner
-      if (isOwner(uId, channel) === true) return { error: 'error' };
+      if (isChannelOwner(uId, channel) === true) throw HTTPError(INPUT_ERROR, 'uId already an owner of channel');
       // check authuserId is not owner
-      if (isOwner(authUserId, channel) === false) return { error: 'error' };
+      if (isChannelOwner(authUserId, channel) === false) throw HTTPError(AUTHORISATION_ERROR, 'permission restricted');
 
       for (const item of channel.members) {
         if (item.uId === uId) {
@@ -245,16 +247,14 @@ function channelAddownerV1(authUserId: number, channelId: number, uId: number) {
           return {};
         }
       }
-
-      return { error: 'error' };
     }
   }
 
-  return { error: 'error' };
+  throw HTTPError(INPUT_ERROR, 'channelId is invalid');
 }
 
 /*
-sents a message to channel,
+sends a message to channel,
 
 Arguments:
     authUserId (number)    - user calling the function
@@ -268,40 +268,38 @@ Return Value:
                             messageId being valid, but not included in channel that
                             usr is a part of.
 */
-function messageSendV1(authUserId: number, channelId: number, message: string) {
+export function messageSendV1(authUserId: number, channelId: number, message: string) {
   const data: DataStr = getData();
   const channelObj = getChannel(channelId);
-  const currTime: number = parseInt(new Date().toISOString());
+  const currTime: number = getCurrentTime();
   if (message.length > 1000) {
-    return { error: 'error' };
+    throw HTTPError(INPUT_ERROR, 'message length exceeded 1000');
   }
   if (message.length < 1) {
-    return { error: 'error' };
+    throw HTTPError(INPUT_ERROR, 'message is empty');
   }
 
   // check validity of channelId
   if (channelObj === false) {
-    return { error: 'error' };
+    throw HTTPError(INPUT_ERROR, 'channelId is invalid');
   }
   // check if authuserId is member of channel
   if (isMember(authUserId, channelObj) === false) {
-    return { error: 'error' };
+    throw HTTPError(AUTHORISATION_ERROR, 'you are not a member of channel');
   }
 
-  for (const channel of data.channels) {
-    if (channel.channelId === channelId) {
-      data.messageIdCounter += 1;
-      channel.messages.push({
-        messageId: data.messageIdCounter,
-        uId: authUserId,
-        message: message,
-        timeSent: currTime,
-      });
-      setData(data);
-      return { messageId: data.messageIdCounter };
-    }
-  }
-  return { error: 'error' };
+  data.messageIdCounter += 1;
+  data.messages.push({
+    messageId: data.messageIdCounter,
+    uId: authUserId,
+    message: message,
+    timeSent: currTime,
+    isPinned: false,
+    channelId: channelId,
+  });
+
+  setData(data);
+  return { messageId: data.messageIdCounter };
 }
 
 /*
@@ -319,51 +317,63 @@ Return Value:
                               not the user who sent the message, no owner permission
                               to edit other's message.
 */
-function messageEditV1(authUserId: number, messageId: number, message: string) {
+export function messageEditV1(authUserId: number, messageId: number, message: string) {
   const data: DataStr = getData();
+  let channelObj: Channel;
+  let dmObj: Dm;
 
   if (message.length > 1000) {
-    return { error: 'error' };
-  }
-  // check if messageId is in channel, if not check in dm
-  for (const channel of data.channels) {
-    if (channel.messages.some(obj => obj.messageId === messageId)) {
-      // check if user is member in channel
-      if (!isMember(authUserId, channel)) {
-        return { error: 'error' };
-      }
-      if (isOwner(authUserId, channel)) {
-        return editMessage(authUserId, messageId, message);
-      }
-      if (!isSender(authUserId, messageId, channel)) {
-        return { error: 'error' };
-      }
-    }
-  }
-  // check for messageId in dm
-  for (const dm of data.dms) {
-    if (dm.messages.some(obj => obj.messageId === messageId)) {
-      for (const item of dm.members) {
-        if (item.uId === authUserId && item.dmPermsId === 1) {
-          return editMessage(authUserId, messageId, message);
-        }
-      }
-      // check if user is in dm
-      for (const item1 of dm.members) {
-        if (item1.uId !== authUserId) {
-          return { error: 'error' };
-        }
-      }
-      // check if is original sender
-      for (const item2 of dm.messages) {
-        if (item2.messageId === messageId && item2.uId !== authUserId) {
-          return { error: 'error' };
-        }
-      }
-    }
+    throw HTTPError(INPUT_ERROR, 'message length exceeded 1000');
   }
 
-  return { error: 'error' };
+  // call message remove if message is empty string
+  if (message === '') {
+    return messageRemoveV1(authUserId, messageId);
+  }
+
+  // loop to search for messageId
+  for (const item of data.messages) {
+    if (item.messageId === messageId) {
+      // messageId is found in dm
+      if (item.channelId === undefined) {
+        dmObj = getDm(item.dmId);
+        if (isDmOwner(authUserId, dmObj) === true) {
+          item.message = message;
+          setData(data);
+          return ({});
+        }
+        if (isDmMember(authUserId, dmObj) === false) {
+          throw HTTPError(INPUT_ERROR, 'not a member of dm');
+        }
+        if (isSender(authUserId, messageId) === false) {
+          throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to edit message');
+        }
+        item.message = message;
+        setData(data);
+        return ({});
+      }
+
+      // messageId is found in channel
+      else {
+        channelObj = getChannel(item.channelId);
+        if (isChannelOwner(authUserId, channelObj) === true) {
+          item.message = message;
+          setData(data);
+          return ({});
+        }
+        if (isMember(authUserId, channelObj) === false) {
+          throw HTTPError(INPUT_ERROR, 'not a member of channel');
+        }
+        if (isSender(authUserId, messageId) === false) {
+          throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to edit message');
+        }
+        item.message = message;
+        setData(data);
+        return ({});
+      }
+    }
+  }
+  throw HTTPError(INPUT_ERROR, 'invalid messageId');
 }
 
 /*
@@ -379,151 +389,57 @@ Return Value:
     Returns {error: 'error'} on invalid messageId,  not the user who sent the
                               message, have no ownerpermsion to remove message.
 */
-function messageRemoveV1(authUserId: number, messageId: number) {
+export function messageRemoveV1(authUserId: number, messageId: number) {
   const data: DataStr = getData();
-
-  // check if messageId is in channel, if not check in dm
-  for (const channel of data.channels) {
-    if (channel.messages.some(obj => obj.messageId === messageId)) {
-      // check if user is member in channel
-      if (!isMember(authUserId, channel)) {
-        return { error: 'error' };
-      }
-      if (isOwner(authUserId, channel)) {
-        return removeMessage(authUserId, messageId);
-      }
-      if (!isSender(authUserId, messageId, channel)) {
-        return { error: 'error' };
-      }
-    }
-  }
-  for (const dm of data.dms) {
-    if (dm.messages.some(obj => obj.messageId === messageId)) {
-      for (const item of dm.members) {
-        if (item.uId === authUserId && item.dmPermsId === 1) {
-          return removeMessage(authUserId, messageId);
-        }
-      }
-      // check if user is in channel
-      for (const item1 of dm.members) {
-        if (item1.uId !== authUserId) {
-          return { error: 'error' };
-        }
-      }
-      // check if is original sender
-      for (const item2 of dm.messages) {
-        if (item2.messageId === messageId && item2.uId !== authUserId) {
-          return { error: 'error' };
-        }
-      }
-    }
-  }
-  // messageId not found in user's channels/dms
-  return { error: 'error' };
-}
-
-// check if owner permission
-function isOwner(userId: number, channelObj: Channel) {
-  // if (dm_obj === undefined) {
-  for (const item of channelObj.members) {
-    if (item.uId === userId && item.channelPermsId === 1) {
-      return true;
-    }
-  }
-  return false;
-}
-// helper function to edit message, reduce nesting
-function editMessage(authUserId: number, messageId: number, message: string) {
-  const data: DataStr = getData();
+  let channelObj: Channel;
+  let dmObj: Dm;
   let index = 0;
 
-  for (const channel of data.channels) {
-    if (channel.messages.some(obj => obj.messageId === messageId)) {
-      // delete message
-      if (message === '') {
-        for (const item of channel.messages) {
-          if (item.messageId === messageId) {
-            channel.messages.splice(index, 1);
-          }
-          index++;
-        }
-      } else {
-        for (const item of channel.messages) {
-          if (item.messageId === messageId) {
-            item.message = message;
-          }
-        }
-      }
-    }
-  }
-
-  for (const dm of data.dms) {
-    if (dm.messages.some(obj => obj.messageId === messageId)) {
-      // delete message
-      if (message === '') {
-        for (const item of dm.messages) {
-          if (item.messageId === messageId) {
-            dm.messages.splice(index, 1);
-          }
-          index++;
-        }
-      } else {
-        for (const item of dm.messages) {
-          if (item.messageId === messageId) {
-            item.message = message;
-          }
-        }
-      }
-    }
-  }
-  setData(data);
-  return ({});
-}
-
-// helper function to remove message, reduce nesting
-function removeMessage(authUserId: number, messageId: number) {
-  const data: DataStr = getData();
-  let index = 0;
-
-  for (const channel of data.channels) {
-    if (channel.messages.some(obj => obj.messageId === messageId)) {
-      // delete message
-      for (const item of channel.messages) {
-        if (item.messageId === messageId) {
-          channel.messages.splice(index, 1);
-          break;
-        }
-        index++;
-      }
-    }
-  }
-
-  for (const dm of data.dms) {
-    if (dm.messages.some(obj => obj.messageId === messageId)) {
-      // delete message
-      for (const item of dm.messages) {
-        if (item.messageId === messageId) {
-          dm.messages.splice(index, 1);
-          break;
-        }
-        index++;
-      }
-    }
-  }
-  setData(data);
-  return ({});
-}
-
-// check if user is sent the message
-function isSender(userId: number, messageId: number, channelObj: Channel) {
-  for (const item of channelObj.messages) {
+  for (const item of data.messages) {
     if (item.messageId === messageId) {
-      if (item.uId === userId) {
-        return true;
+      // messageId is found in dm
+      if (item.channelId === undefined) {
+        dmObj = getDm(item.dmId);
+        if (isDmOwner(authUserId, dmObj) === true) {
+          data.messages.splice(index, 1);
+          setData(data);
+          return ({});
+        }
+        if (isDmMember(authUserId, dmObj) === false) {
+          throw HTTPError(INPUT_ERROR, 'not a member of dm');
+        }
+        if (isSender(authUserId, messageId) === false) {
+          return { error: 'error' };
+        }
+        data.messages.splice(index, 1);
+        setData(data);
+        return ({});
+      }
+
+      // messageId is found in channel
+      else {
+        channelObj = getChannel(item.channelId);
+        if (isChannelOwner(authUserId, channelObj) === true) {
+          data.messages.splice(index, 1);
+          setData(data);
+          return ({});
+        }
+        if (isMember(authUserId, channelObj) === false) {
+          throw HTTPError(INPUT_ERROR, 'not a member of channel');
+        }
+        if (isSender(authUserId, messageId) === false) {
+          throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to remove message');
+        }
+        data.messages.splice(index, 1);
+        setData(data);
+        return ({});
       }
     }
+    index++;
   }
-  return false;
+
+  // messageId not found in user's channels/dms
+  throw HTTPError(INPUT_ERROR, 'invalid messageId');
 }
 
 /*
@@ -573,4 +489,4 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   return {};
 }
 
-export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1, channelAddownerV1, messageEditV1, messageSendV1, messageRemoveV1 };
+export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
