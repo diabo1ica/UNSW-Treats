@@ -99,6 +99,10 @@ export const requestChannelsList = (token: string) => {
   return requestHelper('GET', '/channels/list/v3', {token: token});
 };
 
+export const requestUserProfile = (token: string, uId: number) {
+  return requestHelper('GET', 'user/profile/v3', {token: token, uId: uId});
+};
+
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   let qs = {};
   let json = {};
