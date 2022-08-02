@@ -10,6 +10,7 @@ describe('users path tests', () => {
       const obj = requestLogin('Alalalyeehoo@gmail.com', 'Sk8terboiyo');
       token = obj.body.token;
       userID = obj.body.authUserId;
+      console.log(userID);
     });
   
     test('UserProfile Successfull', () => {
