@@ -10,7 +10,7 @@ Arguments:
 
 Return Value:
     Return { user } on valid authUserId and uId
-    return {error: 'error'} on invalud uId
+    return {error: 'error'} on invalid uId
 */
 
 export function userProfileV1(uId: number) {

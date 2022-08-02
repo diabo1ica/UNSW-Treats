@@ -282,7 +282,7 @@ app.post('/channel/removeowner/v2', (req, res) => {
   const { channelId, uId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = removeowner(authUserId, channelId, uId);
