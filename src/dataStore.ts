@@ -123,3 +123,5 @@ export function setData(newData: DataStr, name = './data.json') {
   fs.writeFileSync(name, JSON.stringify(newData, null, 4));
   data = newData;
 }
+
+

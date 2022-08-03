@@ -34,6 +34,7 @@ export const channelMessageTemplate = (): Message => {
     channelId: 0,
     dmId: undefined,
   };
+
 };
 
 // creates a template for new members in the DM

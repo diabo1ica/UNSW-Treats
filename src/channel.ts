@@ -136,13 +136,16 @@ Return Value:
 function channelInviteV1(authUserId: number, channelId: number, uId: number) {
   const data: DataStr = getData();
   const channelObj = getChannel(channelId);
-  if (getChannel(channelId) === undefined) {
-    return { error: 'error' };
+  if (getChannel(channelId) === false) {
+    return { error400: 'Invalid ChannelId' };
   }
-  if (!validateUserId(uId) || channelObj === undefined) {
-    return { error: 'error' };
-  } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
-    return { error: 'error' };
+  if (!validateUserId(uId) || channelObj === false) {
+    return { error400: 'uId does not refer to valid user' };
+  } if (isMember(uId, channelObj)) {
+    return { error400: 'uId is already a member' };
+  }
+  if (!isMember(authUserId, channelObj)) {
+    return { error403: 'ChannelId is valid but authUserId is not a member' };
   }
 
   for (const item of data.users) {
@@ -545,10 +548,10 @@ Return Value:
 
 export function removeowner (authUserId: number, channelId: number, uId: number) {
   const channelObj = getChannel(channelId);
-  if (!validateUserId(uId) || channelObj === undefined) {
-    return { error: 'error' };
-  } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
-    return { error: 'error' };
+  if (!validateUserId(uId) || channelObj === false) {
+    return { error400: 'Invalid Uid or Invalid ChannelId'};
+  } if (!isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
+    return { error400: 'Uid is a member or authUserId is not a member' };
   }
 
   let num = 0;
@@ -559,9 +562,12 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   }
 
   for (const member of channelObj.members) {
+    if (member.uId === authUserId && member.channelPermsId === 2) {
+      return { error403: 'ChannelId is valid but authUserId is not the owner' };
+    }
     if (member.uId === uId) {
       if (member.channelPermsId === 2 || num === 1) {
-        return { error: 'error' }; // if user doesn't have owner permissions return error
+        return { error400: 'uId is not an owner of the channel or uId is the only owner of the channel' }; // if user doesn't have owner permissions return error
       } else {
         member.channelPermsId = 2; // set the user's permissions to member permissions
       }

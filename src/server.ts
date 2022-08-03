@@ -97,14 +97,18 @@ Return Value:
     less than 1 or more than 20 characters
 */
 
-app.post('/channels/create/v2', (req, res) => {
+app.post('/channels/create/v3', (req, res) => {
   const { name, isPublic } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels Create');
   } else {
     const authUserId = decodeToken(token);
-    res.json(channelsCreateV1(authUserId, name, isPublic));
+    const detailsObj = channelsCreateV1(authUserId, name, isPublic);
+    if (detailsObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid Channels name');
+    }
+    res.json(detailsObj);
   }
 });
 
@@ -121,10 +125,10 @@ Return Value:
     Returns {error: 'error'} on invalid/inactive token
 */
 
-app.get('/channels/list/v2', (req, res) => {
+app.get('/channels/list/v3', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels List');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelsListV1(authUserId));
@@ -205,14 +209,21 @@ Return Value:
     already a member of the channel | authorised user is not a member of the channel
 */
 
-app.post('/channel/invite/v2', (req, res) => {
+app.post('/channel/invite/v3', (req, res) => {
   const { channelId, uId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(channelInviteV1(authUserId, channelId, uId));
+    const statusObj = channelInviteV1(authUserId, channelId, uId);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channelId, Invalid Uid, Uid is already a member');
+    }
+    if (statusObj.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Valid ChannelId but authUserId is not a member');
+    }
+    res.json(statusObj);
   }
 });
 
@@ -260,14 +271,17 @@ Return Value:
     refer to a valid user
 */
 
-app.get('/user/profile/v2', (req, res) => {
+app.get('/user/profile/v3', (req, res) => {
   const token: string = req.header('token');
   const uID: number = parseInt(req.query.uId as string);
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
-    const authUserId = decodeToken(token);
-    res.json(userProfileV1(authUserId, uID));
+    const statusObj = userProfileV1(uID);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid Uid');
+    }
+    res.json(statusObj);
   }
 });
 
@@ -291,15 +305,23 @@ Return Value:
     permissions
 */
 
-app.post('/channel/removeowner/v1', (req, res) => {
+app.post('/channel/removeowner/v2', (req, res) => {
   const { channelId, uId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(removeowner(authUserId, channelId, uId));
+    const statusObj = removeowner(authUserId, channelId, uId);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channelId, Invalid Uid, Uid is already a member');
+    }
+    if (statusObj.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Valid ChannelId but authUserId is not a member');
+    }
+    res.json(statusObj);
   }
+  
 });
 
 /*
@@ -319,14 +341,18 @@ Return Value:
     between 1 and 50 characters inclusive
 */
 
-app.put('/user/profile/setname/v1', (req, res) => {
+app.put('/user/profile/setname/v2', (req, res) => {
   const { nameFirst, nameLast } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(userSetNameV1(authUserId, nameFirst, nameLast));
+    const statusObj = userSetNameV1(authUserId, nameFirst, nameLast);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid nameFirst or nameLast' );
+    }
+    res.json(statusObj);
   }
 });
 
@@ -345,14 +371,18 @@ Return Value:
     is not a valid email | email address is being used by another user
 */
 
-app.put('/user/profile/setemail/v1', (req, res) => {
+app.put('/user/profile/setemail/v2', (req, res) => {
   const { email } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(userSetemailV1(authUserId, email));
+    const statusObj = userSetemailV1(authUserId, email);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid email' );
+    }
+    res.json(statusObj);
   }
 });
 

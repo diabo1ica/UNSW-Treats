@@ -56,7 +56,7 @@ export const requestChannelslistall = (token: string) => {
 };
 
 export const requestChannelInvite = (token: string, channelId: number, uId: number) => {
-  return requestHelper('POST', '/channel/invite/v2', { token: token, channelId: channelId, uId: uId });
+  return requestHelper('POST', '/channel/invite/v3', { token: token, channelId: channelId, uId: uId });
 };
 
 export const requestChannelMessages = (token: string, channelId: number, start: number) => {
@@ -92,7 +92,27 @@ export const requestDmDetails = (token: string, dmId: number) => {
 };
 
 export const requestChannelsCreate = (token: string, name: string, isPublic: boolean) => {
-  return requestHelper('POST', '/channels/create/v2', { token: token, name: name, isPublic: isPublic });
+  return requestHelper('POST', '/channels/create/v3', { token: token, name: name, isPublic: isPublic });
+};
+
+export const requestChannelsList = (token: string) => {
+  return requestHelper('GET', '/channels/list/v3', {token: token});
+};
+
+export const requestUserProfile = (token: string, uId: number) => {
+  return requestHelper('GET', '/user/profile/v3', {token: token, uId: uId});
+};
+
+export const requestChannelRemoveOwner = (token: string, channelId: number, uId: number) => {
+  return requestHelper('POST', '/channel/removeowner/v2', {token: token, channelId: channelId, uId: uId});
+};
+
+export const requestSetname = (token: string, nameFirst: string, nameLast: string) => {
+  return requestHelper('PUT', '/user/profile/setname/v2', {token: token, nameFirst: nameFirst, nameLast: nameLast});
+};
+
+export const requestSetemail = (token: string, email: string) => {
+  return requestHelper('PUT', '/user/profile/setemail/v2', {token: token, email: email});
 };
 
 export const requestResetReq = (token: string, email: string) => {
