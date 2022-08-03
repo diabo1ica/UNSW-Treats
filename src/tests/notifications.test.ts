@@ -1,6 +1,6 @@
-import { requestClear, requestRegister, requestChannelsCreate, requestDmCreate, requestNotifications, requestChannelInvite,  } from './request';
-import { requestSendChannelMessage, requestSendDm } from './request';
-import { OK, AUTHORISATION_ERROR } from './request';
+import { requestClear, requestRegister, requestChannelsCreate, requestDmCreate, requestNotifications, requestChannelInvite } from './request';
+import { requestSendChannelMessage, requestSendDm, requestMessageReact, requestMessageEdit } from './request';
+import { THUMBSUP } from '../dataStore';
 
 describe('Notification tests', () => {
   // Dm variables
@@ -41,7 +41,7 @@ describe('Notification tests', () => {
   });
 
   test('Test tag notif in channel', () => {
-    const messageStr: string = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
+    const messageStr = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
     requestChannelInvite(tokenId1, channelId, uId2);
     requestSendChannelMessage(tokenId1, channelId, messageStr);
     expect(requestNotifications(tokenId2).body).toStrictEqual([
@@ -59,7 +59,7 @@ describe('Notification tests', () => {
   });
 
   test('Test tag notif in dm', () => {
-    const messageStr: string = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
+    const messageStr = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
     const dmId = requestDmCreate(tokenId1, [uId2]).body.dmId;
     requestSendDm(tokenId1, dmId, messageStr);
     expect(requestNotifications(tokenId2).body).toStrictEqual([
@@ -72,6 +72,59 @@ describe('Notification tests', () => {
         channelId: -1,
         dmId: dmId,
         notificationMessage: 'jingisukan added you to jingisukan, suske'
+      }
+    ]);
+  });
+
+  test('Test react notif in channel', () => {
+    const messageStr = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
+    requestChannelInvite(tokenId1, channelId, uId2);
+    const messageId = requestSendChannelMessage(tokenId1, channelId, messageStr).body.messageId;
+    requestMessageReact(tokenId2, messageId, THUMBSUP);
+    expect(requestNotifications(tokenId1).body).toStrictEqual([
+      {
+        channelId: channelId,
+        dmId: -1,
+        notificationMessage: 'suske reacted to your message in Xhorhas'
+      }
+    ]);
+  });
+
+  test('Test react notif in Dm', () => {
+    const messageStr = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
+    const dmId = requestDmCreate(tokenId1, [uId2]).body.dmId;
+    const messageId = requestSendDm(tokenId1, dmId, messageStr).body.messageId;
+    requestMessageReact(tokenId2, messageId, THUMBSUP);
+    expect(requestNotifications(tokenId1).body).toStrictEqual([
+      {
+        channelId: -1,
+        dmId: dmId,
+        notificationMessage: 'suske reacted to your message in jingisukan, suske'
+      }
+    ]);
+  });
+
+  test('Test message edit', () => {
+    const messageStr = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
+    const messageStr2 = 'Ajo @suske thegreat@jingisukan be venting 24/7 morbussin all over the place';
+    // Dm test
+    requestChannelInvite(tokenId1, channelId, uId2);
+    const messageId = requestSendChannelMessage(tokenId1, channelId, messageStr).body.messageId;
+    requestMessageEdit(tokenId1, messageId, messageStr2);
+    // Dm test
+    const dmId = requestDmCreate(tokenId1, [uId2]).body.dmId;
+    const messageId2 = requestSendDm(tokenId1, dmId, messageStr).body.messageId;
+    requestMessageEdit(tokenId1, messageId2, messageStr2);
+    expect(requestNotifications(tokenId1).body).toStrictEqual([
+      {
+        channelId: -1,
+        dmId: dmId,
+        notificationMessage: 'jingisukan tagged you in jingisukan, suske: Ajo @suske thegreat@'
+      },
+      {
+        channelId: channelId,
+        dmId: -1,
+        notificationMessage: 'jingisukan tagged you in Xhorhas: Ajo @suske thegreat@'
       }
     ]);
   });

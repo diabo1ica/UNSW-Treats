@@ -2,6 +2,12 @@ import fs from 'fs';
 export const THUMBSUP = 1;
 export const VALIDREACTS = [THUMBSUP];
 
+export interface Notification {
+  channelId: number,
+  dmId: number,
+  notificationMessage: string
+}
+
 export interface User {
   nameFirst: string,
   nameLast: string,
@@ -10,6 +16,7 @@ export interface User {
   password: string,
   userId: number,
   globalPermsId: number,
+  notifications: Notification[]
 }
 
 export interface Member {

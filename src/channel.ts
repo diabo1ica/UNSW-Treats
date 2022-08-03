@@ -4,6 +4,7 @@ import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import { validateUserId, getChannel, getDm, isMember, isDmMember, MEMBER } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
 import { isReacted, getChannelMessages, sortMessages } from './util';
+import { chInviteNotif, tagNotifCh, tagNotifChEdit, tagNotifDmEdit } from './notification';
 // Display channel details of channel with channelId
 // Arguements:
 //    authUserId (number)   - User id of user trying to access channel details
@@ -149,7 +150,7 @@ export function channelInviteV1(authUserId: number, channelId: number, uId: numb
       });
     }
   }
-
+  chInviteNotif(authUserId, channelId, uId);
   return {};
 }
 
@@ -291,6 +292,7 @@ export function messageSendV1(authUserId: number, channelId: number, message: st
     dmId: undefined,
   });
   setData(data);
+  tagNotifCh(authUserId, message, channelId);
   return { messageId: data.messageIdCounter };
 }
 
@@ -330,6 +332,7 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
       if (item.channelId === undefined) {
         dmObj = getDm(item.dmId);
         if (isDmOwner(authUserId, dmObj) === true) {
+          tagNotifDmEdit(authUserId, item.message, message, item.dmId);
           item.message = message;
           setData(data);
           return ({});
@@ -338,6 +341,7 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
           throw HTTPError(INPUT_ERROR, 'not a member of dm');
         }
         if (isSender(authUserId, messageId) === true) {
+          tagNotifDmEdit(authUserId, item.message, message, item.dmId);
           item.message = message;
           setData(data);
           return ({});
@@ -349,6 +353,7 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
         // messageId is found in channel
         channelObj = getChannel(item.channelId);
         if (isChannelOwner(authUserId, channelObj) === true) {
+          tagNotifChEdit(authUserId, item.message, message, item.channelId);
           item.message = message;
           setData(data);
           return ({});
@@ -357,6 +362,7 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
           throw HTTPError(INPUT_ERROR, 'not a member of channel');
         }
         if (isSender(authUserId, messageId) === true) {
+          tagNotifChEdit(authUserId, item.message, message, item.channelId);
           item.message = message;
           setData(data);
           return ({});

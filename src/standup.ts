@@ -2,7 +2,6 @@ import { getData, setData } from './dataStore';
 import { getCurrentTime, getChannel, isMember } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { messageSendV1 } from './channel';
 
 export function startStandUp(authUserId: number, channelId: number, length: number) {
   const data = getData();
@@ -52,7 +51,7 @@ export function sendStandUp(uId: number, channelId: number, message: string) {
   const userName: string = data.users.find(obj => obj.userId === uId).handleStr;
   if (channel.standUp.messageId === 0) {
     message = userName + ': ' + message;
-    channel.standUp.messageId = messageSendV1(uId, channelId, message).messageId;
+    channel.standUp.messageId = stUpMessageSend(uId, channelId, message).messageId;
   } else {
     for (const messageObj of data.messages) {
       if (messageObj.messageId === channel.standUp.messageId) {
@@ -62,4 +61,37 @@ export function sendStandUp(uId: number, channelId: number, message: string) {
   }
   setData(data);
   return {};
+}
+
+function stUpMessageSend(authUserId: number, channelId: number, message: string) {
+  const data = getData();
+  const channelObj = getChannel(channelId);
+  if (message.length > 1000) {
+    throw HTTPError(INPUT_ERROR, 'message length exceeded 1000');
+  }
+  if (message.length < 1) {
+    throw HTTPError(INPUT_ERROR, 'message is empty');
+  }
+
+  // check validity of channelId
+  if (channelObj === undefined) {
+    throw HTTPError(INPUT_ERROR, 'channelId is invalid');
+  }
+  // check if authuserId is member of channel
+  if (isMember(authUserId, channelObj) === false) {
+    throw HTTPError(AUTHORISATION_ERROR, 'you are not a member of channel');
+  }
+  data.messageIdCounter += 1;
+  data.messages.unshift({
+    messageId: data.messageIdCounter,
+    uId: authUserId,
+    message: message,
+    timeSent: getCurrentTime(),
+    isPinned: false,
+    reacts: [],
+    channelId: channelId,
+    dmId: undefined,
+  });
+  setData(data);
+  return { messageId: data.messageIdCounter };
 }

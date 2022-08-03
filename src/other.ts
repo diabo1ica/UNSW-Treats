@@ -12,6 +12,7 @@ export function clearV1() {
   data.tokenArray = [];
   data.dms = [];
   data.messages = [];
+  data.resetArray = [];
   setData(data);
   return {};
 }

@@ -2,6 +2,7 @@ import { getData, setData, Message, VALIDREACTS } from './dataStore';
 import { getChannel, isDmMember, getDm, getMessage, isMember, getChannelPerms, MEMBER, getDmPerms, getReact, isReacted } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
+import { reactNotifCh } from './notification';
 
 export function messagePin(authUserId: number, messageId: number) {
   const messageObj = getMessage(messageId);
@@ -26,8 +27,8 @@ export function messageReact(authUserId: number, messageId: number, reactId: num
   if (message === undefined) throw HTTPError(INPUT_ERROR, 'Invalid message'); // Message isn't valid
   if (!VALIDREACTS.some(react => react === reactId)) throw HTTPError(INPUT_ERROR, 'Invalid react'); // React is not valid
   if (isReacted(authUserId, message, reactId)) throw HTTPError(INPUT_ERROR, 'Authorised user already used react in message');
-  if (message.channelId !== undefined) return channelReact(authUserId, message, reactId);
-  else return dmReact(authUserId, message, reactId);
+  if (message.channelId !== undefined) return channelReact(authUserId, message, reactId, messageId);
+  else return dmReact(authUserId, message, reactId, messageId);
 }
 
 function channelPin(authUserId: number, messageObj: Message) {
@@ -43,10 +44,11 @@ function channelPin(authUserId: number, messageObj: Message) {
   return {};
 }
 
-function channelReact(authUserId: number, messageObj: Message, reactId: number) {
+function channelReact(authUserId: number, messageObj: Message, reactId: number, messageId: number) {
   const data = getData();
   const channel = getChannel(messageObj.channelId);
   if (!isMember(authUserId, channel)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the channel');
+  reactNotifCh(authUserId, messageId);
   const react = getReact(messageObj, reactId);
   if (react === undefined) {
     messageObj.reacts.push({
@@ -61,10 +63,11 @@ function channelReact(authUserId: number, messageObj: Message, reactId: number) 
   return {};
 }
 
-function dmReact(authUserId: number, messageObj: Message, reactId: number) {
+function dmReact(authUserId: number, messageObj: Message, reactId: number, messageId: number) {
   const data = getData();
   const dm = getDm(messageObj.dmId);
   if (!isDmMember(authUserId, dm)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the DM');
+  reactNotifCh(authUserId, messageId);
   const react = getReact(messageObj, reactId);
   if (react === undefined) {
     messageObj.reacts.push({
