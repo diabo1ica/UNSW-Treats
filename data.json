@@ -12,29 +12,53 @@
         {
             "nameFirst": "Banana",
             "nameLast": "Tree",
-            "handleStr": "superman",
+            "handleStr": "bananatree",
             "email": "banana@gmail.com",
             "password": "banana10",
             "userId": 2,
             "globalPermsId": 2
+        },
+        {
+            "nameFirst": "Kakarot",
+            "nameLast": "Tree",
+            "handleStr": "kakarottree",
+            "email": "kakarot@gmail.com",
+            "password": "kakarot",
+            "userId": 3,
+            "globalPermsId": 2
         }
     ],
-    "channels": [],
+    "channels": [
+        {
+            "channelId": 1,
+            "name": "AERO1",
+            "isPublic": true,
+            "members": [
+                {
+                    "uId": 1,
+                    "channelPermsId": 1
+                },
+                {
+                    "uId": 2,
+                    "channelPermsId": 2
+                },
+                {
+                    "uId": 3,
+                    "channelPermsId": 2
+                }
+            ],
+            "standUp": {
+                "messageId": 0
+            }
+        }
+    ],
     "dms": [],
     "messages": [
         {
             "messageId": 1,
             "uId": 1,
-            "message": "goodbye",
-            "timeSent": 1659509393,
-            "isPinned": false,
-            "channelId": 1
-        },
-        {
-            "messageId": 1,
-            "uId": 2,
             "message": "Helloooo!!!!!",
-            "timeSent": 1659509393,
+            "timeSent": 1659519202,
             "isPinned": false,
             "channelId": 1
         },
@@ -42,33 +66,19 @@
             "messageId": 1,
             "uId": 1,
             "message": "Helloooo!!!!!",
-            "timeSent": 1659509393,
-            "isPinned": false,
-            "channelId": 1
-        },
-        {
-            "messageId": 1,
-            "uId": 1,
-            "message": "Helloooo!!!!!",
-            "timeSent": 1659509394,
-            "isPinned": false,
-            "channelId": 1
-        },
-        {
-            "messageId": 1,
-            "uId": 1,
-            "message": "Helloooo!!!!!",
-            "timeSent": 1659509394,
+            "timeSent": 1659519202,
             "isPinned": false,
             "channelId": 1
         }
     ],
     "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTUwOTQ0MTcyOCwiaXNzIjoiMTY1OTUwOTQ0MTcyOCJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTUwOTQ0MTc0OSwiaXNzIjoiMTY1OTUwOTQ0MTc0OSJ9."
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTUxOTIyNTc5NiwiaXNzIjoiMTY1OTUxOTIyNTc5NiJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTUxOTIyNTgyOSwiaXNzIjoiMTY1OTUxOTIyNTgyOSJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjMsImlhdCI6MTY1OTUxOTIyNTg1NiwiaXNzIjoiMTY1OTUxOTIyNTg1NiJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTUxOTIyNTg4NCwiaXNzIjoiMTY1OTUxOTIyNTg4NCJ9."
     ],
-    "userIdCounter": 2,
-    "channelIdCounter": 0,
+    "userIdCounter": 3,
+    "channelIdCounter": 1,
     "dmIdCounter": 0,
     "messageIdCounter": 0
 }

@@ -1,7 +1,7 @@
 import HTTPError from 'http-errors';
 import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { validateUserId, getChannel, getDm, isMember, isDmMember, OWNER } from './util';
+import { validateUserId, getChannel, getDm, isMember, isDmMember, OWNER, MEMBER } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
 import { isReacted, getChannelMessages, sortMessages } from './util';
 // Display channel details of channel with channelId
@@ -101,7 +101,7 @@ export function channelJoinV1(authUserId: number, channelId: number) {
     if (channel.channelId === channelId) {
       channel.members.push({
         uId: authUserId,
-        channelPermsId: userObj.globalPermsId,
+        channelPermsId: MEMBER,
       });
       setData(data);
       return ({});
