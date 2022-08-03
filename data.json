@@ -1,33 +1,12 @@
 {
-    "users": [
-        {
-            "nameFirst": "Steve",
-            "nameLast": "Berrospi",
-            "handleStr": "steveberrospi",
-            "email": "z5363495@unsw.edu.au",
-            "password": "aero123",
-            "userId": 1,
-            "globalPermsId": 1
-        }
-    ],
-    "channels": [
-        {
-            "channelId": 1,
-            "name": "air",
-            "isPublic": true,
-            "members": [
-                {
-                    "uId": 1,
-                    "channelPermsId": 1
-                }
-            ],
-            "messages": []
-        }
-    ],
+    "users": [],
+    "channels": [],
     "dms": [],
+    "messages": [],
     "tokenArray": [],
-    "userIdCounter": 1,
-    "channelIdCounter": 1,
+    "userIdCounter": 2,
+    "channelIdCounter": 0,
     "dmIdCounter": 0,
-    "messageIdCounter": 0
+    "messageIdCounter": 0,
+    "resetArray": []
 }

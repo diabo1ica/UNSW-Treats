@@ -2,6 +2,10 @@ import validator from 'validator';
 import { getData, setData, User, DataStr } from './dataStore';
 import HTTPError from 'http-errors';
 import { INPUT_ERROR } from './tests/request';
+import * as jose from 'jose';
+
+const encrypt = (password: string): string => new jose.UnsecuredJWT({ password: password }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
+const decrypt = (password: string): string => jose.UnsecuredJWT.decode(password).payload.password as string;
 
 // Creates a user and store it in dataStore
 // Arguments:
@@ -34,7 +38,7 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   user.email = email;
   user.nameFirst = nameFirst;
   user.nameLast = nameLast;
-  user.password = password;
+  user.password = encrypt(password);
 
   // Generate handle
   const handle: string = generateHandle(nameFirst, nameLast);
@@ -62,7 +66,7 @@ Return Value:
 function authLoginV1(email: string, password: string) {
   const data: DataStr = getData();
   for (const item of data.users) {
-    if (email === item.email && password === item.password) {
+    if (email === item.email && password === decrypt(item.password)) {
       return {
         authUserId: item.userId,
       };

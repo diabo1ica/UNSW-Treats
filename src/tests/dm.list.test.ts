@@ -1,5 +1,5 @@
 import { requestClear, requestRegister, requestDmCreate, requestDmList } from './request';
-// import { OK, INPUT_ERROR } from './request';
+import { OK, AUTHORISATION_ERROR } from './request';
 
 describe('dm list tests', () => {
   let tokenId1: string;
@@ -25,7 +25,9 @@ describe('dm list tests', () => {
     requestDmCreate(tokenId1, uIds2);
     requestDmCreate(tokenId1, uIds3);
     requestDmCreate(tokenId1, uIds4);
-    expect(requestDmList(tokenId1).body).toStrictEqual({
+    const list = requestDmList(tokenId1);
+    expect(list.statusCode).toStrictEqual(OK);
+    expect(list.body).toStrictEqual({
       dms: [
         {
           dmId: expect.any(Number),
@@ -45,5 +47,10 @@ describe('dm list tests', () => {
         }
       ]
     });
+  });
+
+  test('Test error dm list', () => {
+    const list = requestDmList('hiyahiyahiyahiyahiya');
+    expect(list.statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });

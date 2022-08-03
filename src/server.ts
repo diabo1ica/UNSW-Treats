@@ -3,18 +3,20 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
-import { channelInviteV1, removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1 } from './channel';
+import { removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1, channelInviteV1 } from './channel';
 import { getData, setData, DataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
-import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
-import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
-import { INPUT_ERROR } from './tests/request';
+import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, channelLeave } from './channel';
+import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave, dmList, dmRemove, sendLaterDm } from './dm';
+import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
+import { startStandUp, activeStandUp, sendStandUp } from './standup';
+import { messagePin, messageReact } from './message';
 
 // Set up web app, use JSON
 const app = express();
@@ -59,17 +61,23 @@ Request :
     - nameLast (string)   - Last name of the user passed as a string
 Response :
     - Returns an object containing the token and id of the user on success
-    - Returns { error: 'error' } if authRegisterV1 returns an error
-    - Returns { error: 'error' } if registerAuthV2 returns an error
+    - Throws Error 400 if authRegisterV1 returns an error
 */
 app.post('/auth/register/v3', (req, res) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   if (id.error) {
-    throw HTTPError(INPUT_ERROR, 'Invalid parameters');
-  } else {
-    res.json(registerAuthV2(id.authUserId));
+    throw HTTPError(INPUT_ERROR, 'Invalid parameters, cannot register');
   }
+  const data: DataStr = getData();
+  const token: string = generateToken(id.authUserId);
+  data.tokenArray.push(token);
+  setData(data);
+  const returnObj = {
+    token: token,
+    authUserId: id.authUserId
+  };
+  res.json(returnObj);
 });
 
 /*
@@ -89,13 +97,18 @@ Return Value:
     less than 1 or more than 20 characters
 */
 
-app.post('/channels/create/v2', (req, res) => {
-  const { token, name, isPublic } = req.body;
+app.post('/channels/create/v3', (req, res) => {
+  const { name, isPublic } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels Create');
   } else {
     const authUserId = decodeToken(token);
-    res.json(channelsCreateV1(authUserId, name, isPublic));
+    const detailsObj = channelsCreateV1(authUserId, name, isPublic);
+    if (detailsObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid Channels name');
+    }
+    res.json(detailsObj);
   }
 });
 
@@ -112,10 +125,10 @@ Return Value:
     Returns {error: 'error'} on invalid/inactive token
 */
 
-app.get('/channels/list/v2', (req, res) => {
-  const token = req.query.token as string;
+app.get('/channels/list/v3', (req, res) => {
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels List');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelsListV1(authUserId));
@@ -129,12 +142,12 @@ Request :
     - token (string)      - The token of the user that is trying to log out
 Response :
     - Returns {} if the token is successfully removed
-    - Returns { error: 'error' } if the token does not exist in the dataStore
+    - Throws Error 400 if the token does not exist in the dataStore
 */
 app.post('/auth/logout/v2', (req, res) => {
-  const { token } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot log out');
   }
   const data: DataStr = getData();
   for (let i = 0; i < data.tokenArray.length; i++) {
@@ -153,17 +166,28 @@ Request :
     - chId (number)       - The id of the channel
 Response :
     - Returns an object containing the channel's name, isPublic value, owners and members
-    - Returns { error: 'error' } if the token does not exist in the dataStore
-    - Returns { error: 'error' } if the chId refers to a channel that does not exist in the dataStore
-    - Returns { error: 'error' } if the token refers to a uId that isn't a member of the channel
+    - Throws Error 400 if the token does not exist in the dataStore
+    - Throws Error 400 if the chId refers to a channel that does not exist in the dataStore
+    - Throws Error 400 if the token refers to a uId that isn't a member of the channel
 */
-app.get('/channel/details/v2', (req, res) => {
-  const token: string = req.query.token as string;
+app.get('/channel/details/v3', (req, res) => {
+  const token: string = req.header('token');
+  console.log(token);
+  console.log(decodeToken(token));
   const chId: number = parseInt(req.query.channelId as string);
+  console.log('chId : ', chId);
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot access channel details');
   } else {
-    res.json(chDetailsV2(token, chId));
+    const userId = decodeToken(token);
+    const detailsObj = channelDetailsV1(userId, chId);
+    if (detailsObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channel id, cannot acccess token');
+    }
+    if (detailsObj.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Invalid uid, cannot acccess token');
+    }
+    res.json(detailsObj);
   }
 });
 
@@ -185,13 +209,21 @@ Return Value:
     already a member of the channel | authorised user is not a member of the channel
 */
 
-app.post('/channel/invite/v2', (req, res) => {
-  const { token, channelId, uId } = req.body;
+app.post('/channel/invite/v3', (req, res) => {
+  const { channelId, uId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(channelInviteV1(authUserId, channelId, uId));
+    const statusObj = channelInviteV1(authUserId, channelId, uId);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channelId, Invalid Uid, Uid is already a member');
+    }
+    if (statusObj.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Valid ChannelId but authUserId is not a member');
+    }
+    res.json(statusObj);
   }
 });
 
@@ -202,17 +234,25 @@ Request :
     - channelId (number)  - The id of the channel
 Response :
     - Returns {} if the removal is succesful
-    - Returns { error: 'error' } if the token does not exist in the dataStore
-    - Returns { error: 'error  } if channelId does not exist in the channels array
-    - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
+    - Throws Error 400 if the token does not exist in the dataStore
+    - Throws Error 400 if channelId does not exist in the channels array
+    - Throws Error 403 if the token points to a uid that doesn't exist in the channel's members array
 */
-app.post('/channel/leave/v1', (req, res) => {
-  const { token, channelId } = req.body;
+app.post('/channel/leave/v2', (req, res) => {
+  const { channelId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot leave channel');
   } else {
     const userId = decodeToken(token);
-    res.json(channelLeave(userId, channelId));
+    const leaveStatus = channelLeave(userId, channelId);
+    if (leaveStatus.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channel id, cannot leave channel');
+    }
+    if (leaveStatus.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Invalid uid, cannot leave channel');
+    }
+    res.json(leaveStatus);
   }
 });
 
@@ -231,14 +271,17 @@ Return Value:
     refer to a valid user
 */
 
-app.get('/user/profile/v2', (req, res) => {
-  const token = req.query.token as string;
+app.get('/user/profile/v3', (req, res) => {
+  const token: string = req.header('token');
   const uID: number = parseInt(req.query.uId as string);
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
-    const authUserId = decodeToken(token);
-    res.json(userProfileV1(authUserId, uID));
+    const statusObj = userProfileV1(uID);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid Uid');
+    }
+    res.json(statusObj);
   }
 });
 
@@ -262,13 +305,21 @@ Return Value:
     permissions
 */
 
-app.post('/channel/removeowner/v1', (req, res) => {
-  const { token, channelId, uId } = req.body;
+app.post('/channel/removeowner/v2', (req, res) => {
+  const { channelId, uId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(removeowner(authUserId, channelId, uId));
+    const statusObj = removeowner(authUserId, channelId, uId);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channelId, Invalid Uid, Uid is already a member');
+    }
+    if (statusObj.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Valid ChannelId but authUserId is not a member');
+    }
+    res.json(statusObj);
   }
 });
 
@@ -289,13 +340,18 @@ Return Value:
     between 1 and 50 characters inclusive
 */
 
-app.put('/user/profile/setname/v1', (req, res) => {
-  const { token, nameFirst, nameLast } = req.body;
+app.put('/user/profile/setname/v2', (req, res) => {
+  const { nameFirst, nameLast } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(userSetNameV1(authUserId, nameFirst, nameLast));
+    const statusObj = userSetNameV1(authUserId, nameFirst, nameLast);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid nameFirst or nameLast');
+    }
+    res.json(statusObj);
   }
 });
 
@@ -314,13 +370,18 @@ Return Value:
     is not a valid email | email address is being used by another user
 */
 
-app.put('/user/profile/setemail/v1', (req, res) => {
-  const { token, email } = req.body;
+app.put('/user/profile/setemail/v2', (req, res) => {
+  const { email } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
-    res.json(userSetemailV1(authUserId, email));
+    const statusObj = userSetemailV1(authUserId, email);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid email');
+    }
+    res.json(statusObj);
   }
 });
 
@@ -331,14 +392,14 @@ Request :
 Response :
     - Returns an array of objects where each object contains dmId and the name of the dm
     - Returns an empty object if the user is not part of any dms
-    - Returns { error: 'error' } if the token points to a uid that does not exist in the dataStore
+    - Throws Error 400 if the token points to a uid that does not exist in the dataStore
 */
-app.get('/dm/list/v1', (req, res) => {
-  const token = req.query.token as string;
+app.get('/dm/list/v2', (req, res) => {
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot access dm list');
   } else {
-    res.json(dmList(token));
+    res.json(dmList(decodeToken(token)));
   }
 });
 
@@ -349,18 +410,25 @@ Request :
     - dmId  (number)      - the id of the dm that will be removed
 Response  :
     - Returns {} once removal is successful
-    - Returns { error: 'error' } if the dmId points to a dm that does not exist in the dataStore
-    - Returns { error: 'error' } if the token points to a uid that is not the uid of the dm creator
-    - Returns { error: 'error  } if the token points to a uid that is not in the dm members list
-    - Returns { error: 'error' } if the token points to a uid that does not exist in the dataStore
+    - Throws Error 400 if the dmId points to a dm that does not exist in the dataStore
+    - Throws Error 403 if the token points to a uid that is not the uid of the dm creator
+    - Throws Error 403 if the token points to a uid that is not in the dm members list
+    - Throws Error 400 if the token points to a uid that does not exist in the dataStore
 */
-app.delete('/dm/remove/v1', (req, res) => {
-  const token = req.query.token as string;
+app.delete('/dm/remove/v2', (req, res) => {
+  const token: string = req.header('token');
   const dmId = parseInt(req.query.dmId as string);
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot remove dm');
   } else {
-    res.json(dmRemove(token, dmId));
+    const removeStatus = dmRemove(decodeToken(token), dmId);
+    if (removeStatus.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid channel id, cannot remove dm');
+    }
+    if (removeStatus.error403) {
+      throw HTTPError(AUTHORISATION_ERROR, 'Invalid uid, cannot remove dm');
+    }
+    res.json(removeStatus);
   }
 });
 
@@ -424,12 +492,18 @@ Return Value:
 
 app.get('/channels/listall/v2', (req, res) => {
   try {
-    const token = req.query.token as string;
+    const token: string = req.header('token');
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(channelsListallV1(decodeToken(token))); // respond to request with list of all channels
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.get('/channels/listall/v3', (req, res) => {
+  const token = req.header('token');
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(channelsListallV1(decodeToken(token))); // respond to request with list of all channels
 });
 
 /*
@@ -456,7 +530,7 @@ Return Value:
 
 app.get('/channel/messages/v2', (req, res) => {
   try {
-    const token = req.query.token as string;
+    const token: string = req.header('token');
     const channelId = JSON.parse(req.query.channelId as string);
     const start = JSON.parse(req.query.start as string);
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
@@ -464,6 +538,14 @@ app.get('/channel/messages/v2', (req, res) => {
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.get('/channel/messages/v3', (req, res) => {
+  const token = req.header('token');
+  const channelId = JSON.parse(req.query.channelId as string);
+  const start = JSON.parse(req.query.start as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(channelMessagesV1(decodeToken(token), channelId, start)); // respond to request with list of message in channel
 });
 
 /*
@@ -485,12 +567,20 @@ Return Value:
 
 app.post('/dm/create/v1', (req, res) => {
   try {
-    const { token, uIds } = req.body;
+    const token: string = req.header('token');
+    const { uIds } = req.body;
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.post('/dm/create/v2', (req, res) => {
+  const token = req.header('token');
+  const { uIds } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
 });
 
 /*
@@ -511,7 +601,7 @@ Return Value:
 
 app.get('/dm/details/v1', (req, res) => {
   try {
-    const token = req.query.token as string;
+    const token: string = req.header('token');
     const dmId = JSON.parse(req.query.dmId as string);
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(dmDetails(decodeToken(token), dmId)); // respond to request with details of the DM
@@ -520,6 +610,12 @@ app.get('/dm/details/v1', (req, res) => {
   }
 });
 
+app.get('/dm/details/v2', (req, res) => {
+  const token = req.header('token');
+  const dmId = JSON.parse(req.query.dmId as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmDetails(decodeToken(token), dmId)); // respond to request with details of the DM
+});
 /*
 Server route for dm/leave/v1, calls and responds with the output
 of dmLeave
@@ -538,13 +634,21 @@ Return Value:
 
 app.post('/dm/leave/v1', (req, res) => {
   try {
-    const { token, dmId } = req.body;
+    const { dmId } = req.body;
+    const token: string = req.header('token');
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(dmLeave(decodeToken(token), dmId)); // respond to request with empty object
   } catch (err) {
     console.log(err);
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.post('/dm/leave/v2', (req, res) => {
+  const token = req.header('token');
+  const { dmId } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmLeave(decodeToken(token), dmId)); // respond to request with empty object
 });
 
 /*
@@ -569,12 +673,20 @@ Return Value:
 
 app.post('/message/senddm/v1', (req, res) => {
   try {
-    const { token, dmId, message } = req.body;
+    const { dmId, message } = req.body;
+    const token: string = req.header('token');
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
     res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.post('/message/senddm/v2', (req, res) => {
+  const token = req.header('token');
+  const { dmId, message } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
 });
 /*
 Server route for dm/messages/v1, calls and responds with the output
@@ -600,7 +712,7 @@ Return Value:
 
 app.get('/dm/messages/v1', (req, res) => {
   try {
-    const token = req.query.token as string;
+    const token: string = req.header('token');
     const dmId = JSON.parse(req.query.dmId as string);
     const start = JSON.parse(req.query.start as string);
     if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
@@ -608,6 +720,59 @@ app.get('/dm/messages/v1', (req, res) => {
   } catch (err) {
     res.json({ error: 'error' }); // responds to request with error if any errors are thrown
   }
+});
+
+app.get('/dm/messages/v2', (req, res) => {
+  const token = req.header('token');
+  const dmId = JSON.parse(req.query.dmId as string);
+  const start = JSON.parse(req.query.start as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
+  res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
+});
+
+app.post('/message/sendlaterdm/v1', (req, res) => {
+  const token = req.header('token');
+  const { dmId, message, timeSent } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(sendLaterDm(decodeToken(token), dmId, message, timeSent));
+});
+
+app.post('/message/react/v1', (req, res) => {
+  const token = req.header('token');
+  const { messageId, reactId } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(messageReact(decodeToken(token), messageId, reactId));
+});
+
+app.post('/standup/start/v1', (req, res) => {
+  const token = req.header('token');
+  const { channelId, length } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(startStandUp(decodeToken(token), channelId, length));
+});
+
+// For a given channel, return whether a standup is active in it, and what time the standup finishes.
+app.get('/standup/active/v1', (req, res) => {
+  const token = req.header('token');
+  const channelId = parseInt(req.query.channelId as string);
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(activeStandUp(decodeToken(token), channelId));
+});
+
+// For a given channel, if a standup is currently active in the channel, send a message to get buffered in the standup queue.
+app.post('/standup/send/v1', (req, res) => {
+  const token = req.header('token');
+  const { channelId, message } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message too long');
+  res.json(sendStandUp(decodeToken(token), channelId, message));
+});
+
+app.post('/message/pin/v1', (req, res) => {
+  const token = req.header('token');
+  const { messageId } = req.body;
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(messagePin(decodeToken(token), messageId));
 });
 
 /*
@@ -625,10 +790,11 @@ Return Value:
     Returns {error: 'error'} on invalid channelId, user is alread a member
                         of channel, channel is private and user has no globalperm
 */
-app.post('/channel/join/v2', (req, res) => {
-  const { token, channelId } = req.body;
+app.post('/channel/join/v3', (req, res) => {
+  const { channelId } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelJoinV1(authUserId, channelId));
@@ -651,10 +817,12 @@ Return Value:
     Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member
                         of channel, uId is already owner, authuser has no owner permission.
 */
-app.post('/channel/addowner/v1', (req, res) => {
-  const { token, channelId, uId } = req.body;
+
+app.post('/channel/addowner/v2', (req, res) => {
+  const token: string = req.header('token');
+  const { channelId, uId } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelAddownerV1(authUserId, channelId, uId));
@@ -674,10 +842,11 @@ Return Value:
     Returns {error: 'error'} on incorrect handleStr length, contain non-alphanumeric characters,
                                 the handleStr is occupied by another user.
 */
-app.put('/user/profile/sethandle/v1', (req, res) => {
-  const { token, handleStr } = req.body;
+app.put('/user/profile/sethandle/v2', (req, res) => {
+  const token: string = req.header('token');
+  const { handleStr } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(userProfileSethandleV1(authUserId, handleStr));
@@ -694,12 +863,11 @@ Arguments:
 Return Value:
     Returns { users } an array of all the users and their asscoiated detail on success.
 */
-app.get('/users/all/v1', (req, res, next) => {
-  const token: string = req.query.token as string;
+app.get('/users/all/v2', (req, res) => {
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   }
-
   const authUserId = decodeToken(token);
   res.json(usersAllV1(authUserId));
 });
@@ -721,10 +889,11 @@ Return Value:
                             messageId being valid, but not included in channel that
                             usr is a part of.
 */
-app.post('/message/send/v1', (req, res) => {
-  const { token, channelId, message } = req.body;
+app.post('/message/send/v2', (req, res) => {
+  const token: string = req.header('token');
+  const { channelId, message } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(messageSendV1(authUserId, channelId, message));
@@ -748,10 +917,12 @@ Return Value:
                               not the user who sent the message, no owner permission
                               to edit other's message.
 */
-app.put('/message/edit/v1', (req, res) => {
-  const { token, messageId, message } = req.body;
+
+app.put('/message/edit/v2', (req, res) => {
+  const token: string = req.header('token');
+  const { messageId, message } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(messageEditV1(authUserId, messageId, message));
@@ -773,15 +944,100 @@ Return Value:
     Returns {error: 'error'} on invalid messageId,  not the user who sent the
                               message, have no ownerpermsion to remove message.
 */
-app.delete('/message/remove/v1', (req, res) => {
-  const token: string = req.query.token as string;
+app.delete('/message/remove/v2', (req, res) => {
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const messageId: number = parseInt(req.query.messageId as string);
     const authUserId = decodeToken(token);
     res.json(messageRemoveV1(authUserId, messageId));
   }
+});
+
+/*
+Given an email address, if the email address belongs to a registered user,
+send them an email containing a secret password reset code
+Arguements:
+    - email (string)      - An email string of the user trying to request the reset
+Return Values:
+    - Returns {} once the request is made
+    - Throws Error 400 if the token is invalid
+*/
+app.post('/auth/passwordreset/request/v1', (req, res) => {
+  const { email } = req.body;
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot request');
+  }
+  // Close all user's session
+  closeAllSession(token);
+
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.mailtrap.io',
+    port: 2525,
+    auth: {
+      user: '725d3c36d94453',
+      pass: '93f811caba2d52'
+    }
+  });
+
+  const data: DataStr = getData();
+  const userObj = data.users.find(user => user.email === email);
+  const code: string = generateResetCode(userObj.userId);
+  if (userObj !== undefined) {
+    const resetObj = {
+      uId: userObj.userId,
+      resetCode: code
+    };
+    data.resetArray.push(resetObj);
+    setData(data);
+  }
+
+  const mailOptions = {
+    from: '725d3c36d94453',
+    to: email,
+    subject: 'Treats Reset Password Code',
+    text: code
+  };
+
+  transporter.sendMail(mailOptions);
+  res.json({});
+});
+
+/*
+Given a reset code for a user, set that user's new password to the password provided
+Arguements:
+    - resetCode (string)      - code string that validates the reset process
+    - newPassword (string)    - the new password string
+Return Values:
+    - Returns {} once the reset is made
+    - Throws Error 400 if the new password is less than 6 in length
+    - Throws Error 400 if the received code is invalid
+*/
+app.post('/auth/passwordreset/reset/v1', (req, res) => {
+  const { resetCode, newPassword } = req.body;
+  if (newPassword.length < 6) {
+    throw HTTPError(INPUT_ERROR, 'New password too short, cannot reset password');
+  }
+  const data: DataStr = getData();
+  const resetObj = data.resetArray.find(obj => obj.resetCode === resetCode);
+  // Ensure that the code received matches with the code stored in the user
+  // Also ensures that the reset code stored in the user is not empty
+  if (resetObj === undefined && resetCode !== '') {
+    throw HTTPError(INPUT_ERROR, 'Invalid code, cannot reset password');
+  }
+  // Delete all valid reset code stored for the user
+  const id: number = resetObj.uId;
+  for (let i = 0; i < data.resetArray.length; i++) {
+    if (data.resetArray[i].uId === id) {
+      data.resetArray.splice(i, 1);
+      setData(data);
+      i--;
+    }
+  }
+  res.json({});
 });
 
 // Calls the clearV1 function from ./other which resets the dataStore
@@ -822,121 +1078,28 @@ function validToken(token: string) {
   return false;
 }
 
-/*
-Wrapper function for the /auth/register/v2 implementation
-Takes in an id, creates a token out of the id and save to to the dataStore
-Arguements :
-    - id (number)       - The id of the user
-Return values :
-    - Returns an object containing the user's id and token
-*/
-function registerAuthV2(id: number) {
-  const data: DataStr = getData();
-  const token: string = generateToken(id);
-  data.tokenArray.push(token);
-  setData(data);
-  return {
-    token: token,
-    authUserId: id
-  };
+// Generates a random string of length > 6
+// First 6 characters used in the string ranges from ASCII value 48 to 122
+// The range of the ASCII value means that numbers, letters uppercase and lowercase and some symbols are used.
+// the random string of length 6 is then appended with the user's uId
+function generateResetCode (uId: number) {
+  let str = '';
+  for (let i = 0; i < 6; i++) {
+    str += String.fromCharCode(Math.floor(Math.random() * 74) + 48);
+  }
+  return str + uId.toString();
 }
 
-/*
-Wrapper function for the /channel/details/v2 implementation
-Calls and returns channelDetailsV1 from './channel'
-Arguements :
-    - token (string)      - The token of the user that is trying to access the channel details
-    - chId (number)       - The channel id of the channel to be inspected
-Return values :
-    - Returns the values that will be returned by channelDetailsV1
-*/
-function chDetailsV2(token: string, chId: number) {
-  const userId = decodeToken(token);
-  return channelDetailsV1(userId, chId);
-}
-
-/*
-Wrappper function for the /dm/list/v1 implementation
-Takes in a token, decodes it to a uid then lists all dms with that uid
-Argurments :
-    - token (string)      - The token of the user that is trying to access the list
-Return values :
-    - Returns an array of objects where each object contains dmId and the name of the dm
-    - Returns an empty object if the user is not part of any dms
-*/
-function dmList(token: string) {
+// Invalidates all of the user's session by deleting all if the user's
+// Currently stored token in the tokenArray
+function closeAllSession(token: string) {
   const data: DataStr = getData();
   const uId: number = decodeToken(token);
-  const dmArray = [];
-  for (const dm of data.dms) {
-    if (dm.members.some(obj => obj.uId === uId)) {
-      const dmObj = {
-        dmId: dm.dmId,
-        name: dm.name
-      };
-      dmArray.push(dmObj);
+  for (let i = 0; i < data.tokenArray.length; i++) {
+    if (decodeToken(data.tokenArray[i]) === uId) {
+      data.tokenArray.splice(i, 1);
+      setData(data);
+      i--;
     }
   }
-  return { dms: dmArray };
-}
-
-/*
-Wrapper function for the /dm/remove/v1 implementation
-Arguements :
-    - token (string)      - A token of the user doing the removal
-    - dmId (number)       - The id of the dm that will be removed
-Return values :
-    - Returns {} once removal is done
-    - Returns { error: 'error' } if the dmId does not exist in the dataStore
-    - Returns { error: 'error' } if the uid of the token is not the dm creator
-    - Returns { error: 'error  } if the uid is not in the dm members list
-*/
-function dmRemove(token: string, dmId: number) {
-  const data: DataStr = getData();
-  // Find the dm in the dm array
-  for (let i = 0; i < data.dms.length; i++) {
-    if (data.dms[i].dmId === dmId) {
-      const id: number = decodeToken(token);
-      // Verify if token owner is the dm creator
-      for (let j = 0; j < data.dms[i].members.length; j++) {
-        if (data.dms[i].members[j].uId === id && data.dms[i].members[j].dmPermsId === 1) {
-          data.dms.splice(i, 1);
-          setData(data);
-          return {};
-        }
-      }
-      return { error: 'error' };
-    }
-  }
-  return { error: 'error' };
-}
-
-/*
-Wrapper function for the /channel/leave/v1 implementation
-Arguements :
-    - token (string)      - A token of the user that will leave the channel
-    - chId (number)       - The id of the channel
-Return values :
-    - Returns {} once removal is done
-    - Returns { error: 'error' } if the token/uid does not exist in the dataStore
-    - Returns { error: 'error  } if chId does not exist in the channels array
-    - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
-*/
-function channelLeave(userId: number, chId: number) {
-  const data: DataStr = getData();
-  // Find channel in channel array
-  for (const channel of data.channels) {
-    if (channel.channelId === chId) {
-      // Find userId in channel's member array
-      for (let i = 0; i < channel.members.length; i++) {
-        if (channel.members[i].uId === userId) {
-          channel.members.splice(i, 1);
-          setData(data);
-          return {};
-        }
-      }
-      return { error: 'error' };
-    }
-  }
-  return { error: 'error' };
 }

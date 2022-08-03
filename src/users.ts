@@ -1,3 +1,5 @@
+import HTTPError from 'http-errors';
+import { INPUT_ERROR } from './tests/request';
 import { getData, DataStr, setData } from './dataStore';
 import validator from 'validator';
 
@@ -10,10 +12,10 @@ Arguments:
 
 Return Value:
     Return { user } on valid authUserId and uId
-    return {error: 'error'} on invalud uId
+    return {error: 'error'} on invalid uId
 */
 
-export function userProfileV1(authUserId: number, uId: number) {
+export function userProfileV1(uId: number) {
   const data: DataStr = getData();
 
   for (const item of data.users) {
@@ -30,7 +32,7 @@ export function userProfileV1(authUserId: number, uId: number) {
     }
   }
 
-  return { error: 'error' };
+  return { error400: 'Invalid Uid' };
 }
 
 function validName(name: string) {
@@ -41,7 +43,7 @@ function validName(name: string) {
 export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: string) {
   const data: DataStr = getData();
   if (!validName(nameFirst) || !validName(nameLast)) {
-    return { error: 'error' };
+    return { error400: 'Invalid first name or last name' };
   }
 
   for (const item of data.users) {
@@ -57,7 +59,7 @@ export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: s
 export function userSetemailV1(authUserId: number, email: string) {
   const data: DataStr = getData();
   if (!validator.isEmail(email)) {
-    return { error: 'error' };
+    return { error400: 'Invalid email' };
   }
 
   for (const item of data.users) {
@@ -69,24 +71,33 @@ export function userSetemailV1(authUserId: number, email: string) {
   return {};
 }
 
-// set a new displayed name for user
-function userProfileSethandleV1(authUserId:number, handleStr: string) {
+/*
+Sets a new displayed name for user.
+
+Arguments:
+    authUserId (integer) - UserId for person that access uId userprofile
+    handleStr (string)        - new handleStr to be displayed
+
+Return Value:
+    Return {} on valid authUserId
+    return {error: 'error'} on invalud uId
+*/
+export function userProfileSethandleV1(authUserId:number, handleStr: string) {
   const data: DataStr = getData();
-  console.log(handleStr as string);
   // check for incorrect message length
   if (handleStr.length > 20 || handleStr.length < 3) {
-    return { error: 'error' };
+    throw HTTPError(INPUT_ERROR, 'length is invalid');
   }
   // check if handStr is occupied
   for (const item of data.users) {
     console.log(handleStr, item.handleStr);
     if (item.handleStr === handleStr) {
-      return { error: 'error' };
+      throw HTTPError(INPUT_ERROR, 'handleStr is occupied');
     }
   }
   // check for alphanumberic
   if (!isAlphaNumeric(handleStr)) {
-    return { error: 'error' };
+    throw HTTPError(INPUT_ERROR, 'handleStr is not alphanumeric');
   }
 
   for (const user of data.users) {
@@ -96,12 +107,19 @@ function userProfileSethandleV1(authUserId:number, handleStr: string) {
       return {};
     }
   }
-
-  return { error: 'error' };
 }
 
-// return array of all user and assocaited detail
-function usersAllV1(authUserId: number) {
+/*
+Provide a list of userId, email, first name, last name and handle for all valid users.
+
+Arguments:
+    authUserId (integer) - UserId for person that access list of users
+
+Return Value:
+    Return { users } on valid authUserId
+    return {error: 'error'} on invalid authuserId
+*/
+export function usersAllV1(authUserId: number) {
   const data: DataStr = getData();
   const allUsers: any[] = [];
 
@@ -119,5 +137,3 @@ function usersAllV1(authUserId: number) {
 }
 
 const isAlphaNumeric = (str: string) => /^[A-Za-z0-9]+$/gi.test(str);
-
-export { usersAllV1, userProfileSethandleV1 };
