@@ -33,10 +33,7 @@ export function messageReact(authUserId: number, messageId: number, reactId: num
 function channelPin(authUserId: number, messageObj: Message) {
   const data = getData();
   const channel = getChannel(messageObj.channelId);
-  console.log(channel);
   if (!isMember(authUserId, channel)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the channel');
-  console.log(isMember(authUserId, channel));
-  console.log(getChannelPerms(authUserId, channel), MEMBER);
   if (getChannelPerms(authUserId, channel) === MEMBER && getGlobalPerms(authUserId) === MEMBER) throw HTTPError(AUTHORISATION_ERROR, "Authorised user doesn't have owner permissions");
   messageObj.isPinned = true;
   setData(data);
