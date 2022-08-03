@@ -3,7 +3,6 @@ import { getData, setData, Dm, Message, DmMember, DataStr, Channel } from './dat
 export const dmTemplate = (): Dm => {
   return {
     members: [],
-    messages: [],
     dmId: 0,
     creatorId: 0,
     name: '',
@@ -17,7 +16,12 @@ export const messageTemplate = (): Message => {
     uId: 0,
     message: '',
     timeSent: 0,
+    isPinned: false,
+    reacts: [],
+    dmId: 0,
+    channelId: undefined,
   };
+
 };
 
 // creates a template for new members in the DM
