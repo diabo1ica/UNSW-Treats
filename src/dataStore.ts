@@ -7,7 +7,6 @@ interface User {
   password: string,
   userId: number,
   globalPermsId: number,
-  resetCode: string
 }
 
 interface Member {
