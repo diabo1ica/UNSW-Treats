@@ -64,7 +64,7 @@ export const requestChannelMessages = (token: string, channelId: number, start: 
 };
 
 export const requestDmCreate = (token: string, uIds: number[]) => {
-  return requestHelper('POST', '/dm/create/v1', { token: token, uIds: uIds });
+  return requestHelper('POST', '/dm/create/v2', { token: token, uIds: uIds });
 };
 
 export const requestDmRemove = (token: string, dmId: number) => {
@@ -76,7 +76,7 @@ export const requestDmList = (token: string) => {
 };
 
 export const requestSendDm = (token: string, dmId: number, message: string) => {
-  return requestHelper('POST', '/message/senddm/v1', { token: token, dmId: dmId, message: message });
+  return requestHelper('POST', '/message/senddm/v2', { token: token, dmId: dmId, message: message });
 };
 
 export const requestDmLeave = (token: string, dmId: number) => {
@@ -113,6 +113,26 @@ export const requestSetname = (token: string, nameFirst: string, nameLast: strin
 
 export const requestSetemail = (token: string, email: string) => {
   return requestHelper('PUT', '/user/profile/setemail/v2', {token: token, email: email});
+};
+
+export const requestSearch = (token: string, queryStr: string) => {
+  return requestHelper('GET', '/search/v1', {token: token, queryStr: queryStr});
+};
+
+export const requestUserStats = (token: string) => {
+  return requestHelper('GET', '/user/stats/v1', {token: token});
+};
+
+export const requestUsersStats = (token: string) => {
+  return requestHelper('GET', '/users/stats/v1', {token: token});
+};
+
+export const requestAdminRemove = (token: string, uId: number) => {
+  return requestHelper('DELETE', '/admin/user/remove/v1', {token: token, uId: uId});
+};
+
+export const requestUploadPhoto = (token: string, imgUrl: string, xStart: number, yStart: number, xEnd: number, yEnd: number) => {
+  return requestHelper('POST', '/user/profile/uploadphoto/v1', {token: token, imgUrl: imgUrl, xStart: xStart, yStart: yStart, xEnd: xEnd, yEnd: yEnd});
 };
 
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
