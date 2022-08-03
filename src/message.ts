@@ -1,5 +1,5 @@
 import { getData, setData, Message, VALIDREACTS } from './dataStore';
-import { getChannel, isDmMember, getDm, getMessage, isMember, getChannelPerms, MEMBER, getDmPerms, getReact, isReacted } from './util';
+import { getChannel, isDmMember, getDm, getMessage, isMember, getChannelPerms, MEMBER, getDmPerms, getReact, isReacted, getGlobalPerms } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 
@@ -15,7 +15,7 @@ function dmPin(authUserId: number, messageObj: Message) {
   const data = getData();
   const dm = getDm(messageObj.dmId);
   if (!isDmMember(authUserId, dm)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the DM');
-  if (getDmPerms(authUserId, dm) === MEMBER) throw HTTPError(AUTHORISATION_ERROR, "Authorised user is doesn't have owner permissions");
+  if (getDmPerms(authUserId, dm) === MEMBER && getGlobalPerms(authUserId) === MEMBER) throw HTTPError(AUTHORISATION_ERROR, "Authorised user is doesn't have owner permissions");
   messageObj.isPinned = true;
   setData(data);
   return {};
@@ -37,7 +37,7 @@ function channelPin(authUserId: number, messageObj: Message) {
   if (!isMember(authUserId, channel)) throw HTTPError(AUTHORISATION_ERROR, 'Authorised user is not a member of the channel');
   console.log(isMember(authUserId, channel));
   console.log(getChannelPerms(authUserId, channel), MEMBER);
-  if (getChannelPerms(authUserId, channel) === MEMBER) throw HTTPError(AUTHORISATION_ERROR, "Authorised user doesn't have owner permissions");
+  if (getChannelPerms(authUserId, channel) === MEMBER && getGlobalPerms(authUserId) === MEMBER) throw HTTPError(AUTHORISATION_ERROR, "Authorised user doesn't have owner permissions");
   messageObj.isPinned = true;
   setData(data);
   return {};
