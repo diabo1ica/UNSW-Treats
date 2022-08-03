@@ -76,7 +76,6 @@ function channelJoinV1(authUserId: number, channelId: number) {
   const data: DataStr = getData();
   let userObj: User;
   const channelObj: Channel = getChannel(channelId);
-  console.log(channelId);
 
   // find info about authuser
   for (const newMember of data.users) {

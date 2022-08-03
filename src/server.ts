@@ -619,7 +619,6 @@ Return Value:
 */
 app.post('/channel/join/v3', (req, res) => {
   const { channelId } = req.body;
-  console.log(channelId as string);
   const token: string = req.header('token');
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token');

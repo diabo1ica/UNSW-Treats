@@ -1,12 +1,14 @@
 import { requestClear, requestRegister, requestChannelsCreate, requestChannelJoin } from './request';
 import { OK, INPUT_ERROR, AUTHORISATION_ERROR } from './request';
 
+let usertoken1: string;
+let usertoken2: string;
+let usertoken3: string;
+let channelPublic: number;
+let channelPrivate: number;
+
 describe('Test suite for /channel/join/v2', () => {
-  let usertoken1: string;
-  let usertoken2: string;
-  let usertoken3: string;
-  let channelPublic: number;
-  let channelPrivate: number;
+
 
   beforeEach(() => {
     requestClear();

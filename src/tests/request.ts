@@ -95,8 +95,8 @@ export const requestChannelsCreate = (token: string, name: string, isPublic: boo
   return requestHelper('POST', '/channels/create/v2', { token: token, name: name, isPublic: isPublic });
 };
 
-export const requestMessageSend = (token: string, channelID: number, message: string) => {
-  return requestHelper('POST', '/message/send/v2', { token: token, channelID: channelID, message: message });
+export const requestMessageSend = (token: string, channelId: number, message: string) => {
+  return requestHelper('POST', '/message/send/v2', { token: token, channelId: channelId, message: message });
 };
 
 export const requestMessageEdit = (token: string, messageId: number, message: string) => {
@@ -107,12 +107,12 @@ export const requestMessageRemove = (token: string, messageId: number) => {
   return requestHelper('DELETE', '/message/remove/v2', { token: token, messageId: messageId });
 };
 
-export const requestChannelJoin = (token: string, channelID: number) => {
-  return requestHelper('POST', '/channel/join/v3', { token: token, channelID: channelID });
+export const requestChannelJoin = (token: string, channelId: number) => {
+  return requestHelper('POST', '/channel/join/v3', { token: token, channelId: channelId });
 };
 
-export const requestChannelAddowner = (token: string, channelID: number, uID: number) => {
-  return requestHelper('POST', '/channel/addowner/v2', { token: token, channelID: channelID, uID: uID });
+export const requestChannelAddowner = (token: string, channelId: number, uId: number) => {
+  return requestHelper('POST', '/channel/addowner/v2', { token: token, channelId: channelId, uId: uId });
 };
 
 export const requestUsersAll = (token: string) => {
