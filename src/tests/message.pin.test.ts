@@ -38,11 +38,11 @@ describe('Error cases', () => {
     expect(requestMessagePin(user1.token, messageId1).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
-  test('User does not have owner permissions in channel', () => {
+  test('User does not have owner permissions in DM', () => {
     expect(requestMessagePin(user3.token, messageId1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
-  test('User does not have owner permissions in DM', () => {
+  test('User does not have owner permissions in Channel', () => {
     expect(requestMessagePin(user1.token, messageId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });

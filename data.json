@@ -1,31 +1,12 @@
 {
-    "users": [
-        {
-            "nameFirst": "Jingisu",
-            "nameLast": "Kan",
-            "handleStr": "jingisukan",
-            "email": "Alalalyeehoo@gmail.com",
-            "password": "Sk8terboiyo",
-            "userId": 1,
-            "globalPermsId": 1
-        }
-    ],
+    "users": [],
     "channels": [],
     "dms": [],
     "messages": [],
     "tokenArray": [],
-    "userIdCounter": 1,
+    "userIdCounter": 2,
     "channelIdCounter": 0,
     "dmIdCounter": 0,
     "messageIdCounter": 0,
-    "resetArray": [
-        {
-            "uId": 1,
-            "resetCode": "AnRUmY1"
-        },
-        {
-            "uId": 1,
-            "resetCode": "OGOFyp1"
-        }
-    ]
+    "resetArray": []
 }

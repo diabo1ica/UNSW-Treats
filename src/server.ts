@@ -3,7 +3,7 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
-import { channelInviteV1, removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1 } from './channel';
+import { removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1, channelInviteV1 } from './channel';
 import { getData, setData, DataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
@@ -321,7 +321,6 @@ app.post('/channel/removeowner/v2', (req, res) => {
     }
     res.json(statusObj);
   }
-  
 });
 
 /*
@@ -350,7 +349,7 @@ app.put('/user/profile/setname/v2', (req, res) => {
     const authUserId = decodeToken(token);
     const statusObj = userSetNameV1(authUserId, nameFirst, nameLast);
     if (statusObj.error400) {
-      throw HTTPError(INPUT_ERROR, 'Invalid nameFirst or nameLast' );
+      throw HTTPError(INPUT_ERROR, 'Invalid nameFirst or nameLast');
     }
     res.json(statusObj);
   }
@@ -380,7 +379,7 @@ app.put('/user/profile/setemail/v2', (req, res) => {
     const authUserId = decodeToken(token);
     const statusObj = userSetemailV1(authUserId, email);
     if (statusObj.error400) {
-      throw HTTPError(INPUT_ERROR, 'Invalid email' );
+      throw HTTPError(INPUT_ERROR, 'Invalid email');
     }
     res.json(statusObj);
   }
@@ -795,7 +794,7 @@ app.post('/channel/join/v3', (req, res) => {
   const { channelId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelJoinV1(authUserId, channelId));
@@ -818,11 +817,12 @@ Return Value:
     Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member
                         of channel, uId is already owner, authuser has no owner permission.
 */
-app.post('/channel/addowner/v1', (req, res) => {
-  const { channelId, uId } = req.body;
+
+app.post('/channel/addowner/v2', (req, res) => {
   const token: string = req.header('token');
+  const { channelId, uId } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelAddownerV1(authUserId, channelId, uId));
@@ -842,11 +842,11 @@ Return Value:
     Returns {error: 'error'} on incorrect handleStr length, contain non-alphanumeric characters,
                                 the handleStr is occupied by another user.
 */
-app.put('/user/profile/sethandle/v1', (req, res) => {
-  const { handleStr } = req.body;
+app.put('/user/profile/sethandle/v2', (req, res) => {
   const token: string = req.header('token');
+  const { handleStr } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(userProfileSethandleV1(authUserId, handleStr));
@@ -863,12 +863,11 @@ Arguments:
 Return Value:
     Returns { users } an array of all the users and their asscoiated detail on success.
 */
-app.get('/users/all/v1', (req, res, next) => {
+app.get('/users/all/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   }
-
   const authUserId = decodeToken(token);
   res.json(usersAllV1(authUserId));
 });
@@ -891,10 +890,10 @@ Return Value:
                             usr is a part of.
 */
 app.post('/message/send/v2', (req, res) => {
-  const { channelId, message } = req.body;
   const token: string = req.header('token');
+  const { channelId, message } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(messageSendV1(authUserId, channelId, message));
@@ -918,11 +917,12 @@ Return Value:
                               not the user who sent the message, no owner permission
                               to edit other's message.
 */
-app.put('/message/edit/v1', (req, res) => {
-  const { messageId, message } = req.body;
+
+app.put('/message/edit/v2', (req, res) => {
   const token: string = req.header('token');
+  const { messageId, message } = req.body;
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(messageEditV1(authUserId, messageId, message));
@@ -944,10 +944,10 @@ Return Value:
     Returns {error: 'error'} on invalid messageId,  not the user who sent the
                               message, have no ownerpermsion to remove message.
 */
-app.delete('/message/remove/v1', (req, res) => {
+app.delete('/message/remove/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
     const messageId: number = parseInt(req.query.messageId as string);
     const authUserId = decodeToken(token);

@@ -7,7 +7,7 @@ test('Testing ChannelsCreate (error)', () => {
   authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber');
   const a = authLoginV1('justinbieber@gmail.com', '1122334455');
   const authUserId = a.authUserId;
-  expect(channelsCreateV1(authUserId, '', true)).toStrictEqual({ error: 'error' });
+  expect(channelsCreateV1(authUserId, '', true)).toStrictEqual({ error400: 'Invalid Channel Name' });
 });
 
 test('Testing ChannelsCreate (error)', () => {
@@ -15,7 +15,7 @@ test('Testing ChannelsCreate (error)', () => {
   authRegisterV1('justinbieber@gmail.com', '1122334455', 'Justin', 'Bieber');
   const a = authLoginV1('justinbieber@gmail.com', '1122334455');
   const authUserId = a.authUserId;
-  expect(channelsCreateV1(authUserId, 'IamcurrrentlystudyingcomputerscienceinUNSW', true)).toStrictEqual({ error: 'error' });
+  expect(channelsCreateV1(authUserId, 'IamcurrrentlystudyingcomputerscienceinUNSW', true)).toStrictEqual({ error400: 'Invalid Channel Name' });
 });
 
 test('Testing ChannelsCreate (no error)', () => {

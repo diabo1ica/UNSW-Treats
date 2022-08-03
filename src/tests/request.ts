@@ -96,23 +96,23 @@ export const requestChannelsCreate = (token: string, name: string, isPublic: boo
 };
 
 export const requestChannelsList = (token: string) => {
-  return requestHelper('GET', '/channels/list/v3', {token: token});
+  return requestHelper('GET', '/channels/list/v3', { token: token });
 };
 
 export const requestUserProfile = (token: string, uId: number) => {
-  return requestHelper('GET', '/user/profile/v3', {token: token, uId: uId});
+  return requestHelper('GET', '/user/profile/v3', { token: token, uId: uId });
 };
 
 export const requestChannelRemoveOwner = (token: string, channelId: number, uId: number) => {
-  return requestHelper('POST', '/channel/removeowner/v2', {token: token, channelId: channelId, uId: uId});
+  return requestHelper('POST', '/channel/removeowner/v2', { token: token, channelId: channelId, uId: uId });
 };
 
 export const requestSetname = (token: string, nameFirst: string, nameLast: string) => {
-  return requestHelper('PUT', '/user/profile/setname/v2', {token: token, nameFirst: nameFirst, nameLast: nameLast});
+  return requestHelper('PUT', '/user/profile/setname/v2', { token: token, nameFirst: nameFirst, nameLast: nameLast });
 };
 
 export const requestSetemail = (token: string, email: string) => {
-  return requestHelper('PUT', '/user/profile/setemail/v2', {token: token, email: email});
+  return requestHelper('PUT', '/user/profile/setemail/v2', { token: token, email: email });
 };
 
 export const requestResetReq = (token: string, email: string) => {
@@ -153,6 +153,34 @@ export const requestSendChannelMessage = (token: string, channelId: number, mess
 
 export const requestJoinChannel = (token: string, channelId: number) => {
   return requestHelper('POST', '/channel/join/v3', { token: token, channelId: channelId });
+};
+
+export const requestMessageSend = (token: string, channelId: number, message: string) => {
+  return requestHelper('POST', '/message/send/v2', { token: token, channelId: channelId, message: message });
+};
+
+export const requestMessageEdit = (token: string, messageId: number, message: string) => {
+  return requestHelper('PUT', '/message/edit/v2', { token: token, messageId: messageId, message: message });
+};
+
+export const requestMessageRemove = (token: string, messageId: number) => {
+  return requestHelper('DELETE', '/message/remove/v2', { token: token, messageId: messageId });
+};
+
+export const requestChannelJoin = (token: string, channelId: number) => {
+  return requestHelper('POST', '/channel/join/v3', { token: token, channelId: channelId });
+};
+
+export const requestChannelAddowner = (token: string, channelId: number, uId: number) => {
+  return requestHelper('POST', '/channel/addowner/v2', { token: token, channelId: channelId, uId: uId });
+};
+
+export const requestUsersAll = (token: string) => {
+  return requestHelper('GET', '/users/all/v2', { token: token });
+};
+
+export const requestUsersProfileSethandle = (token: string, handleStr: string) => {
+  return requestHelper('PUT', '/user/profile/sethandle/v2', { token: token, handleStr: handleStr });
 };
 
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {

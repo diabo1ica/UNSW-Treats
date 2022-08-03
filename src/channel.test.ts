@@ -1,6 +1,6 @@
 import { authRegisterV1, authLoginV1 } from './auth';
 import { clearV1 } from './other';
-import { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 } from './channel';
+import { channelDetailsV1, channelInviteV1, channelMessagesV1 } from './channel';
 import { channelsCreateV1 } from './channels';
 
 describe('channelDetails tests', () => {
@@ -106,7 +106,7 @@ test('Testing Invitation(do not exist (1))', () => {
   // create Channel1 which isPublic
   channelsCreateV1(authUserId, 'Channel1', true);
 
-  expect(channelInviteV1(authUserId, 10000000, uId)).toStrictEqual({ error: 'error' });
+  expect(channelInviteV1(authUserId, 10000000, uId)).toStrictEqual({ error400: 'Invalid ChannelId' });
 });
 
 test('Testing Invitation(do not exist (2))', () => {
@@ -123,7 +123,7 @@ test('Testing Invitation(do not exist (2))', () => {
   const c = channelsCreateV1(authUserId, 'Channel1', true);
   const channelId = c.channelId;
 
-  expect(channelInviteV1(authUserId, channelId, -uId)).toStrictEqual({ error: 'error' });
+  expect(channelInviteV1(authUserId, channelId, -uId)).toStrictEqual({ error400: 'uId does not refer to valid user' });
 });
 
 test('Testing Invitation(do not exist (3))', () => {
@@ -140,37 +140,5 @@ test('Testing Invitation(do not exist (3))', () => {
   const c = channelsCreateV1(authUserId, 'Channel1', true);
   const channelId = c.channelId;
 
-  expect(channelInviteV1(uId, channelId, authUserId)).toStrictEqual({ error: 'error' });
-});
-
-describe('Test suite for channelJoinsV1', () => {
-  let userId1: number;
-  let userId2: number;
-  beforeEach(() => {
-    userId1 = authRegisterV1('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').authUserId;
-    userId2 = authRegisterV1('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').authUserId;
-  });
-
-  afterEach(() => {
-    clearV1();
-  });
-
-  test('ChannelId not existing', () => {
-    expect(channelJoinV1(userId2, -1)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Already an existing member of channel', () => {
-    const channelId1 = channelsCreateV1(userId1, 'Steve', true).channelId;
-    expect(channelJoinV1(userId1, channelId1)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Channel is private', () => {
-    const channelId1 = channelsCreateV1(userId1, 'Steve', false).channelId;
-    expect(channelJoinV1(userId2, channelId1)).toStrictEqual({ error: 'error' });
-  });
-
-  test('Joined succesfully', () => {
-    const channelId1 = channelsCreateV1(userId1, 'Steve', true).channelId;
-    expect(channelJoinV1(userId2, channelId1)).toStrictEqual({});
-  });
+  expect(channelInviteV1(uId, channelId, authUserId)).toStrictEqual({ error400: 'uId is already a member' });
 });
