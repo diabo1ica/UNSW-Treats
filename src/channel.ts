@@ -3,7 +3,7 @@ import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataSto
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import { validateUserId, getChannel, getDm, isMember, isDmMember } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
-
+import { isReacted, getChannelMessages, sortMessages } from './util';
 // Display channel details of channel with channelId
 // Arguements:
 //    authUserId (number)   - User id of user trying to access channel details
@@ -74,46 +74,40 @@ Return Value:
 */
 function channelJoinV1(authUserId: number, channelId: number) {
   const data: DataStr = getData();
-  let obj: User;
+  let userObj: User;
+  const channelObj: Channel = getChannel(channelId);
+  console.log(channelId);
 
+  // find info about authuser
   for (const newMember of data.users) {
     if (newMember.userId === authUserId) {
-      obj = newMember;
+      userObj = newMember;
       break;
     }
   }
+
+  if (channelObj === undefined) {
+    throw HTTPError(INPUT_ERROR, 'channel is not found');
+  }
+
+  if (isMember(authUserId, getChannel(channelId)) === true) {
+    throw HTTPError(INPUT_ERROR, 'already joined channel');
+  }
+
+  if (channelObj.isPublic === false && userObj.globalPermsId === 2) {
+    throw HTTPError(AUTHORISATION_ERROR, 'cannot join private channel');
+  }
+
   for (const channel of data.channels) {
     if (channel.channelId === channelId) {
-      // check if user is already a member
-      for (const item of channel.members) {
-        if (item.uId === authUserId) {
-          throw HTTPError(INPUT_ERROR, 'already joined channel');
-        }
-      }
-      // check if user is global owner
-      if (obj.globalPermsId === 1) {
-        channel.members.push({
-          uId: authUserId,
-          channelPermsId: 2,
-        });
-
-        setData(data);
-        return ({});
-      }
-      // check if channel is private
-      if (channel.isPublic === false) {
-        throw HTTPError(AUTHORISATION_ERROR, 'you are restricted to join private channel');
-      }
       channel.members.push({
         uId: authUserId,
-        channelPermsId: 2,
+        channelPermsId: userObj.globalPermsId,
       });
-
       setData(data);
-      return {};
+      return ({});
     }
   }
-  throw HTTPError(INPUT_ERROR, 'channel is not found');
 }
 
 /*
@@ -134,29 +128,6 @@ Return Value:
     Returns {error: 'error'} on channelId is valid but authUserId is
                              not a member
 */
-function channelInviteV1(authUserId: number, channelId: number, uId: number) {
-  const data: DataStr = getData();
-  const channelObj = getChannel(channelId);
-  if (getChannel(channelId) === false) {
-    return { error: 'error' };
-  }
-  if (!validateUserId(uId) || channelObj === false) {
-    return { error: 'error' };
-  } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
-    return { error: 'error' };
-  }
-
-  for (const item of data.users) {
-    if (item.userId === uId) {
-      channelObj.members.push({
-        uId: uId,
-        channelPermsId: 2,
-      });
-    }
-  }
-
-  return {};
-}
 
 /*
 Displays the list of messages of a given channel, and indicates whether there
@@ -181,29 +152,27 @@ Return Value:
 */
 
 function channelMessagesV1(authUserId: number, channelId: number, start: number) {
+  const data = getData();
   const channelObj = getChannel(channelId);
-  if (validateUserId(authUserId) === false) {
-    throw new Error('Invalid authUserId');
-  } else if (channelObj === false) {
-    throw new Error('Invalid channelId');
-  } else if (start > channelObj.messages.length) {
-    throw new Error('Start is ahead of final message');
-  } else if (isMember(authUserId, channelObj) === false) {
-    throw new Error('User is not a member of the channel');
+  sortMessages(data.messages);
+  if (channelObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid channel');
+  const channelMessagesArr: Message[] = JSON.parse(JSON.stringify(getChannelMessages(channelId)));
+  if (start > channelMessagesArr.length) throw HTTPError(INPUT_ERROR, 'Start is greater than message count');
+  if (!isMember(authUserId, channelObj)) throw HTTPError(AUTHORISATION_ERROR, 'User is not a member of the channel');
+  for (const message of channelMessagesArr) {
+    delete message.channelId;
+    delete message.dmId;
+    message.reacts.forEach(react => { react.isThisUserReacted = isReacted(authUserId, message, react.reactId); });
   }
   let end: number;
-  const messagesArray: Message[] = [];
-  if (start + 50 >= channelObj.messages.length) {
+  if (start + 50 >= channelMessagesArr.length) {
     end = -1;
   } else {
     end = start + 50;
   } // Determine whether there are more messages in the channel after the first 50 from start.
-  for (const item of channelObj.messages.slice(start, start + 50)) {
-    messagesArray.push(item);
-  } // extract the 50 most recent messages relative to start from the channel
-
+  setData(data);
   return {
-    messages: messagesArray,
+    messages: channelMessagesArr.slice(start, start + 50), // extract the 50 most recent messages relative to start from the channel
     start: start,
     end: end,
   };
@@ -280,7 +249,7 @@ export function messageSendV1(authUserId: number, channelId: number, message: st
   }
 
   // check validity of channelId
-  if (channelObj === false) {
+  if (channelObj === undefined) {
     throw HTTPError(INPUT_ERROR, 'channelId is invalid');
   }
   // check if authuserId is member of channel
@@ -463,7 +432,7 @@ Return Value:
 
 export function removeowner (authUserId: number, channelId: number, uId: number) {
   const channelObj = getChannel(channelId);
-  if (!validateUserId(uId) || channelObj === false) {
+  if (!validateUserId(uId) || channelObj === undefined) {
     return { error: 'error' };
   } if (isMember(uId, channelObj) || !isMember(authUserId, channelObj)) {
     return { error: 'error' };
@@ -489,4 +458,4 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   return {};
 }
 
-export { channelDetailsV1, channelJoinV1, channelInviteV1, channelMessagesV1 };
+export { channelDetailsV1, channelJoinV1, channelMessagesV1 };

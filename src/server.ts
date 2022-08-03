@@ -3,7 +3,7 @@ import { echo } from './echo';
 import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
-import { channelInviteV1, removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1 } from './channel';
+import { removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1 } from './channel';
 import { getData, setData, DataStr } from './dataStore';
 import { clearV1 } from './other';
 import * as jose from 'jose';
@@ -12,7 +12,7 @@ import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
-import { INPUT_ERROR } from './tests/request';
+import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
 
@@ -90,12 +90,14 @@ Return Value:
 */
 
 app.post('/channels/create/v2', (req, res) => {
-  const { token, name, isPublic } = req.body;
+  const { name, isPublic } = req.body;
+  const token: string = req.header('token');
   if (!validToken(token)) {
-    res.json({ error: 'error' });
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels Create');
   } else {
     const authUserId = decodeToken(token);
-    res.json(channelsCreateV1(authUserId, name, isPublic));
+    const detailsObj = channelsCreateV1(authUserId, name, isPublic);
+    res.json(detailsObj);
   }
 });
 
@@ -184,16 +186,6 @@ Return Value:
     user | channelId refers to invalid channel | uId refers to a user who is
     already a member of the channel | authorised user is not a member of the channel
 */
-
-app.post('/channel/invite/v2', (req, res) => {
-  const { token, channelId, uId } = req.body;
-  if (!validToken(token)) {
-    res.json({ error: 'error' });
-  } else {
-    const authUserId = decodeToken(token);
-    res.json(channelInviteV1(authUserId, channelId, uId));
-  }
-});
 
 /*
 Given token of a user and channel id, removes the user from the channel's members array
@@ -626,8 +618,9 @@ Return Value:
                         of channel, channel is private and user has no globalperm
 */
 app.post('/channel/join/v2', (req, res) => {
-  const token: string = req.header('token');
   const { channelId } = req.body;
+  console.log(channelId as string);
+  const token: string = req.header('token');
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token');
   } else {
@@ -705,8 +698,6 @@ app.get('/users/all/v1', (req, res, next) => {
   const authUserId = decodeToken(token);
   res.json(usersAllV1(authUserId));
 });
-
-
 
 /*
 Server route for message/send/v1, calls and responds with the output

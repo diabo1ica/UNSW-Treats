@@ -84,7 +84,6 @@ Return Value:
 */
 export function userProfileSethandleV1(authUserId:number, handleStr: string) {
   const data: DataStr = getData();
-  console.log(handleStr as string);
   // check for incorrect message length
   if (handleStr.length > 20 || handleStr.length < 3) {
     throw HTTPError(INPUT_ERROR, 'length is invalid');

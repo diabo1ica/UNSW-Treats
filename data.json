@@ -1,33 +1,72 @@
 {
     "users": [
         {
-            "nameFirst": "Steve",
-            "nameLast": "Berrospi",
-            "handleStr": "steveberrospi",
-            "email": "z5363495@unsw.edu.au",
-            "password": "aero123",
+            "nameFirst": "Apple",
+            "nameLast": "Tree",
+            "handleStr": "appletree",
+            "email": "apple@gmail.com",
+            "password": "apple10",
             "userId": 1,
             "globalPermsId": 1
+        },
+        {
+            "nameFirst": "Banana",
+            "nameLast": "Tree",
+            "handleStr": "bananatree",
+            "email": "banana@gmail.com",
+            "password": "banana10",
+            "userId": 2,
+            "globalPermsId": 2
+        },
+        {
+            "nameFirst": "Kakarot",
+            "nameLast": "Tree",
+            "handleStr": "kakarottree",
+            "email": "kakarot@gmail.com",
+            "password": "kakarot10",
+            "userId": 3,
+            "globalPermsId": 2
         }
     ],
     "channels": [
         {
             "channelId": 1,
-            "name": "air",
+            "name": "AERO1",
             "isPublic": true,
             "members": [
                 {
-                    "uId": 1,
+                    "uId": 2,
                     "channelPermsId": 1
                 }
             ],
-            "messages": []
+            "standUp": {
+                "messageId": 0
+            }
+        },
+        {
+            "channelId": 2,
+            "name": "AERO2",
+            "isPublic": false,
+            "members": [
+                {
+                    "uId": 2,
+                    "channelPermsId": 1
+                }
+            ],
+            "standUp": {
+                "messageId": 0
+            }
         }
     ],
     "dms": [],
-    "tokenArray": [],
-    "userIdCounter": 1,
-    "channelIdCounter": 1,
+    "messages": [],
+    "tokenArray": [
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTUwMzAzNjUwOCwiaXNzIjoiMTY1OTUwMzAzNjUwOCJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTUwMzAzNzE3NCwiaXNzIjoiMTY1OTUwMzAzNzE3NCJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjMsImlhdCI6MTY1OTUwMzAzNzgzOSwiaXNzIjoiMTY1OTUwMzAzNzgzOSJ9."
+    ],
+    "userIdCounter": 3,
+    "channelIdCounter": 2,
     "dmIdCounter": 0,
     "messageIdCounter": 0
 }

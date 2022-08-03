@@ -21,7 +21,7 @@ Return Value:
 */
 export function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
-    return { error: 'error' };
+    return { error400: 'Invalid Channel Name' };
   } // validate channel name is between 1-20 characters inclusive
   const data: DataStr = getData();
   const channels: Channel = channelsTemplate();
