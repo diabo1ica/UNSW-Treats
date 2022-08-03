@@ -1,3 +1,4 @@
+import { getCurrentTime } from '../util';
 import { requestSearch, requestChannelsCreate, requestRegister, requestLogin, requestClear, requestDmCreate, requestSendDm, INPUT_ERROR } from './request';
 
 describe('search/v1 tests', () => {
@@ -22,19 +23,21 @@ describe('search/v1 tests', () => {
   });
 
   test('Search/v1 Successfull', () => {
-    expect(requestSearch(token, 'love').body).toStrictEqual(expect.objectContaining(
-      {
-        messageId: mId,
-        uId: expect.any(Number),
-        message: 'I love you',
-        timeSent: expect.any(Number),
-        reacts: '',
-        isPinned: true
-      }
-    ));
+    expect(requestSearch(token, 'love').body).toStrictEqual({
+      messages: expect.arrayContaining([
+        {
+          messageId: mId,
+          uId: userID,
+          message: 'I love you',
+          timeSent: expect.any(Number),
+          reacts: [],
+          isPinned: false
+        }
+      ])
+    });
   });
 
   test('Search/v1 Unsuccessfull', () => {
-    expect(requestSearch(token, 'Channel').statusCode).toStrictEqual(INPUT_ERROR);
+    expect(requestSearch(token, '').statusCode).toStrictEqual(INPUT_ERROR);
   });
 });
