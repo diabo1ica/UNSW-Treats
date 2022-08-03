@@ -96,31 +96,31 @@ export const requestChannelsCreate = (token: string, name: string, isPublic: boo
 };
 
 export const requestMessageSend = (token: string, channelID: number, message: string) => {
-  return requestHelper('POST', '/message/send/v1', { token: token, channelID: channelID, message: message });
+  return requestHelper('POST', '/message/send/v2', { token: token, channelID: channelID, message: message });
 };
 
 export const requestMessageEdit = (token: string, messageId: number, message: string) => {
-  return requestHelper('PUT', '/message/edit/v1', { token: token, messageId: messageId, message: message });
+  return requestHelper('PUT', '/message/edit/v2', { token: token, messageId: messageId, message: message });
 };
 
 export const requestMessageRemove = (token: string, messageId: number) => {
-  return requestHelper('DELETE', '/message/remove/v1', { token: token, messageId: messageId });
+  return requestHelper('DELETE', '/message/remove/v2', { token: token, messageId: messageId });
 };
 
 export const requestChannelJoin = (token: string, channelID: number) => {
-  return requestHelper('POST', '/channel/join/v2', { token: token, channelID: channelID });
+  return requestHelper('POST', '/channel/join/v3', { token: token, channelID: channelID });
 };
 
 export const requestChannelAddowner = (token: string, channelID: number, uID: number) => {
-  return requestHelper('POST', '/channel/addowner/v1', { token: token, channelID: channelID, uID: uID });
+  return requestHelper('POST', '/channel/addowner/v2', { token: token, channelID: channelID, uID: uID });
 };
 
 export const requestUsersAll = (token: string) => {
-  return requestHelper('GET', '/users/all/v1', { token: token });
+  return requestHelper('GET', '/users/all/v2', { token: token });
 };
 
 export const requestUsersProfileSethandle = (token: string, handleStr: string) => {
-  return requestHelper('PUT', '/user/profile/sethandle/v1', { token: token, handleStr: handleStr });
+  return requestHelper('PUT', '/user/profile/sethandle/v2', { token: token, handleStr: handleStr });
 };
 
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {

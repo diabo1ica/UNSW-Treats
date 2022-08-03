@@ -617,7 +617,7 @@ Return Value:
     Returns {error: 'error'} on invalid channelId, user is alread a member
                         of channel, channel is private and user has no globalperm
 */
-app.post('/channel/join/v2', (req, res) => {
+app.post('/channel/join/v3', (req, res) => {
   const { channelId } = req.body;
   console.log(channelId as string);
   const token: string = req.header('token');
@@ -645,7 +645,7 @@ Return Value:
     Returns {error: 'error'} on invalid channelId, invalid uId, user is not a member
                         of channel, uId is already owner, authuser has no owner permission.
 */
-app.post('/channel/addowner/v1', (req, res) => {
+app.post('/channel/addowner/v2', (req, res) => {
   const token: string = req.header('token');
   const { channelId, uId } = req.body;
   if (!validToken(token)) {
@@ -669,7 +669,7 @@ Return Value:
     Returns {error: 'error'} on incorrect handleStr length, contain non-alphanumeric characters,
                                 the handleStr is occupied by another user.
 */
-app.put('/user/profile/sethandle/v1', (req, res) => {
+app.put('/user/profile/sethandle/v2', (req, res) => {
   const token: string = req.header('token');
   const { handleStr } = req.body;
   if (!validToken(token)) {
@@ -690,7 +690,7 @@ Arguments:
 Return Value:
     Returns { users } an array of all the users and their asscoiated detail on success.
 */
-app.get('/users/all/v1', (req, res, next) => {
+app.get('/users/all/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token');
@@ -716,7 +716,7 @@ Return Value:
                             messageId being valid, but not included in channel that
                             usr is a part of.
 */
-app.post('/message/send/v1', (req, res) => {
+app.post('/message/send/v2', (req, res) => {
   const token: string = req.header('token');
   const { channelId, message } = req.body;
   if (!validToken(token)) {
@@ -744,7 +744,7 @@ Return Value:
                               not the user who sent the message, no owner permission
                               to edit other's message.
 */
-app.put('/message/edit/v1', (req, res) => {
+app.put('/message/edit/v2', (req, res) => {
   const token: string = req.header('token');
   const { messageId, message } = req.body;
   if (!validToken(token)) {
@@ -770,7 +770,7 @@ Return Value:
     Returns {error: 'error'} on invalid messageId,  not the user who sent the
                               message, have no ownerpermsion to remove message.
 */
-app.delete('/message/remove/v1', (req, res) => {
+app.delete('/message/remove/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
     throw HTTPError(INPUT_ERROR, 'Invalid token');
