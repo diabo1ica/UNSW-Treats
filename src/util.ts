@@ -156,8 +156,10 @@ export const MEMBER = 2;
 // check if owner permission in channel
 export function isChannelOwner(userId: number, channelObj: Channel) {
   for (const item of channelObj.members) {
-    if (item.uId === userId && item.channelPermsId === 1) {
-      return true;
+    if (item.uId === userId) {
+      if (item.channelPermsId === 1) {
+        return true;
+      }
     }
   }
   return false;
@@ -166,8 +168,10 @@ export function isChannelOwner(userId: number, channelObj: Channel) {
 // check if owner permission in dm
 export function isDmOwner(userId: number, dmObj: Dm) {
   for (const item of dmObj.members) {
-    if (item.uId === userId && item.dmPermsId === 1) {
-      return true;
+    if (item.uId === userId) {
+      if (item.dmPermsId === 1) {
+        return true;
+      }
     }
   }
   return false;

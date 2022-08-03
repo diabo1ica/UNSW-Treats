@@ -1,7 +1,7 @@
 import HTTPError from 'http-errors';
 import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { validateUserId, getChannel, getDm, isMember, isDmMember } from './util';
+import { validateUserId, getChannel, getDm, isMember, isDmMember, OWNER } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
 import { isReacted, getChannelMessages, sortMessages } from './util';
 // Display channel details of channel with channelId
@@ -72,7 +72,7 @@ Arguments:
 Return Value:
     Returns {} on joining channel
 */
-function channelJoinV1(authUserId: number, channelId: number) {
+export function channelJoinV1(authUserId: number, channelId: number) {
   const data: DataStr = getData();
   let userObj: User;
   const channelObj: Channel = getChannel(channelId);
@@ -295,7 +295,7 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
   }
 
   // call message remove if message is empty string
-  if (message === '') {
+  if (message === "") {
     return messageRemoveV1(authUserId, messageId);
   }
 
@@ -313,12 +313,14 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
         if (isDmMember(authUserId, dmObj) === false) {
           throw HTTPError(INPUT_ERROR, 'not a member of dm');
         }
+        if (isSender(authUserId, messageId) === true) {
+          item.message = message;
+          setData(data);
+          return ({});
+        }
         if (isSender(authUserId, messageId) === false) {
           throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to edit message');
         }
-        item.message = message;
-        setData(data);
-        return ({});
       }
 
       // messageId is found in channel
@@ -332,12 +334,14 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
         if (isMember(authUserId, channelObj) === false) {
           throw HTTPError(INPUT_ERROR, 'not a member of channel');
         }
+        if (isSender(authUserId, messageId) === true) {
+          item.message = message;
+          setData(data);
+          return ({});
+        }
         if (isSender(authUserId, messageId) === false) {
           throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to edit message');
         }
-        item.message = message;
-        setData(data);
-        return ({});
       }
     }
   }
@@ -376,12 +380,14 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
         if (isDmMember(authUserId, dmObj) === false) {
           throw HTTPError(INPUT_ERROR, 'not a member of dm');
         }
-        if (isSender(authUserId, messageId) === false) {
-          return { error: 'error' };
+        if (isSender(authUserId, messageId) === true) {
+          data.messages.splice(index, 1);
+          setData(data);
+          return ({});
         }
-        data.messages.splice(index, 1);
-        setData(data);
-        return ({});
+        if (isSender(authUserId, messageId) === false) {
+          throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to remove message');
+        }
       }
 
       // messageId is found in channel
@@ -395,12 +401,14 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
         if (isMember(authUserId, channelObj) === false) {
           throw HTTPError(INPUT_ERROR, 'not a member of channel');
         }
+        if (isSender(authUserId, messageId) === true) {
+          data.messages.splice(index, 1);
+          setData(data);
+          return ({});
+        }
         if (isSender(authUserId, messageId) === false) {
           throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to remove message');
         }
-        data.messages.splice(index, 1);
-        setData(data);
-        return ({});
       }
     }
     index++;
@@ -457,4 +465,4 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   return {};
 }
 
-export { channelDetailsV1, channelJoinV1, channelMessagesV1 };
+export { channelDetailsV1, channelMessagesV1 };
