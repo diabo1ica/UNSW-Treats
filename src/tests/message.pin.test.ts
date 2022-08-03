@@ -7,7 +7,7 @@ let messageId1: number, messageId2: number;
 describe('Error cases', () => {
   beforeEach(() => {
     requestClear();
-    user1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').body; //has global perms
+    user1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').body; // has global perms
     user2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').body;
     user3 = requestRegister('z5363442@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').body;
     dmId = requestDmCreate(user1.token, [user2.authUserId]).body.dmId;
@@ -120,6 +120,4 @@ describe('Working cases', () => {
       }
     ]);
   });
-
-
 });
