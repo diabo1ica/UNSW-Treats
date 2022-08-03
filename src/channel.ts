@@ -47,9 +47,8 @@ export function channelDetailsV1(authUserId: number, channelId: number) {
         };
         if (memberObj.channelPermsId === 1) {
           owner.push(member);
-        } else {
-          members.push(member);
         }
+        members.push(member);
       }
     }
   }

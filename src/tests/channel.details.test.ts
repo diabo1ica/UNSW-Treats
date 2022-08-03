@@ -23,7 +23,13 @@ describe('channel details tests', () => {
         nameLast: 'Kan',
         handleStr: 'jingisukan'
       }],
-      allMembers: []
+      allMembers: [{
+        uId: expect.any(Number),
+        email: 'Alalalyeehoo@gmail.com',
+        nameFirst: 'Jingisu',
+        nameLast: 'Kan',
+        handleStr: 'jingisukan'
+      }]
     });
   });
 
