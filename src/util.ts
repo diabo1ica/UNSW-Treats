@@ -189,3 +189,8 @@ export function isSender(userId: number, messageId: number) {
   }
   return false;
 }
+
+export function getGlobalPerms(authUserId: number) {
+  const data = getData();
+  return data.users.find(user => user.userId === authUserId).globalPermsId;
+}

@@ -7,14 +7,14 @@ let messageId1: number, messageId2: number;
 describe('Error cases', () => {
   beforeEach(() => {
     requestClear();
-    user1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').body;
+    user1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').body; // has global perms
     user2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').body;
     user3 = requestRegister('z5363442@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').body;
     dmId = requestDmCreate(user1.token, [user2.authUserId]).body.dmId;
     channelId = requestChannelsCreate(user3.token, 'AERO', true).body.channelId;
     messageId1 = requestSendDm(user1.token, dmId, 'PIN ME').body.messageId;
     messageId2 = requestSendChannelMessage(user3.token, channelId, 'PIN ME TOO').body.messageId;
-    requestJoinChannel(user1.token, channelId);
+    requestJoinChannel(user2.token, channelId);
   });
 
   test('Invalid token', () => {
@@ -26,45 +26,50 @@ describe('Error cases', () => {
   });
 
   test('User is not a member of the channel', () => {
-    expect(requestMessagePin(user2.token, messageId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+    expect(requestMessagePin(user1.token, messageId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('User is not a member of the DM', () => {
     expect(requestMessagePin(user3.token, messageId1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
-  test('Message is already pinned', () => {
+  test('Message is already pinned in DM', () => {
     expect(requestMessagePin(user1.token, messageId1).statusCode).toStrictEqual(OK);
     expect(requestMessagePin(user1.token, messageId1).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
-  test('User does not have owner permissions in DM', () => {
+  test('Message is already pinned in channel', () => {
+    expect(requestMessagePin(user3.token, messageId2).statusCode).toStrictEqual(OK);
+    expect(requestMessagePin(user3.token, messageId2).statusCode).toStrictEqual(INPUT_ERROR);
+  });
+
+  test('User does not have global permissions and owner permissions in DM', () => {
     expect(requestMessagePin(user3.token, messageId1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
-  test('User does not have owner permissions in Channel', () => {
-    expect(requestMessagePin(user1.token, messageId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  test('User does not have global permssions and owner permissions in Channel', () => {
+    expect(requestMessagePin(user2.token, messageId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });
 
 describe('Working cases', () => {
   beforeEach(() => {
     requestClear();
+    user2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').body; // has global perms
     user1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').body;
-    user2 = requestRegister('z3329234@unsw.edu.au', 'aero321', 'Gary', 'Ang').body;
     user3 = requestRegister('z5363442@unsw.edu.au', 'aero456', 'Kenneth', 'Kuo').body;
     dmId = requestDmCreate(user1.token, [user2.authUserId]).body.dmId;
     channelId = requestChannelsCreate(user3.token, 'AERO', true).body.channelId;
     messageId1 = requestSendDm(user1.token, dmId, 'PIN ME').body.messageId;
     messageId2 = requestSendChannelMessage(user3.token, channelId, 'PIN ME TOO').body.messageId;
-    requestJoinChannel(user1.token, channelId);
+    requestJoinChannel(user2.token, channelId);
   });
 
-  test('Pin a message in channel and call channelDetails', () => {
+  test('Channel Owner pins a message in channel and call channelDetails', () => {
     expect(requestMessagePin(user3.token, messageId2).statusCode).toStrictEqual(OK);
-    expect(requestChannelMessages(user1.token, channelId, 0).body.messages).toStrictEqual([
+    expect(requestChannelMessages(user2.token, channelId, 0).body.messages).toStrictEqual([
       {
-        messageId: expect.any(Number),
+        messageId: messageId2,
         uId: user3.authUserId,
         message: expect.any(String),
         timeSent: expect.any(Number),
@@ -74,12 +79,40 @@ describe('Working cases', () => {
     ]);
   });
 
-  test('Pin a message in DM and call dmDetails', () => {
+  test('DM Owner pins a message in DM and call dmDetails', () => {
     expect(requestMessagePin(user1.token, messageId1).statusCode).toStrictEqual(OK);
     expect(requestDmMessages(user2.token, dmId, 0).body.messages).toStrictEqual([
       {
-        messageId: expect.any(Number),
+        messageId: messageId1,
         uId: user1.authUserId,
+        message: expect.any(String),
+        timeSent: expect.any(Number),
+        reacts: [],
+        isPinned: true,
+      }
+    ]);
+  });
+
+  test('Pin a message in DM with global perms (no DM perms)', () => {
+    expect(requestMessagePin(user2.token, messageId1).statusCode).toStrictEqual(OK);
+    expect(requestDmMessages(user1.token, dmId, 0).body.messages).toStrictEqual([
+      {
+        messageId: messageId1,
+        uId: user1.authUserId,
+        message: expect.any(String),
+        timeSent: expect.any(Number),
+        reacts: [],
+        isPinned: true,
+      }
+    ]);
+  });
+
+  test('Pin a message in channel with global perms (no channel perms)', () => {
+    expect(requestMessagePin(user2.token, messageId2).statusCode).toStrictEqual(OK);
+    expect(requestChannelMessages(user3.token, channelId, 0).body.messages).toStrictEqual([
+      {
+        messageId: messageId2,
+        uId: user3.authUserId,
         message: expect.any(String),
         timeSent: expect.any(Number),
         reacts: [],
