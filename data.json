@@ -1,49 +1,11 @@
 {
-    "users": [
-        {
-            "nameFirst": "Jingisu",
-            "nameLast": "Kan",
-            "handleStr": "jingisukan",
-            "email": "Alalalyeehoo@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5NjUyNDI0Nzc3LCJpc3MiOiIxNjU5NjUyNDI0Nzc3In0.",
-            "userId": 1,
-            "globalPermsId": 1,
-            "notifications": []
-        },
-        {
-            "nameFirst": "sk8sk8",
-            "nameLast": "hiyahiya",
-            "handleStr": "sk8sk8hiyahiya",
-            "email": "Alalaly@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcm9peW9iIiwiaWF0IjoxNjU5NjUyNDI5NDI3LCJpc3MiOiIxNjU5NjUyNDI5NDI3In0.",
-            "userId": 2,
-            "globalPermsId": 2,
-            "notifications": []
-        }
-    ],
-    "channels": [
-        {
-            "channelId": 1,
-            "name": "Xhorhas",
-            "isPublic": true,
-            "members": [
-                {
-                    "uId": 1,
-                    "channelPermsId": 1
-                }
-            ],
-            "standUp": {
-                "messageId": 0
-            }
-        }
-    ],
+    "users": [],
+    "channels": [],
     "dms": [],
     "messages": [],
-    "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY1MjQyOTQzMCwiaXNzIjoiMTY1OTY1MjQyOTQzMCJ9."
-    ],
+    "tokenArray": [],
     "userIdCounter": 2,
-    "channelIdCounter": 1,
+    "channelIdCounter": 0,
     "dmIdCounter": 0,
     "messageIdCounter": 0,
     "resetArray": []
