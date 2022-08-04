@@ -183,6 +183,10 @@ export const requestUsersProfileSethandle = (token: string, handleStr: string) =
   return requestHelper('PUT', '/user/profile/sethandle/v2', { token: token, handleStr: handleStr });
 };
 
+export const requestNotifications = (token: string) => {
+  return requestHelper('GET', '/notifications/get/v1', { token: token });
+};
+
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   let qs = {};
   let json = {};

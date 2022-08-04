@@ -1040,6 +1040,22 @@ app.post('/auth/passwordreset/reset/v1', (req, res) => {
   res.json({});
 });
 
+app.get('/notifications/get/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot request');
+  }
+  const data: DataStr = getData();
+  const id: number = decodeToken(token);
+  const user = data.users.find(obj => obj.userId === id);
+  const length = user.notifications.length - 1;
+  const returnArray = [];
+  for (let i = 0; (i < 20 && length - i >= 0); i++) {
+    returnArray.push(user.notifications[length - i]);
+  }
+  res.json(returnArray);
+});
+
 // Calls the clearV1 function from ./other which resets the dataStore
 // Always returns {}
 app.delete('/clear/v1', (req, res) => {
@@ -1078,10 +1094,10 @@ function validToken(token: string) {
   return false;
 }
 
-// Generates a random string of length > 6
+// Generates a random string
 // First 6 characters used in the string ranges from ASCII value 48 to 122
 // The range of the ASCII value means that numbers, letters uppercase and lowercase and some symbols are used.
-// the random string of length 6 is then appended with the user's uId
+// the random string is then appended with the user's uId
 function generateResetCode (uId: number) {
   let str = '';
   for (let i = 0; i < 6; i++) {

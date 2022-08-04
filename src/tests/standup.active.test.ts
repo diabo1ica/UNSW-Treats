@@ -4,7 +4,7 @@ import { sleepFor } from './sleep';
 let channelId: number;
 let token1: string, token2: string;
 let timeFinish: number;
-const length = 10;
+const length = 5;
 describe('Test standup active', () => {
   beforeEach(() => {
     requestClear();
