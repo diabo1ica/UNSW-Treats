@@ -1,5 +1,5 @@
 import { getData, setData, Message, VALIDREACTS, DataStr, Channel, Dm } from './dataStore';
-import {  isChannelOwner, isDmOwner } from './util';
+import { isChannelOwner, isDmOwner } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import { messageSendV1 } from './channel';
@@ -46,8 +46,10 @@ export function messsageUnreactV1(authUserId: number, messageId: number, reactId
     }
     index++;
   }
-}
 
+  setData(data);
+  return {};
+}
 
 export function messagePin(authUserId: number, messageId: number) {
   const messageObj = getMessage(messageId);
@@ -118,6 +120,8 @@ export function messsageUnpinV1(authUserId: number, messageId: number) {
   if (message.isPinned === false) throw HTTPError(INPUT_ERROR, 'Message is not pinned'); // message not pined
 
   message.isPinned = false;
+  setData(data);
+  return {};
 }
 
 function channelReact(authUserId: number, messageObj: Message, reactId: number, messageId: number) {
@@ -144,6 +148,7 @@ export function messsageShareV1(authUserId: number, ogMessageId: number, message
   const dmObj: Dm = getDm(dmId);
   const channelObj: Channel = getChannel(channelId);
   const messageObj: Message = getMessage(ogMessageId);
+  let messageIdx;
 
   if (messageObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid ogmessage');
   if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'lenght is over 1000');
@@ -159,11 +164,14 @@ export function messsageShareV1(authUserId: number, ogMessageId: number, message
 
   if (channelId === -1) {
     if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'no access to dm');
-    messageSendDm(authUserId, dmId, messageObj.message + message);
+    messageIdx = messageSendDm(authUserId, dmId, messageObj.message + message);
   } else {
     if (!isMember(authUserId, channelObj)) throw HTTPError(AUTHORISATION_ERROR, 'no access to channel');
-    messageSendV1(authUserId, channelId, messageObj.message + message);
+    messageIdx = messageSendV1(authUserId, channelId, messageObj.message + message);
   }
+
+  setData(data);
+  return { sharedMessageId: messageIdx };
 }
 
 function dmReact(authUserId: number, messageObj: Message, reactId: number, messageId: number) {

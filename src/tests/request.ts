@@ -201,7 +201,7 @@ export const requestMessageUnreact = (token: string, messageId: number, reactId:
 
 export const requestMessageShare = (token: string, ogMessageId: number, message: string, channelId: number, dmId: number) => {
   return requestHelper('POST', '/message/share/v1', { token: token, ogMessageId: ogMessageId, message: message, channelId: channelId, dmId: dmId });
-}
+};
 export const requestNotifications = (token: string) => {
   return requestHelper('GET', '/notifications/get/v1', { token: token });
 };

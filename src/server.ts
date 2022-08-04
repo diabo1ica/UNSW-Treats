@@ -13,7 +13,7 @@ import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, messageSendlaterv1 } from './channel';
 import { messsageShareV1, messsageUnpinV1, messsageUnreactV1 } from './message';
 import { adminUserPermChange } from './admin';
-import {  channelLeave } from './channel';
+import { channelLeave } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave, dmList, dmRemove, sendLaterDm } from './dm';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
@@ -958,7 +958,6 @@ app.delete('/message/remove/v2', (req, res) => {
   }
 });
 
-
 // changes user's globall permission
 app.post('/admin/userpermission/change/v1', (req, res) => {
   const token: string = req.header('token');
@@ -1125,7 +1124,6 @@ app.get('/notifications/get/v1', (req, res) => {
     returnArray.push(user.notifications[length - i]);
   }
   res.json(returnArray);
-
 });
 
 // Calls the clearV1 function from ./other which resets the dataStore

@@ -2,10 +2,6 @@ import { getData, setData } from './dataStore';
 import { getCurrentTime, getChannel, isMember } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-<<<<<<< HEAD
-import { messageSendV1 } from './channel';
-=======
->>>>>>> 29264aebc3802f3f5da6a9e79b3e22430f7cd2f7
 
 export function startStandUp(authUserId: number, channelId: number, length: number) {
   const data = getData();
@@ -55,11 +51,7 @@ export function sendStandUp(uId: number, channelId: number, message: string) {
   const userName: string = data.users.find(obj => obj.userId === uId).handleStr;
   if (channel.standUp.messageId === 0) {
     message = userName + ': ' + message;
-<<<<<<< HEAD
-    channel.standUp.messageId = messageSendV1(uId, channelId, message).messageId;
-=======
     channel.standUp.messageId = stUpMessageSend(uId, channelId, message).messageId;
->>>>>>> 29264aebc3802f3f5da6a9e79b3e22430f7cd2f7
   } else {
     for (const messageObj of data.messages) {
       if (messageObj.messageId === channel.standUp.messageId) {
@@ -70,8 +62,6 @@ export function sendStandUp(uId: number, channelId: number, message: string) {
   setData(data);
   return {};
 }
-<<<<<<< HEAD
-=======
 
 function stUpMessageSend(authUserId: number, channelId: number, message: string) {
   const data = getData();
@@ -105,4 +95,3 @@ function stUpMessageSend(authUserId: number, channelId: number, message: string)
   setData(data);
   return { messageId: data.messageIdCounter };
 }
->>>>>>> 29264aebc3802f3f5da6a9e79b3e22430f7cd2f7
