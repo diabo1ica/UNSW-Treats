@@ -2,6 +2,7 @@ import { getData, setData, DataStr, Dm, Message } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, dmMessageTemplate, getCurrentTime, sortMessages, getDmMessages, isReacted } from './util';
 import HTTPError from 'http-errors';
+import { dmInviteNotif, tagNotifDm } from './notification';
 /*
 Creates a new DM and stores it in dataStore
 
@@ -51,6 +52,9 @@ export function dmCreate(creatorId: number, uIds: number[]) {
     }
   } // Create the new DM's Name
   data.dms.push(newDm); // Add new DM to dataStore
+  for (const id of uIds) {
+    dmInviteNotif(creatorId, newDm.dmId, id);
+  }
   setData(data); // Save changes to runtime data and data.json
   return {
     dmId: newDm.dmId
@@ -137,6 +141,7 @@ export function messageSendDm(authUserId: number, dmId: number, message: string)
   newMessage.dmId = dmId;
   data.messages.unshift(newMessage); // push the new message to the beginning of the DM's messages
   setData(data); // Save changes to runtime data and data.json
+  tagNotifDm(authUserId, message, dmId);
   return {
     messageId: newMessage.messageId
   };
@@ -277,6 +282,7 @@ export function sendLaterDm(authUserId: number, dmId: number, message: string, t
   newMessage.dmId = dmId;
   data.messages.unshift(newMessage);
   setData(data);
+  tagNotifDm(authUserId, message, dmId);
   return {
     messageId: newMessage.messageId
   };

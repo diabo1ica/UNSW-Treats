@@ -10,8 +10,10 @@ import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
-import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
+import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, messageSendlaterv1 } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave } from './dm';
+import { messsageShareV1, messsageUnpinV1, messsageUnreactV1 } from './message';
+import { adminUserPermChange } from './admin';
 import { INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
@@ -777,6 +779,73 @@ app.delete('/message/remove/v2', (req, res) => {
     const messageId: number = parseInt(req.query.messageId as string);
     const authUserId = decodeToken(token);
     res.json(messageRemoveV1(authUserId, messageId));
+  }
+});
+
+// changes user's globall permission
+app.post('/admin/userpermission/change/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const { uId, permissionId } = req.body;
+    const authUserId = decodeToken(token);
+    console.log(permissionId as string);
+    console.log(uId as string);
+    res.json(adminUserPermChange(authUserId, uId, permissionId));
+  }
+});
+
+// sends a message at certain time in future
+app.post('/message/sendlater/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const { channelId, message, timeSent } = req.body;
+    const authUserId = decodeToken(token);
+
+    res.json(messageSendlaterv1(authUserId, channelId, message, timeSent));
+  }
+});
+
+// unpins  a message
+app.post('/message/unpin/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const { messageId } = req.body;
+    const authUserId = decodeToken(token);
+
+    res.json(messsageUnpinV1(authUserId, messageId));
+  }
+});
+
+// unreact  a message
+app.post('/message/unreact/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const { messageId, reactId } = req.body;
+    const authUserId = decodeToken(token);
+
+    res.json(messsageUnreactV1(authUserId, messageId, reactId));
+  }
+});
+
+// share  a message
+app.post('/message/share/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const { ogMessageId, message, channelId, dmId } = req.body;
+    const authUserId = decodeToken(token);
+    console.log(dmId as string);
+    console.log(channelId as string);
+    res.json(messsageShareV1(authUserId, ogMessageId, message, channelId, dmId));
   }
 });
 

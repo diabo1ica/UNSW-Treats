@@ -127,8 +127,8 @@ export const requestMessageSendlater = (token: string, channelId: number, messag
   return requestHelper('POST', '/message/sendlater/v1', { token: token, channelId: channelId, message: message, timeSent: timeSent });
 };
 
-export const requestAdminPermChange = (token: string, uId: number, PermissionId: number) => {
-  return requestHelper('POST', '/admin/userpermission/change/v1', { token: token, uId: uId, PermissionId: PermissionId });
+export const requestAdminPermChange = (token: string, uId: number, permissionId: number) => {
+  return requestHelper('POST', '/admin/userpermission/change/v1', { token: token, uId: uId, permissionId: permissionId });
 };
 
 export const requestMessageUnpin = (token: string, messageId: number) => {
