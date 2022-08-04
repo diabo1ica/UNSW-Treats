@@ -1,6 +1,6 @@
 import { getData, DataStr, setData } from './dataStore';
 import validator from 'validator';
-import { getCurrentTime, isDmMember, isMember } from './util';
+import { getCurrentTime, isDmMember, isMember, atLeastOne } from './util';
 
 /*
 Provide userId, email, first name, last name and handle for a valid user.
@@ -222,11 +222,15 @@ export function usersStatsv1 (authUserId: number) {
   }
 
   let utilization: number = 0;
+  let numUserAtOne: number = 0;
   let numUser: number = 0;
   for (const user of data.users) {
+    numUserAtOne = numUserAtOne + atLeastOne(user.userId); 
     numUser++;
-  }
+  }  
 
+  utilization = Math.round(((numUserAtOne / numUser) * 10) / 10);
+  
   return {
     channelsExist: channelsExist,
     dmsExist: dmsExist,
