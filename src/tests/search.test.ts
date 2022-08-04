@@ -1,11 +1,9 @@
-import { getCurrentTime } from '../util';
 import { requestSearch, requestChannelsCreate, requestRegister, requestLogin, requestClear, requestDmCreate, requestSendDm, INPUT_ERROR } from './request';
 
 describe('search/v1 tests', () => {
   let token : string;
   let userID : number;
   let userID2 : number;
-  let channelID : number;
   let uIds: number[];
   let dmId: number;
   let mId: number;
@@ -16,7 +14,7 @@ describe('search/v1 tests', () => {
     token = obj.body.token;
     userID = obj.body.authUserId;
     userID2 = requestRegister('Iloveyou@gmail.com', 'Disney123', 'Kanoi', 'Senpai').body.authUserId;
-    channelID = requestChannelsCreate(token, 'Channel1', true).body.channelId;
+    requestChannelsCreate(token, 'Channel1', true);
     uIds = [userID, userID2];
     dmId = requestDmCreate(token, uIds).body.dmId;
     mId = requestSendDm(token, dmId, 'I love you').body.messageId;

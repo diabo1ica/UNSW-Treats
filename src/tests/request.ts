@@ -44,15 +44,15 @@ export const requestLogout = (token: string) => {
 };
 
 export const requestChannelDetails = (token: string, chId: number) => {
-  return requestHelper('GET', '/channel/details/v2', { token: token, channelId: chId });
+  return requestHelper('GET', '/channel/details/v3', { token: token, channelId: chId });
 };
 
 export const requestChannelLeave = (token: string, channelId: number) => {
-  return requestHelper('POST', '/channel/leave/v1', { token: token, channelId: channelId });
+  return requestHelper('POST', '/channel/leave/v2', { token: token, channelId: channelId });
 };
 
 export const requestChannelslistall = (token: string) => {
-  return requestHelper('GET', '/channels/listall/v2', { token: token });
+  return requestHelper('GET', '/channels/listall/v3', { token: token });
 };
 
 export const requestChannelInvite = (token: string, channelId: number, uId: number) => {
@@ -60,7 +60,7 @@ export const requestChannelInvite = (token: string, channelId: number, uId: numb
 };
 
 export const requestChannelMessages = (token: string, channelId: number, start: number) => {
-  return requestHelper('GET', '/channel/messages/v2', { token: token, channelId: channelId, start: start });
+  return requestHelper('GET', '/channel/messages/v3', { token: token, channelId: channelId, start: start });
 };
 
 export const requestDmCreate = (token: string, uIds: number[]) => {
@@ -68,11 +68,11 @@ export const requestDmCreate = (token: string, uIds: number[]) => {
 };
 
 export const requestDmRemove = (token: string, dmId: number) => {
-  return requestHelper('DELETE', '/dm/remove/v1', { token: token, dmId: dmId });
+  return requestHelper('DELETE', '/dm/remove/v2', { token: token, dmId: dmId });
 };
 
 export const requestDmList = (token: string) => {
-  return requestHelper('GET', '/dm/list/v1', { token: token });
+  return requestHelper('GET', '/dm/list/v2', { token: token });
 };
 
 export const requestSendDm = (token: string, dmId: number, message: string) => {
@@ -80,15 +80,15 @@ export const requestSendDm = (token: string, dmId: number, message: string) => {
 };
 
 export const requestDmLeave = (token: string, dmId: number) => {
-  return requestHelper('POST', '/dm/leave/v1', { token: token, dmId: dmId });
+  return requestHelper('POST', '/dm/leave/v2', { token: token, dmId: dmId });
 };
 
 export const requestDmMessages = (token: string, dmId: number, start: number) => {
-  return requestHelper('GET', '/dm/messages/v1', { token: token, dmId: dmId, start: start });
+  return requestHelper('GET', '/dm/messages/v2', { token: token, dmId: dmId, start: start });
 };
 
 export const requestDmDetails = (token: string, dmId: number) => {
-  return requestHelper('GET', '/dm/details/v1', { token: token, dmId: dmId });
+  return requestHelper('GET', '/dm/details/v2', { token: token, dmId: dmId });
 };
 
 export const requestChannelsCreate = (token: string, name: string, isPublic: boolean) => {
@@ -96,43 +96,115 @@ export const requestChannelsCreate = (token: string, name: string, isPublic: boo
 };
 
 export const requestChannelsList = (token: string) => {
-  return requestHelper('GET', '/channels/list/v3', {token: token});
+  return requestHelper('GET', '/channels/list/v3', { token: token });
 };
 
 export const requestUserProfile = (token: string, uId: number) => {
-  return requestHelper('GET', '/user/profile/v3', {token: token, uId: uId});
+  return requestHelper('GET', '/user/profile/v3', { token: token, uId: uId });
 };
 
 export const requestChannelRemoveOwner = (token: string, channelId: number, uId: number) => {
-  return requestHelper('POST', '/channel/removeowner/v2', {token: token, channelId: channelId, uId: uId});
+  return requestHelper('POST', '/channel/removeowner/v2', { token: token, channelId: channelId, uId: uId });
 };
 
 export const requestSetname = (token: string, nameFirst: string, nameLast: string) => {
-  return requestHelper('PUT', '/user/profile/setname/v2', {token: token, nameFirst: nameFirst, nameLast: nameLast});
+  return requestHelper('PUT', '/user/profile/setname/v2', { token: token, nameFirst: nameFirst, nameLast: nameLast });
 };
 
 export const requestSetemail = (token: string, email: string) => {
-  return requestHelper('PUT', '/user/profile/setemail/v2', {token: token, email: email});
+  return requestHelper('PUT', '/user/profile/setemail/v2', { token: token, email: email });
+};
+
+export const requestResetReq = (token: string, email: string) => {
+  return requestHelper('POST', '/auth/passwordreset/request/v1', { token: token, email: email });
+};
+
+export const requestResetPassword = (resetCode: string, newPassword: string) => {
+  return requestHelper('POST', '/auth/passwordreset/reset/v1', { resetCode: resetCode, newPassword: newPassword });
+};
+
+export const requestMessagePin = (token: string, messageId: number) => {
+  return requestHelper('POST', '/message/pin/v1', { token: token, messageId: messageId });
+};
+
+export const requestMessageReact = (token: string, messageId: number, reactId: number) => {
+  return requestHelper('POST', '/message/react/v1', { token: token, messageId: messageId, reactId: reactId });
+};
+
+export const requestStartStandUp = (token: string, channelId: number, length: number) => {
+  return requestHelper('POST', '/standup/start/v1', { token: token, channelId: channelId, length: length });
+};
+
+export const requestStandUpActive = (token: string, channelId: number) => {
+  return requestHelper('GET', '/standup/active/v1', { token: token, channelId: channelId });
+};
+
+export const requestSendStandUp = (token: string, channelId: number, message: string) => {
+  return requestHelper('POST', '/standup/send/v1', { token: token, channelId: channelId, message: message });
+};
+
+export const requestSendLaterDm = (token: string, dmId: number, message: string, timeSent: number) => {
+  return requestHelper('POST', '/message/sendlaterdm/v1', { token: token, dmId: dmId, message: message, timeSent: timeSent });
+};
+
+export const requestSendChannelMessage = (token: string, channelId: number, message: string) => {
+  return requestHelper('POST', '/message/send/v2', { token: token, channelId: channelId, message: message });
+};
+
+export const requestJoinChannel = (token: string, channelId: number) => {
+  return requestHelper('POST', '/channel/join/v3', { token: token, channelId: channelId });
+};
+
+export const requestMessageSend = (token: string, channelId: number, message: string) => {
+  return requestHelper('POST', '/message/send/v2', { token: token, channelId: channelId, message: message });
+};
+
+export const requestMessageEdit = (token: string, messageId: number, message: string) => {
+  return requestHelper('PUT', '/message/edit/v2', { token: token, messageId: messageId, message: message });
+};
+
+export const requestMessageRemove = (token: string, messageId: number) => {
+  return requestHelper('DELETE', '/message/remove/v2', { token: token, messageId: messageId });
+};
+
+export const requestChannelJoin = (token: string, channelId: number) => {
+  return requestHelper('POST', '/channel/join/v3', { token: token, channelId: channelId });
+};
+
+export const requestChannelAddowner = (token: string, channelId: number, uId: number) => {
+  return requestHelper('POST', '/channel/addowner/v2', { token: token, channelId: channelId, uId: uId });
+};
+
+export const requestUsersAll = (token: string) => {
+  return requestHelper('GET', '/users/all/v2', { token: token });
+};
+
+export const requestUsersProfileSethandle = (token: string, handleStr: string) => {
+  return requestHelper('PUT', '/user/profile/sethandle/v2', { token: token, handleStr: handleStr });
+};
+
+export const requestNotifications = (token: string) => {
+  return requestHelper('GET', '/notifications/get/v1', { token: token });
 };
 
 export const requestSearch = (token: string, queryStr: string) => {
-  return requestHelper('GET', '/search/v1', {token: token, queryStr: queryStr});
+  return requestHelper('GET', '/search/v1', { token: token, queryStr: queryStr });
 };
 
 export const requestUserStats = (token: string) => {
-  return requestHelper('GET', '/user/stats/v1', {token: token});
+  return requestHelper('GET', '/user/stats/v1', { token: token });
 };
 
 export const requestUsersStats = (token: string) => {
-  return requestHelper('GET', '/users/stats/v1', {token: token});
+  return requestHelper('GET', '/users/stats/v1', { token: token });
 };
 
 export const requestAdminRemove = (token: string, uId: number) => {
-  return requestHelper('DELETE', '/admin/user/remove/v1', {token: token, uId: uId});
+  return requestHelper('DELETE', '/admin/user/remove/v1', { token: token, uId: uId });
 };
 
 export const requestUploadPhoto = (token: string, imgUrl: string, xStart: number, yStart: number, xEnd: number, yEnd: number) => {
-  return requestHelper('POST', '/user/profile/uploadphoto/v1', {token: token, imgUrl: imgUrl, xStart: xStart, yStart: yStart, xEnd: xEnd, yEnd: yEnd});
+  return requestHelper('POST', '/user/profile/uploadphoto/v1', { token: token, imgUrl: imgUrl, xStart: xStart, yStart: yStart, xEnd: xEnd, yEnd: yEnd });
 };
 
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {

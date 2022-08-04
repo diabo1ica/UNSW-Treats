@@ -1,7 +1,9 @@
+import HTTPError from 'http-errors';
+import { INPUT_ERROR } from './tests/request';
 import { getData, DataStr, setData } from './dataStore';
 import validator from 'validator';
-import { getCurrentTime, isDmMember, isMember, atLeastOne, validateUserId } from './util';
-import { channelLeave } from './server';
+import { isDmMember, isMember, validateUserId } from './util';
+import { channelLeave } from './channel';
 import { dmLeave } from './dm';
 
 /*
@@ -72,24 +74,33 @@ export function userSetemailV1(authUserId: number, email: string) {
   return {};
 }
 
-// set a new displayed name for user
-function userProfileSethandleV1(authUserId:number, handleStr: string) {
+/*
+Sets a new displayed name for user.
+
+Arguments:
+    authUserId (integer) - UserId for person that access uId userprofile
+    handleStr (string)        - new handleStr to be displayed
+
+Return Value:
+    Return {} on valid authUserId
+    return {error: 'error'} on invalud uId
+*/
+export function userProfileSethandleV1(authUserId:number, handleStr: string) {
   const data: DataStr = getData();
-  console.log(handleStr as string);
   // check for incorrect message length
   if (handleStr.length > 20 || handleStr.length < 3) {
-    return { error: 'error' };
+    throw HTTPError(INPUT_ERROR, 'length is invalid');
   }
   // check if handStr is occupied
   for (const item of data.users) {
     console.log(handleStr, item.handleStr);
     if (item.handleStr === handleStr) {
-      return { error: 'error' };
+      throw HTTPError(INPUT_ERROR, 'handleStr is occupied');
     }
   }
   // check for alphanumberic
   if (!isAlphaNumeric(handleStr)) {
-    return { error: 'error' };
+    throw HTTPError(INPUT_ERROR, 'handleStr is not alphanumeric');
   }
 
   for (const user of data.users) {
@@ -99,12 +110,19 @@ function userProfileSethandleV1(authUserId:number, handleStr: string) {
       return {};
     }
   }
-
-  return { error: 'error' };
 }
 
-// return array of all user and assocaited detail
-function usersAllV1(authUserId: number) {
+/*
+Provide a list of userId, email, first name, last name and handle for all valid users.
+
+Arguments:
+    authUserId (integer) - UserId for person that access list of users
+
+Return Value:
+    Return { users } on valid authUserId
+    return {error: 'error'} on invalid authuserId
+*/
+export function usersAllV1(authUserId: number) {
   const data: DataStr = getData();
   const allUsers: any[] = [];
 
@@ -123,26 +141,16 @@ function usersAllV1(authUserId: number) {
   return { users: allUsers };
 }
 
+/*
 export function userStatsv1 (authUserId: number) {
   const data: DataStr = getData();
   const channelsJoined: any[] = [];
   const dmsJoined: any[] = [];
   const messageSent: any[] = [];
 
-  let numChannel: number = 0;
-  for (const channel of data.channels) {
-    numChannel++;
-  }
-
-  let numDms: number = 0;
-  for (const dms of data.dms) {
-    numDms++;
-  }
-
-  let numMsg: number = 0;
-  for (const msg of data.messages) {
-    numMsg++;
-  }
+  let numChannel = data.channels.length;
+  let numDms = data.dms.length;
+  let numMsg = data.messages.length;
 
   let i = 0;
   for (const channel of data.channels) {
@@ -150,7 +158,7 @@ export function userStatsv1 (authUserId: number) {
       channelsJoined.push({
         numChannelsJoined: i,
         timeStamp: 0,
-      })
+      });
       i++;
     }
   }
@@ -161,7 +169,7 @@ export function userStatsv1 (authUserId: number) {
       dmsJoined.push({
         numDmsJoined: j,
         timeStamp: 0,
-      })
+      });
       j++;
     }
   }
@@ -172,11 +180,11 @@ export function userStatsv1 (authUserId: number) {
       messageSent.push({
         numMessagesExist: k,
         timeStamp: 0,
-      })
+      });
       k++;
     }
   }
-  let involvement: number = 0;
+  let involvement = 0;
   if ((numChannel + numDms + numMsg) !== 0) {
     involvement = Math.round((((i + j + k) / (numChannel + numDms + numMsg)) * 10) / 10);
     if (involvement > 1) {
@@ -198,43 +206,44 @@ export function usersStatsv1 (authUserId: number) {
   const dmsExist: any[] = [];
   const messagesExist: any[] = [];
 
-  let numChannel: number = 0;
+  let numChannel = data.channels.length;
+  let numDms = data.dms.length;
+  let numMsg = data.messages.length;
+
   for (const channel of data.channels) {
     channelsExist.push({
       numChannelsExist: numChannel,
       timeStamp: 0,
-    })
+    });
     numChannel++;
   }
 
-  let numDms: number = 0;
   for (const dms of data.dms) {
     dmsExist.push({
       numDmsExist: numDms,
       timeStamp: 0,
-    })
+    });
     numDms++;
   }
 
-  let numMsg: number = 0;
   for (const msg of data.messages) {
     messagesExist.push({
       numMessagesExist: numMsg,
       timeStamp: 0,
-    })
+    });
     numMsg++;
   }
 
-  let utilization: number = 0;
-  let numUserAtOne: number = 0;
-  let numUser: number = 0;
+  let utilization = 0;
+  let numUserAtOne = 0;
+  let numUser = 0;
   for (const user of data.users) {
-    numUserAtOne = numUserAtOne + atLeastOne(user.userId); 
+    numUserAtOne = numUserAtOne + atLeastOne(user.userId);
     numUser++;
-  }  
+  }
 
   utilization = Math.round(((numUserAtOne / numUser) * 10) / 10);
-  
+
   return {
     channelsExist: channelsExist,
     dmsExist: dmsExist,
@@ -242,15 +251,16 @@ export function usersStatsv1 (authUserId: number) {
     utilizationRate: utilization,
   };
 }
+*/
 
 export function adminRemove (authUserId: number, uId : number) {
   const data: DataStr = getData();
-  
+
   if (validateUserId(uId) === undefined) {
     return { error400: 'Invalid uId' };
   }
 
-  let numGlobOwn: number = 0;
+  let numGlobOwn = 0;
   for (const user of data.users) {
     if (user.globalPermsId === 1) {
       numGlobOwn++;
@@ -268,7 +278,7 @@ export function adminRemove (authUserId: number, uId : number) {
       }
     }
   }
-  
+
   for (const channel of data.channels) {
     if (isMember(uId, channel)) {
       channelLeave(uId, channel.channelId);
@@ -297,5 +307,3 @@ export function adminRemove (authUserId: number, uId : number) {
 }
 
 const isAlphaNumeric = (str: string) => /^[A-Za-z0-9]+$/gi.test(str);
-
-export { usersAllV1, userProfileSethandleV1 };

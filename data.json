@@ -1,50 +1,26 @@
 {
     "users": [
         {
-            "nameFirst": "Jingisu",
-            "nameLast": "Kan",
-            "handleStr": "jingisukan",
-            "email": "Alalalyeehoo@gmail.com",
-            "password": "Sk8terboiyo",
+            "nameFirst": "Steve",
+            "nameLast": "Berrospi",
+            "handleStr": "steveberrospi",
+            "email": "z5363495@unsw.edu.au",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm8xMjMiLCJpYXQiOjE2NTk2MjU3NzM1NTEsImlzcyI6IjE2NTk2MjU3NzM1NTEifQ.",
             "userId": 1,
-            "globalPermsId": 1
-        },
-        {
-            "nameFirst": "Kanoi",
-            "nameLast": "Senpai",
-            "handleStr": "kanoisenpai",
-            "email": "Iloveyou@gmail.com",
-            "password": "Disney123",
-            "userId": 2,
-            "globalPermsId": 2
+            "globalPermsId": 1,
+            "notifications": []
         }
     ],
-    "channels": [
-        {
-            "channelId": 1,
-            "name": "Channel1",
-            "isPublic": true,
-            "members": [
-                {
-                    "uId": 1,
-                    "channelPermsId": 1
-                }
-            ],
-            "standUp": {
-                "timeFinish": 0,
-                "messageId": 0
-            }
-        }
-    ],
+    "channels": [],
     "dms": [],
     "messages": [],
     "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTYxOTE1MjMwNiwiaXNzIjoiMTY1OTYxOTE1MjMwNiJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTYxOTE1MjMzNSwiaXNzIjoiMTY1OTYxOTE1MjMzNSJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTYxOTE1MjM1NiwiaXNzIjoiMTY1OTYxOTE1MjM1NiJ9."
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTYyNTc3MzU1NCwiaXNzIjoiMTY1OTYyNTc3MzU1NCJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTYyNTc3Mzc4MiwiaXNzIjoiMTY1OTYyNTc3Mzc4MiJ9."
     ],
-    "userIdCounter": 2,
-    "channelIdCounter": 1,
+    "userIdCounter": 1,
+    "channelIdCounter": 0,
     "dmIdCounter": 0,
-    "messageIdCounter": 0
+    "messageIdCounter": 0,
+    "resetArray": []
 }

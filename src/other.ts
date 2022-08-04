@@ -1,12 +1,7 @@
-import { query } from 'express';
-import createHttpError from 'http-errors';
-import { rootCertificates } from 'tls';
-import { reduceEachTrailingCommentRange } from 'typescript';
 import { getData, DataStr, setData } from './dataStore';
-import { messageSendDm } from './dm';
 
 // Clears the dataStore
-function clearV1() {
+export function clearV1() {
   const data: DataStr = getData();
   data.users = [];
   data.channels = [];
@@ -16,27 +11,24 @@ function clearV1() {
   data.messageIdCounter = 0;
   data.tokenArray = [];
   data.dms = [];
-  data.userIdCounter = 0;
-  data.channelIdCounter = 0;
-  data.dmIdCounter = 0;
-  data.messageIdCounter = 0;
-  data.tokenArray = [];
+  data.messages = [];
+  data.resetArray = [];
   setData(data);
   return {};
 }
 
 export function searchV1 (queryStr: string) {
   if (queryStr.length < 1 || queryStr.length > 1000) {
-    return { error400: 'Invalid QueryStr'};
+    return { error400: 'Invalid QueryStr' };
   }
   const data: DataStr = getData();
   const returnMessage: any[] = [];
-  
+
   for (const msg of data.messages) {
-    let lowMsg: string = msg.message.toLowerCase();
-    let lowQuery: string = queryStr.toLowerCase();
+    const lowMsg: string = msg.message.toLowerCase();
+    const lowQuery: string = queryStr.toLowerCase();
     if (lowMsg.includes(lowQuery)) {
-      returnMessage.push( {
+      returnMessage.push({
         messageId: msg.messageId,
         uId: msg.uId,
         message: msg.message,
@@ -46,19 +38,8 @@ export function searchV1 (queryStr: string) {
       });
     }
   }
-  
 
   return {
     messages: returnMessage,
   };
 }
-
-export function uploadPhoto (imgUrl: string, xStart: number, yStart: number, xEnd: number, yEnd: number) {
-  if (xEnd < xStart || yEnd < yStart) {
-    return { error400: 'Invalid coordinate' };
-  }
-  const sharp = require('sharp');
-
-}
-
-export { clearV1 };

@@ -1,6 +1,7 @@
 import { getData, setData, DataStr, Channel, StandUp } from './dataStore';
+import { INPUT_ERROR } from './tests/request';
 import { validateUserId } from './util';
-
+import HTTPError from 'http-errors';
 
 /*
 Create a channel with given name and whether it is public or private.
@@ -22,7 +23,7 @@ Return Value:
 */
 export function channelsCreateV1(authUserId: number, name: string, isPublic: boolean) {
   if (name.length < 1 || name.length > 20) {
-    return { error400: 'Invalid Channel Name'};
+    return { error400: 'Invalid Channel Name' };
   } // validate channel name is between 1-20 characters inclusive
   const data: DataStr = getData();
   const channels: Channel = channelsTemplate();
@@ -93,10 +94,7 @@ Return Value:
 */
 export function channelsListallV1(authUserId: number) {
   const data: DataStr = getData();
-  if (validateUserId(authUserId) === false) {
-    throw new Error('Invalid authUserId');
-  } // check userId is valid
-
+  if (!validateUserId(authUserId)) throw HTTPError(INPUT_ERROR, 'Invalid authUserId'); // check userId is valid
   const allChannels: any[] = [];
   for (const item of data.channels) {
     allChannels.push({
@@ -139,8 +137,8 @@ Return Value:
 */
 function standUptemplate() {
   const standUp: StandUp = {
-    timeFinish: 0,
+    timeFinish: undefined,
     messageId: 0,
-  }
+  };
   return standUp;
 }

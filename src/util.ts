@@ -34,7 +34,6 @@ export const channelMessageTemplate = (): Message => {
     channelId: 0,
     dmId: undefined,
   };
-
 };
 
 // creates a template for new members in the DM
@@ -171,3 +170,44 @@ export function atLeastOne(userId: number) {
 export const OWNER = 1;
 export const MEMBER = 2;
 
+// check if owner permission in channel
+export function isChannelOwner(userId: number, channelObj: Channel) {
+  for (const item of channelObj.members) {
+    if (item.uId === userId) {
+      if (item.channelPermsId === 1) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// check if owner permission in dm
+export function isDmOwner(userId: number, dmObj: Dm) {
+  for (const item of dmObj.members) {
+    if (item.uId === userId) {
+      if (item.dmPermsId === 1) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// check if user is sent the message
+export function isSender(userId: number, messageId: number) {
+  const data: DataStr = getData();
+  for (const item of data.messages) {
+    if (item.messageId === messageId) {
+      if (item.uId === userId) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+export function getGlobalPerms(authUserId: number) {
+  const data = getData();
+  return data.users.find(user => user.userId === authUserId).globalPermsId;
+}
