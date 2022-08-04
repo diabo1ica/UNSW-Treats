@@ -1,4 +1,4 @@
-import { requestUserStats, requestChannelsCreate, requestRegister, requestLogin, requestClear, INPUT_ERROR } from './request';
+import { requestUserStats, requestChannelsCreate, requestRegister, requestLogin, requestClear } from './request';
 
 describe('search/v1 tests', () => {
     let token : string;
