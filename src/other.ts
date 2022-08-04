@@ -1,7 +1,7 @@
 import { getData, DataStr, setData } from './dataStore';
 
 // Clears the dataStore
-function clearV1() {
+export function clearV1() {
   const data: DataStr = getData();
   data.users = [];
   data.channels = [];
@@ -11,13 +11,8 @@ function clearV1() {
   data.messageIdCounter = 0;
   data.tokenArray = [];
   data.dms = [];
-  data.userIdCounter = 0;
-  data.channelIdCounter = 0;
-  data.dmIdCounter = 0;
-  data.messageIdCounter = 0;
-  data.tokenArray = [];
+  data.messages = [];
+  data.resetArray = [];
   setData(data);
   return {};
 }
-
-export { clearV1 };

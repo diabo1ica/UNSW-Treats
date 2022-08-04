@@ -1,5 +1,5 @@
 import { requestRegister, requestLogin, requestChannelMessages, requestChannelsCreate, requestClear } from './request';
-
+import { OK, AUTHORISATION_ERROR, INPUT_ERROR } from './request';
 let channelId1: number, channelId2: number;
 let token1: string, token2: string, token3: string;
 
@@ -18,19 +18,19 @@ describe('Error cases', () => {
   });
 
   test('Invalid Token', () => {
-    expect(requestChannelMessages('-' + token2, channelId2, 0).body).toStrictEqual({ error: 'error' });
+    expect(requestChannelMessages('-' + token2, channelId2, 0).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('Invalid channelId', () => {
-    expect(requestChannelMessages(token1, -channelId1, 0).body).toStrictEqual({ error: 'error' });
+    expect(requestChannelMessages(token1, -channelId1, 0).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('Start is greater than total number messages', () => {
-    expect(requestChannelMessages(token1, channelId1, 10000000).body).toStrictEqual({ error: 'error' });
+    expect(requestChannelMessages(token1, channelId1, 10000000).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('User is not a member of valid channel', () => {
-    expect(requestChannelMessages(token3, channelId1, 0).body).toStrictEqual({ error: 'error' });
+    expect(requestChannelMessages(token3, channelId1, 0).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });
 
@@ -49,7 +49,9 @@ describe('Working cases', () => {
   });
 
   test('Correct return type', () => {
-    expect(requestChannelMessages(token1, channelId1, 0).body).toStrictEqual(expect.objectContaining(
+    const res = requestChannelMessages(token1, channelId1, 0);
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.body).toStrictEqual(expect.objectContaining(
       {
         messages: expect.arrayContaining([]),
         start: 0,

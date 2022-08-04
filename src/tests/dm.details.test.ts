@@ -1,4 +1,5 @@
 import { requestClear, requestRegister, requestLogin, requestDmCreate, requestDmDetails } from './request';
+import { OK, AUTHORISATION_ERROR, INPUT_ERROR } from './request';
 let userId1: number, userId2: number, userId4: number;
 let dmId1: number;
 let token1: string, token2: string, token3: string;
@@ -17,15 +18,15 @@ describe('Error cases', () => {
   });
 
   test('Invalid token', () => {
-    expect(requestDmDetails('-' + token1, dmId1).body).toStrictEqual({ error: 'error' });
+    expect(requestDmDetails('-' + token1, dmId1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('Invalid dmId', () => {
-    expect(requestDmDetails(token1, dmId1 + 1).body).toStrictEqual({ error: 'error' });
+    expect(requestDmDetails(token1, dmId1 + 1).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('dmId is valid but authorised user is not a member', () => {
-    expect(requestDmDetails(token3, dmId1).body).toStrictEqual({ error: 'error' });
+    expect(requestDmDetails(token3, dmId1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });
 
@@ -43,7 +44,9 @@ describe('Working cases', () => {
   });
 
   test('Correct output', () => {
-    expect(requestDmDetails(token2, dmId1).body).toStrictEqual(expect.objectContaining(
+    const res = requestDmDetails(token2, dmId1);
+    expect(res.statusCode).toStrictEqual(OK);
+    expect(res.body).toStrictEqual(expect.objectContaining(
       {
         name: 'davidpei, garyang, steveberrospi',
         members: expect.arrayContaining([expect.objectContaining(

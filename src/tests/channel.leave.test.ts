@@ -1,5 +1,5 @@
 import { requestClear, requestRegister, requestChannelsCreate, requestChannelInvite, requestChannelDetails, requestChannelLeave } from './request';
-// import { OK, INPUT_ERROR } from './request';
+import { OK, INPUT_ERROR, AUTHORISATION_ERROR } from './request';
 
 describe('channel leave tests', () => {
   requestClear();
@@ -15,9 +15,14 @@ describe('channel leave tests', () => {
     requestChannelInvite(userToken, channelId, userId1);
     requestChannelInvite(userToken, channelId, userId2);
     requestChannelInvite(userToken, channelId, userId3);
-    expect(requestChannelLeave(userToken, channelId - 100).body).toStrictEqual({ error: 'error' });
-    expect(requestChannelLeave(userToken, channelId).body).toStrictEqual({});
-    expect(requestChannelLeave(token2, channelId).body).toStrictEqual({ error: 'error' });
+
+    // Invalid channel id
+    expect(requestChannelLeave(userToken, channelId - 100).statusCode).toStrictEqual(INPUT_ERROR);
+    // Valid parameters
+    expect(requestChannelLeave(userToken, channelId).statusCode).toStrictEqual(OK);
+    // Invalid uid
+    expect(requestChannelLeave(token2, channelId).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+    // Print out results
     expect(requestChannelDetails(token1, channelId).body).toStrictEqual({
       name: 'Xhorhas',
       isPublic: true,

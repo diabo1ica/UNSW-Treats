@@ -12,10 +12,10 @@ Arguments:
 
 Return Value:
     Return { user } on valid authUserId and uId
-    return {error: 'error'} on invalud uId
+    return {error: 'error'} on invalid uId
 */
 
-export function userProfileV1(authUserId: number, uId: number) {
+export function userProfileV1(uId: number) {
   const data: DataStr = getData();
 
   for (const item of data.users) {
@@ -32,7 +32,7 @@ export function userProfileV1(authUserId: number, uId: number) {
     }
   }
 
-  return { error: 'error' };
+  return { error400: 'Invalid Uid' };
 }
 
 function validName(name: string) {
@@ -43,7 +43,7 @@ function validName(name: string) {
 export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: string) {
   const data: DataStr = getData();
   if (!validName(nameFirst) || !validName(nameLast)) {
-    return { error: 'error' };
+    return { error400: 'Invalid first name or last name' };
   }
 
   for (const item of data.users) {
@@ -59,7 +59,7 @@ export function userSetNameV1(authUserId: number, nameFirst: string, nameLast: s
 export function userSetemailV1(authUserId: number, email: string) {
   const data: DataStr = getData();
   if (!validator.isEmail(email)) {
-    return { error: 'error' };
+    return { error400: 'Invalid email' };
   }
 
   for (const item of data.users) {
