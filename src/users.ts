@@ -1,6 +1,8 @@
 import { getData, DataStr, setData } from './dataStore';
 import validator from 'validator';
-import { getCurrentTime, isDmMember, isMember, atLeastOne } from './util';
+import { getCurrentTime, isDmMember, isMember, atLeastOne, validateUserId } from './util';
+import { channelLeave } from './server';
+import { dmLeave } from './dm';
 
 /*
 Provide userId, email, first name, last name and handle for a valid user.
@@ -107,13 +109,15 @@ function usersAllV1(authUserId: number) {
   const allUsers: any[] = [];
 
   for (const item of data.users) {
-    allUsers.push({
-      userId: item.userId,
-      email: item.email,
-      nameFirst: item.nameFirst,
-      nameLast: item.nameLast,
-      handleStr: item.handleStr,
-    });
+    if (item.nameFirst !== 'Removed' && item.nameLast !== 'user') {
+      allUsers.push({
+        userId: item.userId,
+        email: item.email,
+        nameFirst: item.nameFirst,
+        nameLast: item.nameLast,
+        handleStr: item.handleStr,
+      });
+    }
   }
 
   return { users: allUsers };
@@ -237,6 +241,59 @@ export function usersStatsv1 (authUserId: number) {
     messagesExist: messagesExist,
     utilizationRate: utilization,
   };
+}
+
+export function adminRemove (authUserId: number, uId : number) {
+  const data: DataStr = getData();
+  
+  if (validateUserId(uId) === undefined) {
+    return { error400: 'Invalid uId' };
+  }
+
+  let numGlobOwn: number = 0;
+  for (const user of data.users) {
+    if (user.globalPermsId === 1) {
+      numGlobOwn++;
+    }
+  }
+
+  if (numGlobOwn === 1) {
+    return { error400: 'uId is the only global owner' };
+  }
+
+  for (const user of data.users) {
+    if (user.userId === authUserId) {
+      if (user.globalPermsId !== 1) {
+        return { error403: 'authUserId is not a global owner' };
+      }
+    }
+  }
+  
+  for (const channel of data.channels) {
+    if (isMember(uId, channel)) {
+      channelLeave(uId, channel.channelId);
+    }
+  }
+
+  for (const dms of data.dms) {
+    if (isDmMember(uId, dms)) {
+      dmLeave(uId, dms.dmId);
+    }
+  }
+
+  for (const msg of data.messages) {
+    if (msg.uId === uId) {
+      msg.message = 'Removed user';
+    }
+  }
+
+  for (const user of data.users) {
+    if (user.userId === uId) {
+      userSetNameV1(uId, 'Removed', 'user');
+    }
+  }
+
+  return {};
 }
 
 const isAlphaNumeric = (str: string) => /^[A-Za-z0-9]+$/gi.test(str);
