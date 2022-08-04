@@ -53,4 +53,12 @@ export function searchV1 (queryStr: string) {
   };
 }
 
+export function uploadPhoto (imgUrl: string, xStart: number, yStart: number, xEnd: number, yEnd: number) {
+  if (xEnd < xStart || yEnd < yStart) {
+    return { error400: 'Invalid coordinate' };
+  }
+  const sharp = require('sharp');
+
+}
+
 export { clearV1 };
