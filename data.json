@@ -1,19 +1,28 @@
 {
     "users": [
         {
-            "nameFirst": "Steve",
-            "nameLast": "Berrospi",
-            "handleStr": "steveberrospi",
-            "email": "z5363495@unsw.edu.au",
-            "password": "aero123",
+            "nameFirst": "Jingisu",
+            "nameLast": "Kan",
+            "handleStr": "jingisukan",
+            "email": "Alalalyeehoo@gmail.com",
+            "password": "Sk8terboiyo",
             "userId": 1,
             "globalPermsId": 1
+        },
+        {
+            "nameFirst": "Kanoi",
+            "nameLast": "Senpai",
+            "handleStr": "kanoisenpai",
+            "email": "Iloveyou@gmail.com",
+            "password": "Disney123",
+            "userId": 2,
+            "globalPermsId": 2
         }
     ],
     "channels": [
         {
             "channelId": 1,
-            "name": "air",
+            "name": "Channel1",
             "isPublic": true,
             "members": [
                 {
@@ -21,12 +30,20 @@
                     "channelPermsId": 1
                 }
             ],
-            "messages": []
+            "standUp": {
+                "timeFinish": 0,
+                "messageId": 0
+            }
         }
     ],
     "dms": [],
-    "tokenArray": [],
-    "userIdCounter": 1,
+    "messages": [],
+    "tokenArray": [
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTYxOTE1MjMwNiwiaXNzIjoiMTY1OTYxOTE1MjMwNiJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTYxOTE1MjMzNSwiaXNzIjoiMTY1OTYxOTE1MjMzNSJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTYxOTE1MjM1NiwiaXNzIjoiMTY1OTYxOTE1MjM1NiJ9."
+    ],
+    "userIdCounter": 2,
     "channelIdCounter": 1,
     "dmIdCounter": 0,
     "messageIdCounter": 0
