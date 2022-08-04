@@ -7,7 +7,7 @@ import { channelInviteV1, removeowner, channelMessagesV1, channelAddownerV1, cha
 import { getData, setData, DataStr } from './dataStore';
 import { clearV1, searchV1 } from './other';
 import * as jose from 'jose';
-import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, userStatsv1 } from './users';
+import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, userStatsv1, usersStatsv1, adminRemove } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1 } from './channel';
@@ -376,6 +376,17 @@ app.get ('/user/stats/v1', (req, res) => {
   } else {
     const authUserId = decodeToken(token);
     const statusObj = userStatsv1(authUserId);
+    res.json(statusObj);
+  }
+});
+
+app.get ('/users/stats/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const authUserId = decodeToken(token);
+    const statusObj = usersStatsv1(authUserId);
     res.json(statusObj);
   }
 });
@@ -807,6 +818,38 @@ app.get('/users/all/v1', (req, res, next) => {
 });
 
 /*
+Server route for admin/user/remove/v1, calls and responds with the output
+of adminRemove
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    uId (number)      - id that wanted to be remove
+Return Value:
+    Returns { error400 } if uId is invalid or uId is the only global owner.
+    Returns { error403 } if authUserId is not a global owner
+    Returns {} if successfull.
+*/
+
+app.delete ('/admin/user/remove/v1', (req, res) => {
+  const token = req.header('token');
+  const uId = parseInt(req.query.uId as string);
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const authUserId = decodeToken(token);
+    const statusObj = adminRemove(authUserId, uId);
+      if (statusObj.error400) {
+        throw HTTPError (INPUT_ERROR, 'Invalid uId or uId is the only global owner');
+      } 
+      if (statusObj.error403) {
+        throw HTTPError (INPUT_ERROR, 'authUserId is not a global owner');
+      } 
+      res.json(statusObj);
+  }
+});
+
+/*
 Server route for message/send/v1, calls and responds with the output
 of messageSendV1
 
@@ -1024,7 +1067,7 @@ Return values :
     - Returns { error: 'error  } if chId does not exist in the channels array
     - Returns { error: 'error' } if the token points to a uid that doesn't exist in the channel's members array
 */
-function channelLeave(userId: number, chId: number) {
+export function channelLeave(userId: number, chId: number) {
   const data: DataStr = getData();
   // Find channel in channel array
   for (const channel of data.channels) {
