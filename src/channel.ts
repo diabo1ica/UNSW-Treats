@@ -1,7 +1,7 @@
 import HTTPError from 'http-errors';
 import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { validateUserId, getChannel, getDm, isMember, isDmMember, OWNER, MEMBER } from './util';
+import { validateUserId, getChannel, getDm, isMember, isDmMember, MEMBER } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
 import { isReacted, getChannelMessages, sortMessages } from './util';
 // Display channel details of channel with channelId
@@ -239,7 +239,7 @@ Return Value:
 export function messageSendV1(authUserId: number, channelId: number, message: string) {
   const data: DataStr = getData();
   const channelObj = getChannel(channelId);
-  const currTime: number = getCurrentTime();
+
   if (message.length > 1000) {
     throw HTTPError(INPUT_ERROR, 'message length exceeded 1000');
   }
@@ -257,13 +257,15 @@ export function messageSendV1(authUserId: number, channelId: number, message: st
   }
 
   data.messageIdCounter += 1;
-  data.messages.push({
+  data.messages.unshift({
     messageId: data.messageIdCounter,
     uId: authUserId,
     message: message,
-    timeSent: currTime,
+    timeSent: getCurrentTime(),
     isPinned: false,
+    reacts: [],
     channelId: channelId,
+    dmId: undefined,
   });
 
   setData(data);
@@ -295,7 +297,7 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
   }
 
   // call message remove if message is empty string
-  if (message === "") {
+  if (message === '') {
     return messageRemoveV1(authUserId, messageId);
   }
 
@@ -321,10 +323,7 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
         if (isSender(authUserId, messageId) === false) {
           throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to edit message');
         }
-      }
-
-      // messageId is found in channel
-      else {
+      } else {
         channelObj = getChannel(item.channelId);
         if (isChannelOwner(authUserId, channelObj) === true) {
           item.message = message;
@@ -388,10 +387,7 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
         if (isSender(authUserId, messageId) === false) {
           throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to remove message');
         }
-      }
-
-      // messageId is found in channel
-      else {
+      } else {
         channelObj = getChannel(item.channelId);
         if (isChannelOwner(authUserId, channelObj) === true) {
           data.messages.splice(index, 1);

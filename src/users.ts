@@ -1,5 +1,5 @@
 import HTTPError from 'http-errors';
-import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
+import { INPUT_ERROR } from './tests/request';
 import { getData, DataStr, setData } from './dataStore';
 import validator from 'validator';
 

@@ -29,9 +29,9 @@ export interface Message {
   message: string,
   timeSent: number,
   isPinned: boolean,
-  reacts?: React[],
-  dmId?: number,
-  channelId?: number,
+  reacts: React[],
+  dmId: number,
+  channelId: number,
 }
 
 export interface StandUp {

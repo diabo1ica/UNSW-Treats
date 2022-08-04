@@ -123,6 +123,34 @@ export const requestUsersProfileSethandle = (token: string, handleStr: string) =
   return requestHelper('PUT', '/user/profile/sethandle/v2', { token: token, handleStr: handleStr });
 };
 
+export const requestMessageSendlater = (token: string, channelId: number, message: string, timeSent: number) => {
+  return requestHelper('POST', '/message/sendlater/v1', { token: token, channelId: channelId, message: message, timeSent: timeSent });
+};
+
+export const requestAdminPermChange = (token: string, uId: number, PermissionId: number) => {
+  return requestHelper('POST', '/admin/userpermission/change/v1', { token: token, uId: uId, PermissionId: PermissionId });
+};
+
+export const requestMessageUnpin = (token: string, messageId: number) => {
+  return requestHelper('POST', '/message/unpin/v1', { token: token, messageId: messageId });
+};
+
+export const requestMessagePin = (token: string, messageId: number) => {
+  return requestHelper('POST', '/message/pin/v1', { token: token, messageId: messageId });
+};
+
+export const requestMessageUnreact = (token: string, messageId: number, reactId: number) => {
+  return requestHelper('POST', '/message/unreact/v1', { token: token, messageId: messageId, reactId: reactId });
+};
+
+export const requestMessageReact = (token: string, messageId: number, reactId: number) => {
+  return requestHelper('POST', '/message/react/v1', { token: token, messageId: messageId, reactId: reactId });
+};
+
+export const requestMessageShare = (token: string, ogMessageId: number, message: string, channelId: number, dmId: number) => {
+  return requestHelper('POST', '/message/share/v1', { token: token, ogMessageId: ogMessageId, message: message, channelId: channelId, dmId: dmId });
+};
+
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   let qs = {};
   let json = {};

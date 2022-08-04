@@ -8,8 +8,6 @@ let channelPublic: number;
 let channelPrivate: number;
 
 describe('Test suite for /channel/join/v2', () => {
-
-
   beforeEach(() => {
     requestClear();
     usertoken1 = requestRegister('apple@gmail.com', 'apple10', 'Apple', 'Tree').body.token;

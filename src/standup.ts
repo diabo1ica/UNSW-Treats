@@ -63,4 +63,3 @@ export function sendStandUp(uId: number, channelId: number, message: string) {
   setData(data);
   return {};
 }
-
