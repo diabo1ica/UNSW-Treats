@@ -1,9 +1,7 @@
 import { getData, setData, Message, VALIDREACTS, DataStr, Channel, Dm } from './dataStore';
-import { isChannelOwner, isDmOwner } from './util';
+import { isChannelOwner, isDmOwner, getCurrentTime, generateMessageId } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { messageSendV1 } from './channel';
-import { messageSendDm } from './dm';
 import { getChannel, isDmMember, getDm, getMessage, isMember, getChannelPerms, MEMBER, getDmPerms, getReact, isReacted, getGlobalPerms } from './util';
 import { reactNotifCh } from './notification';
 
@@ -107,17 +105,16 @@ export function messsageUnpinV1(authUserId: number, messageId: number) {
   const message = getMessage(messageId);
 
   if (message === undefined) throw HTTPError(INPUT_ERROR, 'Invalid message'); // Message isn't valid
+  if (message.isPinned === false) throw HTTPError(INPUT_ERROR, 'Message is not pinned'); // message not pined
   if (message.channelId !== undefined) {
     const channelObj = getChannel(message.channelId);
-    if (!isMember(authUserId, channelObj)) throw HTTPError(INPUT_ERROR, 'Invalid message'); // message not accessible in channel
+    if (!isMember(authUserId, channelObj)) throw HTTPError(INPUT_ERROR, 'no access to channel'); // message not accessible in channel
     if (!isChannelOwner(authUserId, channelObj)) throw HTTPError(AUTHORISATION_ERROR, 'you are not owner'); // no owner permission
   } else {
     const dmObj = getDm(message.dmId);
-    if (!isDmMember(authUserId, dmObj)) throw HTTPError(INPUT_ERROR, 'Invalid message'); // message not accessible in dm
+    if (!isDmMember(authUserId, dmObj)) throw HTTPError(INPUT_ERROR, 'no access to dm'); // message not accessible in dm
     if (!isDmOwner(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'you are not owner'); // no owner permission
   }
-
-  if (message.isPinned === false) throw HTTPError(INPUT_ERROR, 'Message is not pinned'); // message not pined
 
   message.isPinned = false;
   setData(data);
@@ -148,26 +145,38 @@ export function messsageShareV1(authUserId: number, ogMessageId: number, message
   const dmObj: Dm = getDm(dmId);
   const channelObj: Channel = getChannel(channelId);
   const messageObj: Message = getMessage(ogMessageId);
-  let messageIdx;
 
   if (messageObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid ogmessage');
   if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'lenght is over 1000');
-  if (dmObj === undefined && channelId === -1) throw HTTPError(INPUT_ERROR, 'Invalid dmId or channelId');
-  if (dmId === -1 && channelObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid dmId or channelId');
+  if (dmObj === undefined && channelId === -1) throw HTTPError(INPUT_ERROR, 'Invalid dmId');
+  if (dmId === -1 && channelObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid channelId');
   if (dmId !== -1 && channelId !== -1) throw HTTPError(INPUT_ERROR, 'neither dmId nor channelId is -1');
+  const messageIdx = generateMessageId();
 
   if (messageObj.channelId !== undefined) {
-    if (!isMember(authUserId, getChannel(messageObj.channelId))) throw HTTPError(INPUT_ERROR, 'Invalid message');
+    if (!isMember(authUserId, getChannel(messageObj.channelId))) throw HTTPError(AUTHORISATION_ERROR, 'no access to dm');
+    data.messages.unshift({
+      messageId: messageIdx,
+      uId: authUserId,
+      message: messageObj.message + message,
+      timeSent: getCurrentTime(),
+      isPinned: false,
+      reacts: [],
+      channelId: channelId,
+      dmId: undefined,
+    });
   } else {
-    if (!isDmMember(authUserId, getDm(messageObj.dmId))) throw HTTPError(INPUT_ERROR, 'Invalid message');
-  }
-
-  if (channelId === -1) {
-    if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'no access to dm');
-    messageIdx = messageSendDm(authUserId, dmId, messageObj.message + message);
-  } else {
-    if (!isMember(authUserId, channelObj)) throw HTTPError(AUTHORISATION_ERROR, 'no access to channel');
-    messageIdx = messageSendV1(authUserId, channelId, messageObj.message + message);
+    if (!isDmMember(authUserId, getDm(messageObj.dmId))) throw HTTPError(AUTHORISATION_ERROR, 'no access to channel');
+    data.messages.unshift({
+      messageId: messageIdx,
+      uId: authUserId,
+      message: messageObj.message + message,
+      timeSent: getCurrentTime(),
+      isPinned: false,
+      reacts: [],
+      channelId: undefined,
+      dmId: dmId,
+    });
   }
 
   setData(data);

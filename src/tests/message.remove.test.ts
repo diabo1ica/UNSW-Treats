@@ -57,7 +57,7 @@ describe('Test suite dm for /message/remove/v1', () => {
     usertoken1 = requestRegister('apple@gmail.com', 'apple10', 'Apple', 'Tree').body.token;
     usertoken2 = requestRegister('banana@gmail.com', 'banana10', 'Banana', 'Tree').body.token;
     userId2 = requestLogin('banana@gmail.com', 'banana10').body.authUserId;
-    dmId1 = requestDmCreate(usertoken1, [userId2]).body.channelId;
+    dmId1 = requestDmCreate(usertoken1, [userId2]).body.dmId;
   });
 
   test('message remove success', () => {

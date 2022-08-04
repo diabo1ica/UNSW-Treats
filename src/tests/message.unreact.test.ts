@@ -33,11 +33,11 @@ describe('Error cases', () => {
   });
 
   test('User is not a member of the channel', () => {
-    expect(requestMessageUnreact(user2.token, messageId2, THUMBSUP).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+    expect(requestMessageUnreact(user2.token, messageId2, THUMBSUP).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('User is not a member of the DM', () => {
-    expect(requestMessageUnreact(user3.token, messageId1, THUMBSUP).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+    expect(requestMessageUnreact(user3.token, messageId1, THUMBSUP).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('The user has not used react ID for a message in DM', () => {
@@ -60,10 +60,10 @@ describe('Working cases', () => {
     messageId1 = requestSendDm(user1.token, dmId, 'PIN ME').body.messageId;
     messageId2 = requestMessageSend(user3.token, channelId, 'PIN ME TOO').body.messageId;
     requestChannelJoin(user1.token, channelId);
-    requestMessageReact(user1.token, messageId1, THUMBSUP);
   });
 
   test('unreact in DM', () => {
+    requestMessageReact(user1.token, messageId1, THUMBSUP);
     expect(requestMessageUnreact(user1.token, messageId1, THUMBSUP).statusCode).toStrictEqual(OK);
     expect(requestDmMessages(user2.token, dmId, 0).body.messages).toStrictEqual([
       {
@@ -82,7 +82,8 @@ describe('Working cases', () => {
   });
 
   test('unreact in channel', () => {
-    expect(requestMessageUnreact(user3.token, messageId2, THUMBSUP).statusCode).toStrictEqual(OK);
+    requestMessageReact(user1.token, messageId2, THUMBSUP);
+    expect(requestMessageUnreact(user1.token, messageId2, THUMBSUP).statusCode).toStrictEqual(OK);
     expect(requestChannelMessages(user1.token, channelId, 0).body.messages).toStrictEqual([
       {
         messageId: expect.any(Number),

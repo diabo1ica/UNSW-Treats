@@ -77,7 +77,7 @@ describe('Test suite dm for /message/edit/v1', () => {
     usertoken2 = requestRegister('banana@gmail.com', 'banana10', 'Banana', 'Tree').body.token;
     userId2 = requestLogin('banana@gmail.com', 'banana10').body.authUserId;
     usertoken3 = requestRegister('123abc@gmail.com', '123abc', '123', 'abc').body.token;
-    dmId1 = requestDmCreate(usertoken1, [userId2]).body.channelId;
+    dmId1 = requestDmCreate(usertoken1, [userId2]).body.dmId;
   });
 
   test('message edited success', () => {

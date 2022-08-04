@@ -1,7 +1,7 @@
 import HTTPError from 'http-errors';
 import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { channelMessageTemplate } from './util';
+import { channelMessageTemplate, getGlobalPerms, OWNER } from './util';
 import { isReacted, getChannelMessages, sortMessages, generateMessageId } from './util';
 import { validateUserId, getChannel, getDm, isMember, isDmMember, MEMBER } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
@@ -233,11 +233,12 @@ export function channelAddownerV1(authUserId: number, channelId: number, uId: nu
       // check if uId already owner
       if (isChannelOwner(uId, channel) === true) throw HTTPError(INPUT_ERROR, 'uId already an owner of channel');
       // check authuserId is not owner
-      if (isChannelOwner(authUserId, channel) === false) throw HTTPError(AUTHORISATION_ERROR, 'permission restricted');
-
+      if (isChannelOwner(authUserId, channel) === false && getGlobalPerms(authUserId) === MEMBER) throw HTTPError(AUTHORISATION_ERROR, 'permission restricted');
+      // global owner cannot add theirself as owner
+      if (getGlobalPerms(authUserId) === OWNER && authUserId === uId) throw HTTPError(AUTHORISATION_ERROR, 'global onwer cannot selfpromote');
       for (const item of channel.members) {
         if (item.uId === uId) {
-          item.channelPermsId = 1;
+          item.channelPermsId = OWNER;
           setData(data);
           return {};
         }

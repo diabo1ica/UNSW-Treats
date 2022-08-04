@@ -17,19 +17,21 @@ describe('Error cases', () => {
     messageId1 = requestSendDm(user1.token, dmId, 'PIN ME').body.messageId;
     messageId2 = requestMessageSend(user3.token, channelId, 'PIN ME TOO').body.messageId;
     requestChannelJoin(user1.token, channelId);
-    requestMessagePin(user3.token, messageId2);
   });
 
   test('Invalid messageId', () => {
+    requestMessagePin(user1.token, messageId1);
     expect(requestMessageUnpin(user1.token, messageId1 - 1000).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('User is not a member of the channel', () => {
-    expect(requestMessageUnpin(user2.token, messageId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+    requestMessagePin(user3.token, messageId2);
+    expect(requestMessageUnpin(user2.token, messageId2).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('User is not a member of the DM', () => {
-    expect(requestMessageUnpin(user3.token, messageId1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+    requestMessagePin(user1.token, messageId1);
+    expect(requestMessageUnpin(user3.token, messageId1).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   test('Message is not pinned', () => {
@@ -37,11 +39,14 @@ describe('Error cases', () => {
   });
 
   test('User does not have owner permissions in channel', () => {
-    expect(requestMessageUnpin(user3.token, messageId1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+    requestChannelJoin(user2.token, channelId);
+    requestMessagePin(user3.token, messageId2);
+    expect(requestMessageUnpin(user2.token, messageId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('User does not have owner permissions in DM', () => {
-    expect(requestMessageUnpin(user1.token, messageId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+    requestMessagePin(user1.token, messageId1);
+    expect(requestMessageUnpin(user2.token, messageId1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 });
 
@@ -56,10 +61,10 @@ describe('Working cases', () => {
     messageId1 = requestSendDm(user1.token, dmId, 'PIN ME').body.messageId;
     messageId2 = requestMessageSend(user3.token, channelId, 'PIN ME TOO').body.messageId;
     requestChannelJoin(user1.token, channelId);
-    requestMessagePin(user3.token, messageId2);
   });
 
   test('success in channel', () => {
+    requestMessagePin(user3.token, messageId2);
     expect(requestMessageUnpin(user3.token, messageId2).statusCode).toStrictEqual(OK);
     expect(requestChannelMessages(user1.token, channelId, 0).body.messages).toStrictEqual([
       {
@@ -74,6 +79,7 @@ describe('Working cases', () => {
   });
 
   test('success in dm', () => {
+    requestMessagePin(user1.token, messageId1);
     expect(requestMessageUnpin(user1.token, messageId1).statusCode).toStrictEqual(OK);
     expect(requestDmMessages(user2.token, dmId, 0).body.messages).toStrictEqual([
       {

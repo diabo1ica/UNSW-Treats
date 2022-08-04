@@ -175,10 +175,9 @@ Response :
 */
 app.get('/channel/details/v3', (req, res) => {
   const token: string = req.header('token');
-  console.log(token);
-  console.log(decodeToken(token));
+
   const chId: number = parseInt(req.query.channelId as string);
-  console.log('chId : ', chId);
+
   if (!validToken(token)) {
     throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot access channel details');
   } else {
@@ -797,7 +796,7 @@ app.post('/channel/join/v3', (req, res) => {
   const { channelId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelJoinV1(authUserId, channelId));
@@ -825,7 +824,7 @@ app.post('/channel/addowner/v2', (req, res) => {
   const token: string = req.header('token');
   const { channelId, uId } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelAddownerV1(authUserId, channelId, uId));
@@ -849,7 +848,7 @@ app.put('/user/profile/sethandle/v2', (req, res) => {
   const token: string = req.header('token');
   const { handleStr } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(userProfileSethandleV1(authUserId, handleStr));
@@ -869,7 +868,7 @@ Return Value:
 app.get('/users/all/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   }
   const authUserId = decodeToken(token);
   res.json(usersAllV1(authUserId));
@@ -896,7 +895,7 @@ app.post('/message/send/v2', (req, res) => {
   const token: string = req.header('token');
   const { channelId, message } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(messageSendV1(authUserId, channelId, message));
@@ -925,7 +924,7 @@ app.put('/message/edit/v2', (req, res) => {
   const token: string = req.header('token');
   const { messageId, message } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(messageEditV1(authUserId, messageId, message));
@@ -950,7 +949,7 @@ Return Value:
 app.delete('/message/remove/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const messageId: number = parseInt(req.query.messageId as string);
     const authUserId = decodeToken(token);
@@ -962,12 +961,10 @@ app.delete('/message/remove/v2', (req, res) => {
 app.post('/admin/userpermission/change/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const { uId, permissionId } = req.body;
     const authUserId = decodeToken(token);
-    console.log(permissionId as string);
-    console.log(uId as string);
     res.json(adminUserPermChange(authUserId, uId, permissionId));
   }
 });
@@ -976,7 +973,7 @@ app.post('/admin/userpermission/change/v1', (req, res) => {
 app.post('/message/sendlater/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const { channelId, message, timeSent } = req.body;
     const authUserId = decodeToken(token);
@@ -989,7 +986,7 @@ app.post('/message/sendlater/v1', (req, res) => {
 app.post('/message/unpin/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const { messageId } = req.body;
     const authUserId = decodeToken(token);
@@ -1002,7 +999,7 @@ app.post('/message/unpin/v1', (req, res) => {
 app.post('/message/unreact/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const { messageId, reactId } = req.body;
     const authUserId = decodeToken(token);
@@ -1015,12 +1012,10 @@ app.post('/message/unreact/v1', (req, res) => {
 app.post('/message/share/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const { ogMessageId, message, channelId, dmId } = req.body;
     const authUserId = decodeToken(token);
-    console.log(dmId as string);
-    console.log(channelId as string);
     res.json(messsageShareV1(authUserId, ogMessageId, message, channelId, dmId));
   }
 });
