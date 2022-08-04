@@ -1,9 +1,9 @@
 import HTTPError from 'http-errors';
 import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { validateUserId, getChannel, getDm, isMember, isDmMember, MEMBER } from './util';
+import { validateUserId, getChannel, getDm, isMember, isDmMember, MEMBER, channelMessageTemplate } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
-import { isReacted, getChannelMessages, sortMessages } from './util';
+import { isReacted, getChannelMessages, sortMessages, generateMessageId } from './util';
 // Display channel details of channel with channelId
 // Arguements:
 //    authUserId (number)   - User id of user trying to access channel details
@@ -459,6 +459,27 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   }
 
   return {};
+}
+
+export function messageSendlaterv1 (authUserId: number, channelId: number, message: string, timeSent: number) {
+  const data = getData();
+  const channelObj = getChannel(channelId);
+  if (channelObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (message.length < 1) throw HTTPError(INPUT_ERROR, 'Empty message');
+  if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message greater than 1000 characters');
+  if (timeSent < getCurrentTime()) throw HTTPError(INPUT_ERROR, 'Cannot send message into the past!');
+  if (!isMember(authUserId, channelObj)) throw HTTPError(AUTHORISATION_ERROR, 'Not a member of the channel');
+  const newMessage = channelMessageTemplate();
+  newMessage.messageId = generateMessageId();
+  newMessage.timeSent = timeSent;
+  newMessage.message = message;
+  newMessage.uId = authUserId;
+  newMessage.channelId = channelId;
+  data.messages.unshift(newMessage);
+  setData(data);
+  return {
+    messageId: newMessage.messageId
+  };
 }
 
 export { channelDetailsV1, channelMessagesV1 };
