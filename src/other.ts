@@ -33,7 +33,9 @@ export function searchV1 (queryStr: string) {
   const returnMessage: any[] = [];
   
   for (const msg of data.messages) {
-    if (msg.message.includes(queryStr)) {
+    let lowMsg: string = msg.message.toLowerCase();
+    let lowQuery: string = queryStr.toLowerCase();
+    if (lowMsg.includes(lowQuery)) {
       returnMessage.push( {
         messageId: msg.messageId,
         uId: msg.uId,
