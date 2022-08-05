@@ -57,18 +57,23 @@ export function uploadImage (authUserId: number, imgUrl: string, xStart: number,
   if (xEnd <= xStart || yEnd <= yStart) {
     return { error400: 'Invalid coordinate' };
   }
-
+  const sharp = require('sharp');
   const res = request(
     'GET',
     imgUrl
   );
+
   const body = res.getBody();
   const pathWay = 'src/Image/' + String(authUserId) + '.jpg';
   fs.writeFileSync(pathWay, body, { flag: 'w' });
 
+  const dimension = sharp(pathWay).metadata();
+  if (xStart < 0 || xEnd > dimension.width || yStart < 0 || yEnd > dimension.width) {
+    return { error400: 'Coordinate not in dimension' };
+  }
+
   const xCoordinate = xEnd - xStart;
   const yCoordinate = yEnd - yStart;
-  const sharp = require('sharp');
   try {
     sharp(pathWay).extract({ width: xCoordinate, height: yCoordinate, left: xStart, top: yStart }).toFile('src/Image/' + String(authUserId) + 'edited.jpg');
     console.log('Cropping succesful');
