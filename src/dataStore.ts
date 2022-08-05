@@ -73,6 +73,21 @@ interface Reset {
   resetCode: string
 }
 
+export interface update {
+  numChannelsExist: number,
+  numDmsExist: number,
+  numMessagesExist: number,
+  timeStamp: number,
+}
+
+export interface userUpdate {
+  uId: number,
+  numChannelsJoined: number,
+  numDmsJoined: number,
+  numMessagesSent: number,
+  timeStamp: number,
+}
+
 export interface DataStr {
   users: User[],
   channels: Channel[],
@@ -83,7 +98,10 @@ export interface DataStr {
   channelIdCounter: number,
   dmIdCounter: number,
   messageIdCounter: number,
-  resetArray: Reset[]
+  resetArray: Reset[],
+  updates: update[],
+  userUpdates: userUpdate[],
+  removedUsers: number[],
 }
 
 let data: DataStr = {
@@ -96,7 +114,10 @@ let data: DataStr = {
   channelIdCounter: 0,
   dmIdCounter: 0,
   messageIdCounter: 0,
-  resetArray: []
+  resetArray: [],
+  updates: [],
+  userUpdates: [],
+  removedUsers: []
 };
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1

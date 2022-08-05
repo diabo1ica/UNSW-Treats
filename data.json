@@ -1,28 +1,11 @@
 {
-    "users": [
-        {
-            "nameFirst": "Jingisu",
-            "nameLast": "Kan",
-            "handleStr": "jingisukan",
-            "email": "Alalalyeehoo@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5Njg5MjE4NjM1LCJpc3MiOiIxNjU5Njg5MjE4NjM1In0.",
-            "userId": 1,
-            "globalPermsId": 1,
-            "counterRemoved": 1,
-            "profileImgUrl": "",
-            "notifications": []
-        }
-    ],
-    "channels": [],
-    "dms": [],
-    "messages": [],
-    "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY4OTIxODYzNiwiaXNzIjoiMTY1OTY4OTIxODYzNiJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY4OTIxODY5NywiaXNzIjoiMTY1OTY4OTIxODY5NyJ9."
-    ],
+    "users": [],
     "userIdCounter": 1,
     "channelIdCounter": 0,
     "dmIdCounter": 0,
     "messageIdCounter": 0,
-    "resetArray": []
+    "resetArray": [],
+    "removedUsers": [],
+    "updates": [],
+    "userUpdates": []
 }

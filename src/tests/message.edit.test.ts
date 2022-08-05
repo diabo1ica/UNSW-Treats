@@ -6,6 +6,7 @@ describe('Test suite channel for /message/edit/v1', () => {
   let usertoken1: string;
   let usertoken2: string;
   let channelId1: number;
+  let channelId2: number;
   let manycharacter: string;
   let messageId: number;
 
@@ -31,13 +32,22 @@ describe('Test suite channel for /message/edit/v1', () => {
     expect(messageObj.body).toStrictEqual({});
   });
 
+  test('message edited by global owner that is member sucess', () => {
+    channelId2 = requestChannelsCreate(usertoken2, 'AERO2', true).body.channelId;
+    requestChannelJoin(usertoken1, channelId2);
+    messageId = requestSendChannelMessage(usertoken2, channelId2, 'Helloooo!!!!!').body.messageId;
+    const messageObj = requestMessageEdit(usertoken1, messageId, 'goodbye');
+    expect(messageObj.statusCode).toStrictEqual(OK);
+    expect(messageObj.body).toStrictEqual({});
+  });
+
   test('Invalid token', () => {
     messageId = requestSendChannelMessage(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
     expect(requestMessageEdit(usertoken1 + '-', messageId, '').statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   // user with owner permission channel/global can edit other's message
-  test('global/channel owner edit any message success', () => {
+  test('channel owner edit any message success', () => {
     requestChannelJoin(usertoken2, channelId1);
     messageId = requestSendChannelMessage(usertoken2, channelId1, 'Helloooo!!!!!').body.messageId;
     const messageObj = requestMessageEdit(usertoken1, messageId, 'goodbye');
@@ -101,7 +111,7 @@ describe('Test suite dm for /message/edit/v1', () => {
   });
 
   // user with owner permission channel/global can edit other's message
-  test('global/dm owner edit any message success', () => {
+  test('dm owner edit any message success', () => {
     messageId = requestSendDm(usertoken2, dmId1, 'Helloooo!!!!!').body.messageId;
     const messageObj = requestMessageEdit(usertoken1, messageId, 'goodbye');
     expect(messageObj.statusCode).toStrictEqual(OK);
