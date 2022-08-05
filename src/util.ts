@@ -271,6 +271,11 @@ export function filterMessagesSent(updates: userUpdate[]): void {
   }
 }
 
+export function isUserUpdateValid (update: userUpdate): boolean {
+  if (update.timeStamp <= getCurrentTime()) return true;
+  return false;
+}
+
 export function getUserInvolvement(numChannelsJoined: number, numDmsJoined: number, numMsgsSent: number) {
   const denominator = getNumChannels() + getNumDms() + getNumMessagesSent();
   if (denominator === 0) return 0;
@@ -281,7 +286,7 @@ export function getUserInvolvement(numChannelsJoined: number, numDmsJoined: numb
 
 export function getUserUpdates(authUserId: number) {
   const data = getData();
-  return data.userUpdates.filter(update => update.uId === authUserId);
+  return data.userUpdates.filter(update => update.uId === authUserId && isUserUpdateValid(update));
 }
 
 export function deepCopy(object: any) {
