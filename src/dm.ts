@@ -321,8 +321,7 @@ export function sendLaterDm(authUserId: number, dmId: number, message: string, t
   setData(data);
   tagNotifDm(authUserId, message, dmId);
   const delay = timeSent - getCurrentTime();
-  setTimeout(() => stampUserUpdate(authUserId, timeSent), delay);
-  setTimeout(() => stampWorkspaceUpdate(timeSent), delay);
+  setTimeout(() => {stampUserUpdate(authUserId, timeSent); stampWorkspaceUpdate(timeSent)}, delay * 1000);
   return {
     messageId: newMessage.messageId
   };

@@ -98,7 +98,7 @@ function stUpMessageSend(authUserId: number, channelId: number, message: string)
   });
   setData(data);
   const delay = getChannel(channelId).standUp.timeFinish - (getCurrentTime());
-  setTimeout(() => stampUserUpdate(authUserId, timeFinish), delay);
-  setTimeout(() => stampWorkspaceUpdate(timeFinish), delay);
+  setTimeout(() => stampUserUpdate(authUserId, timeFinish), delay * 1000);
+  setTimeout(() => stampWorkspaceUpdate(timeFinish), delay * 1000);
   return { messageId: data.messageIdCounter };
 }

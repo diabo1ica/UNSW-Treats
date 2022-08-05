@@ -543,8 +543,8 @@ export function messageSendlaterv1 (authUserId: number, channelId: number, messa
   setData(data);
   tagNotifCh(authUserId, message, channelId);
   const delay = timeSent - getCurrentTime();
-  setTimeout(() => stampUserUpdate(authUserId, timeSent), delay);
-  setTimeout(() => stampWorkspaceUpdate(timeSent), delay);
+  setTimeout(() => stampUserUpdate(authUserId, timeSent), delay * 1000);
+  setTimeout(() => stampWorkspaceUpdate(timeSent), delay * 1000);
   return {
     messageId: newMessage.messageId
   };
