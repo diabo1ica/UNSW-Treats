@@ -318,21 +318,21 @@ export function getUpdates() {
 }
 
 export function filterChannelsExist(updates: update[]): void {
-  for (let item of updates) {
+  for (const item of updates) {
     delete item.numDmsExist;
-    delete item.numMessagesExist
+    delete item.numMessagesExist;
   }
 }
 
 export function filterDmsExist(updates: update[]): void {
-  for (let item of updates) {
+  for (const item of updates) {
     delete item.numChannelsExist;
     delete item.numMessagesExist;
   }
 }
 
 export function filterMessagesExist(updates: update[]): void {
-  for (let item of updates) {
+  for (const item of updates) {
     delete item.numChannelsExist;
     delete item.numDmsExist;
   }
@@ -346,7 +346,7 @@ export function NumCurrentUsers(): number {
 export function getUtilization() {
   let numUsersWhoHaveJoinedAtLeastOneChannelOrDm = 0;
   const data = getData();
-  for (let user of data.users) {
+  for (const user of data.users) {
     if (data.channels.some(channel => isMember(user.userId, channel)) || data.dms.some(dm => isDmMember(user.userId, dm))) numUsersWhoHaveJoinedAtLeastOneChannelOrDm++;
   }
   const currentUsers = NumCurrentUsers();
@@ -354,14 +354,14 @@ export function getUtilization() {
   return numUsersWhoHaveJoinedAtLeastOneChannelOrDm / currentUsers;
 }
 
-export function stampWorkspaceUpdate(timeStamp: number)  {
+export function stampWorkspaceUpdate(timeStamp: number) {
   const data = getData();
   const workspaceUpdate: update = {
     numChannelsExist: getNumChannels(),
     numDmsExist: getNumDms(),
     numMessagesExist: getNumMessagesSent(),
     timeStamp: timeStamp,
-  }
-  data.updates.push(workspaceUpdate)
+  };
+  data.updates.push(workspaceUpdate);
   setData(data);
 }

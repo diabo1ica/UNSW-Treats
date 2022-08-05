@@ -179,7 +179,7 @@ export function usersStats() {
       messagesExist: messagesExist,
       utilizationRate: getUtilization()
     }
-  }
+  };
 }
 
 export function adminRemove (authUserId: number, uId : number) {

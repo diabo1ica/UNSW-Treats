@@ -262,7 +262,7 @@ export function dmRemove(id: number, dmId: number) {
       for (let j = 0; j < data.dms[i].members.length; j++) {
         if (data.dms[i].members[j].uId === id && data.dms[i].members[j].dmPermsId === 1) {
           const members = deepCopy(data.dms[i].members);
-          for (let message of data.messages.filter(message => message.dmId === data.dms[i].dmId)) {
+          for (const message of data.messages.filter(message => message.dmId === data.dms[i].dmId)) {
             message.messageId = undefined;
             message.dmId = undefined;
           }

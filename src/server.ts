@@ -443,8 +443,7 @@ app.get('/users/stats/v1', (req, res) => {
   const token = req.header('token');
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(usersStats());
-})
-
+});
 
 /*
 Server route for user/profile/setemail/v1 calls and responds with output
@@ -867,7 +866,6 @@ app.post('/message/pin/v1', (req, res) => {
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(messagePin(decodeToken(token), messageId));
 });
-
 
 /*
 Server route for channel/join/v2, calls and responds with the output
