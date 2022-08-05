@@ -59,7 +59,7 @@ Arguments:
                            their account with.
 
 Return Value:
-    Returns authUserId on email is valid and password is correct
+    Returns {token, authUserId} on email is valid and password is correct
     Returns {error400} on email is invalid
     Returns {error400} on password is incorrect
 */
@@ -90,6 +90,8 @@ function userTemplate() {
     password: '',
     userId: 0,
     globalPermsId: 2,
+    counterRemoved: 1,
+    profileImgUrl: '',
     notifications: []
   };
   return user;
