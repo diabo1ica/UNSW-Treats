@@ -1,33 +1,9 @@
 {
-    "users": [
-        {
-            "nameFirst": "Apple",
-            "nameLast": "Tree",
-            "handleStr": "appletree",
-            "email": "apple@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFwcGxlMTAiLCJpYXQiOjE2NTk2NjU1NDAyNTIsImlzcyI6IjE2NTk2NjU1NDAyNTIifQ.",
-            "userId": 1,
-            "globalPermsId": 1,
-            "notifications": []
-        },
-        {
-            "nameFirst": "Banana",
-            "nameLast": "Tree",
-            "handleStr": "bananatree",
-            "email": "banana@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImJhbmFuYTEwIiwiaWF0IjoxNjU5NjY1NTQwNDU3LCJpc3MiOiIxNjU5NjY1NTQwNDU3In0.",
-            "userId": 2,
-            "globalPermsId": 2,
-            "notifications": []
-        }
-    ],
+    "users": [],
     "channels": [],
     "dms": [],
     "messages": [],
-    "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY2NTU0MDI1NCwiaXNzIjoiMTY1OTY2NTU0MDI1NCJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY2NTU0MDQ1OSwiaXNzIjoiMTY1OTY2NTU0MDQ1OSJ9."
-    ],
+    "tokenArray": [],
     "userIdCounter": 2,
     "channelIdCounter": 0,
     "dmIdCounter": 0,
