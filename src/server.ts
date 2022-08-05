@@ -7,7 +7,7 @@ import { removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1, chann
 import { getData, setData, DataStr } from './dataStore';
 import { clearV1, searchV1, uploadImage } from './other';
 import * as jose from 'jose';
-import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove } from './users';
+import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove, userStats } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, messageSendlaterv1 } from './channel';
@@ -876,6 +876,12 @@ app.post('/message/pin/v1', (req, res) => {
   const { messageId } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(messagePin(decodeToken(token), messageId));
+});
+
+app.get('/user/stats/v1', (req, res) => {
+  const token = req.header('token');
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(userStats(decodeToken(token)));
 });
 
 /*

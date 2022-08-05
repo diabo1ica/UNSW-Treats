@@ -24,6 +24,7 @@ describe('Test standup send', () => {
     requestSendStandUp(token1, channelId, text3);
     const StUpmessage = 'crusadermain: ' + text1 + '\n' + 'dnfcoomer: ' + text2 + '\n' + 'crusadermain: ' + text3;
     expect(res.statusCode).toStrictEqual(OK);
+    sleepFor(5 * 1000);
     const res2 = requestChannelMessages(token1, channelId, 0);
     expect(res2.body).toStrictEqual({
       messages: [{

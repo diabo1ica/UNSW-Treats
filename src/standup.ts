@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { getCurrentTime, getChannel, isMember } from './util';
+import { getCurrentTime, getChannel, isMember, stampUserUpdate } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 
@@ -49,6 +49,7 @@ export function activeStandUp(uId: number, channelId: number) {
       timeFinish: timeFinish
     };
   }
+  if (channel.standUp.timeFinish < getCurrentTime()) channel.standUp.messageId = 0;
   if (channel.standUp.timeFinish > getCurrentTime()) {
     isActive = true;
   }
@@ -65,7 +66,7 @@ export function sendStandUp(uId: number, channelId: number, message: string) {
   if (channel === undefined) throw HTTPError(INPUT_ERROR, 'Invalid channel');
   if (channel.members.find(obj => obj.uId === uId) === undefined) throw HTTPError(AUTHORISATION_ERROR, 'Invalid user');
   if (channel.standUp.timeFinish === undefined) throw HTTPError(INPUT_ERROR, 'StandUp inactive');
-  if (channel.standUp.timeFinish < getCurrentTime()) throw HTTPError(INPUT_ERROR, 'StandUp is over');
+  if (channel.standUp.timeFinish < getCurrentTime()) { channel.standUp.messageId = 0; throw HTTPError(INPUT_ERROR, 'StandUp is over'); }
   const userName: string = data.users.find(obj => obj.userId === uId).handleStr;
   if (channel.standUp.messageId === 0) {
     message = userName + ': ' + message;
@@ -84,16 +85,19 @@ export function sendStandUp(uId: number, channelId: number, message: string) {
 function stUpMessageSend(authUserId: number, channelId: number, message: string) {
   const data = getData();
   data.messageIdCounter += 1;
+  const timeFinish = getChannel(channelId).standUp.timeFinish;
   data.messages.unshift({
     messageId: data.messageIdCounter,
     uId: authUserId,
     message: message,
-    timeSent: getCurrentTime(),
+    timeSent: timeFinish,
     isPinned: false,
     reacts: [],
     channelId: channelId,
     dmId: undefined,
   });
   setData(data);
+  const delay = getChannel(channelId).standUp.timeFinish - (getCurrentTime());
+  setTimeout(() => stampUserUpdate(authUserId, timeFinish), delay);
   return { messageId: data.messageIdCounter };
 }

@@ -1,4 +1,4 @@
-import { getData, setData, Dm, Message, DmMember, DataStr, Channel } from './dataStore';
+import { getData, setData, Dm, Message, DmMember, DataStr, Channel, userUpdate } from './dataStore';
 // creates a template for new DMs
 export const dmTemplate = (): Dm => {
   return {
@@ -104,8 +104,9 @@ export function isMember(userId: number, channelObj: Channel) {
   return channelObj.members.some((member) => member.uId === userId);
 }
 
-export function getCurrentTime() {
-  return Math.floor((new Date()).getTime() / 1000);
+export function getCurrentTime(milliseconds = false) {
+  if (!milliseconds) return Math.floor((new Date()).getTime() / 1000);
+  return (new Date()).getTime();
 }
 
 export function getMessage(messageId: number) {
@@ -127,8 +128,8 @@ export function sortMessages(messages: Message[]) {
   messages.sort((message1, message2) => message2.timeSent - message1.timeSent);
 }
 
-export function isMessageSent(message: Message) {
-  return message.timeSent <= getCurrentTime();
+export function isMessageSent(message: Message, timeSent = getCurrentTime()) {
+  return message.timeSent <= timeSent;
 }
 
 export function getDmPerms(userId: number, dm: Dm) {
@@ -215,4 +216,93 @@ export function getUser(userId: number) {
 export function getGlobalPerms(authUserId: number) {
   const data = getData();
   return data.users.find(user => user.userId === authUserId).globalPermsId;
+}
+
+export function getUserChannelsJoined(authUserId: number): number {
+  const data = getData();
+  return data.channels.filter(channel => isMember(authUserId, channel)).length;
+}
+
+export function getUserDmsJoined(authUserId: number): number {
+  const data = getData();
+  return data.dms.filter(dm => isDmMember(authUserId, dm)).length;
+}
+
+export function getUserMessagesSent(authUserId: number): number {
+  const data = getData();
+  return data.messages.filter(message => message.uId === authUserId && isMessageSent(message)).length;
+}
+
+export function getNumMessagesSent(): number {
+  const data = getData();
+  return data.messages.filter(message => isMessageSent(message)).length;
+}
+
+export function getNumChannels(): number {
+  const data = getData();
+  return data.channels.length;
+}
+
+export function getNumDms(): number {
+  const data = getData();
+  return data.dms.length;
+}
+
+export function filterChannelsJoined(updates: userUpdate[]): void {
+  for (const item of updates) {
+    delete item.numDmsJoined;
+    delete item.numMessagesSent;
+    delete item.uId;
+  }
+}
+
+export function filterDmsJoined(updates: userUpdate[]): void {
+  for (const item of updates) {
+    delete item.numChannelsJoined;
+    delete item.numMessagesSent;
+    delete item.uId;
+  }
+}
+
+export function filterMessagesSent(updates: userUpdate[]): void {
+  for (const item of updates) {
+    delete item.numChannelsJoined;
+    delete item.numDmsJoined;
+    delete item.uId;
+  }
+}
+
+export function isUserUpdateValid (update: userUpdate): boolean {
+  if (update.timeStamp <= getCurrentTime()) return true;
+  return false;
+}
+
+export function getUserInvolvement(numChannelsJoined: number, numDmsJoined: number, numMsgsSent: number) {
+  const denominator = getNumChannels() + getNumDms() + getNumMessagesSent();
+  if (denominator === 0) return 0;
+  const involvement = (numChannelsJoined + numDmsJoined + numMsgsSent) / denominator;
+  if (involvement > 1) return 1;
+  return involvement;
+}
+
+export function getUserUpdates(authUserId: number) {
+  const data = getData();
+  return data.userUpdates.filter(update => update.uId === authUserId && isUserUpdateValid(update));
+}
+
+export function deepCopy(object: any) {
+  return JSON.parse(JSON.stringify(object));
+}
+
+export function stampUserUpdate(authUserId: number, timeStamp: number) {
+  const data = getData();
+  const userUpdate: userUpdate = {
+    numChannelsJoined: getUserChannelsJoined(authUserId),
+    numDmsJoined: getUserDmsJoined(authUserId),
+    numMessagesSent: getUserMessagesSent(authUserId),
+    uId: authUserId,
+    timeStamp: timeStamp
+  };
+  data.userUpdates.push(userUpdate);
+  setData(data);
 }
