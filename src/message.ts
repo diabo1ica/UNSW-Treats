@@ -49,6 +49,22 @@ export function messsageUnreactV1(authUserId: number, messageId: number, reactId
   return {};
 }
 
+/*
+Marked a given message that refer to messageId as "pinned"
+
+Arguments:
+    authUserId (number)    - Identification number of the user calling
+                             the function
+    messageId (number)     - Identification number of the message which will be pinned
+
+Return Value:
+    Returns {} on valid/active token, messageId refer to valid message, message is not yet pinned, messagedID refer to
+    a valid message and authUserId have user permission
+    Returns {error400} on messageId does not refer to valid message
+    Returns {error400} on message already pinned
+    Returns {error403} on messageId is valid but authUserId does not have user permission
+*/
+
 export function messagePin(authUserId: number, messageId: number) {
   const messageObj = getMessage(messageId);
   if (messageObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid message');
@@ -66,6 +82,23 @@ function dmPin(authUserId: number, messageObj: Message) {
   setData(data);
   return {};
 }
+
+/*
+Add a 'react" to a message that refer to messageId
+
+Arguments:
+    authUserId (number)    - Identification number of the user calling
+                             the function
+    messageId (number)     - Identification number of the message which will be reacted
+    reactId (number)       - Identification number of the reaction
+
+Return Value:
+    Returns {} on valid/active token, messageId refer to valid message, valid reactId, the message
+    has not contain a react with ID reactId from authUserId
+    Returns {error400} on messageId does not refer to valid message
+    Returns {error400} on invalid reactId
+    Returns {error400} on the message contain a react with ID reactId from authUserId
+*/
 
 export function messageReact(authUserId: number, messageId: number, reactId: number) {
   const message = getMessage(messageId);

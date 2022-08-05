@@ -15,7 +15,7 @@ Arguments:
 Return Value:
     Returns {dmId} on Valid/active token, uIds doesn't have duplicate uId
     and every uId is valid
-    Returns {error: 'error'} on Invalid/Inactive token, Uids contains duplicate uId or
+    Returns {error400} on Invalid/Inactive token, Uids contains duplicate uId or
     invalid uId are found in uIds
 */
 
@@ -78,9 +78,9 @@ Return Value:
     a message
     Returns {messages, start, -1} on start + 50 is an index which does not
     contain a message.
-    Returns {error: 'error} on start is empty or over 1000 characters, invalid
-    DM, user is not a member of DM, start is greater than the total messages in
-    DM, or invalid/inactive token
+    Returns {error400} on invalid dmId that does not refer to a valid DM
+    Returns {error400} on start that is greater than total number of messages in channel
+    Returns {error403} on valid dmId but authUserId is not a member in DM
 */
 
 export function dmMessages(authUserId: number, dmId: number, start: number) {
@@ -122,8 +122,9 @@ Return Value:
     Returns {messageId} on valid/active token, dmId refers to valid DM,
     message is not empty and is under 1001 characters, user is a member
     of the DM.
-    Returns {error: 'error'} on dmId refers to invalid DM, message is empty,
-    message is over 1000 characters, or user is not a member of the DM.
+    Returns {error400} on invalid dmId that does not refer to a valid DM
+    Returns {error400} on message length that is less than 1 or over 1000 characters
+    Returns {error403} on valid dmId but authUserId is not a member in DM
 */
 
 export function messageSendDm(authUserId: number, dmId: number, message: string) {
@@ -159,8 +160,8 @@ Arguments:
 
 Return Value:
     Returns {name, members} on valid/active token
-    Returns {error: 'error'} on invalid DM or user is not a member
-    of the DM
+    Returns {error400} on invalid dmId that does not refer to a valid DM
+    Returns {error403} on valid dmId but authUserId is not a member in DM
 */
 
 export function dmDetails(authUserId: number, dmId: number) {
@@ -198,8 +199,8 @@ Arguments:
 
 Return Value:
     Returns {} on token is active/valid and user is in DM
-    Returns {error: 'error'} on invalid DM or user is not a member
-    of the DM
+    Returns {error400} on invalid dmId that does not refer to a valid DM
+    Returns {error403} on valid dmId but authUserId is not a member in DM
 */
 
 export function dmLeave(authUserId: number, dmId: number) {
@@ -265,6 +266,26 @@ export function dmRemove(id: number, dmId: number) {
   }
   return { error400: 'error' };
 }
+
+/*
+Send a message from authUserId to specified DM
+
+Arguments:
+    authUserId (number)    - Identification number of the user calling
+                             the function
+    dmId (number)          - Identification number of of dm
+    message (string)       - The message that will be sent
+    timeSent (number)      - The time when the message will be send in dm
+
+Return Value:
+    Returns { messageId } on valid/active token, dmID refer to valid DM,
+    length of message is between 1 and 1000 character, timeSent is not time in past,
+    and valid dmId while authUserId is a member of the DM
+    Returns {error400} on dmId does not refer to valid DM
+    Returns {error400} on message length is less than 1 or over 1000
+    Returns {error400} on timeSent is time in the past
+    Returns {error403} on valid dmId but authUserId is not a member of the DM
+*/
 
 export function sendLaterDm(authUserId: number, dmId: number, message: string, timeSent: number) {
   const data = getData();
