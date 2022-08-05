@@ -1,6 +1,6 @@
-import { getData, setData, DataStr, Dm, Message } from './dataStore';
+import { getData, setData, DataStr, Dm, Message, DmMember } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, dmMessageTemplate, getCurrentTime, sortMessages, getDmMessages, isReacted } from './util';
+import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, dmMessageTemplate, getCurrentTime, sortMessages, getDmMessages, isReacted, stampUserUpdate, deepCopy } from './util';
 import HTTPError from 'http-errors';
 import { dmInviteNotif, tagNotifDm } from './notification';
 /*
@@ -52,10 +52,13 @@ export function dmCreate(creatorId: number, uIds: number[]) {
     }
   } // Create the new DM's Name
   data.dms.push(newDm); // Add new DM to dataStore
+  const time = getCurrentTime();
   for (const id of uIds) {
     dmInviteNotif(creatorId, newDm.dmId, id);
+    stampUserUpdate(id, time);
   }
   setData(data); // Save changes to runtime data and data.json
+  stampUserUpdate(creatorId, time);
   return {
     dmId: newDm.dmId
   };
@@ -142,6 +145,7 @@ export function messageSendDm(authUserId: number, dmId: number, message: string)
   newMessage.dmId = dmId;
   data.messages.unshift(newMessage); // push the new message to the beginning of the DM's messages
   setData(data); // Save changes to runtime data and data.json
+  stampUserUpdate(authUserId, getCurrentTime());
   tagNotifDm(authUserId, message, dmId);
   return {
     messageId: newMessage.messageId
@@ -210,6 +214,7 @@ export function dmLeave(authUserId: number, dmId: number) {
   if (!isDmMember(authUserId, dmObj)) throw HTTPError(AUTHORISATION_ERROR, 'User is not a member of the DM'); // check for all errors
   dmObj.members = JSON.parse(JSON.stringify(dmObj.members.filter((obj) => obj.uId !== authUserId))); // Redefines members to a list excluding authorised user
   setData(data); // Save changes to runtime data and data.json
+  stampUserUpdate(authUserId, getCurrentTime());
   return {};
 }
 
@@ -256,8 +261,11 @@ export function dmRemove(id: number, dmId: number) {
       // Verify if token owner is the dm creator
       for (let j = 0; j < data.dms[i].members.length; j++) {
         if (data.dms[i].members[j].uId === id && data.dms[i].members[j].dmPermsId === 1) {
+          const members = deepCopy(data.dms[i].members);
+          const time = getCurrentTime();
           data.dms.splice(i, 1);
           setData(data);
+          members.forEach((member: DmMember) => stampUserUpdate(member.uId, time));
           return {};
         }
       }
@@ -304,6 +312,8 @@ export function sendLaterDm(authUserId: number, dmId: number, message: string, t
   data.messages.unshift(newMessage);
   setData(data);
   tagNotifDm(authUserId, message, dmId);
+  const delay = timeSent - getCurrentTime();
+  setTimeout(() => stampUserUpdate(authUserId, timeSent), delay);
   return {
     messageId: newMessage.messageId
   };

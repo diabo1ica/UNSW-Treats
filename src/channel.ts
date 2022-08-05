@@ -1,7 +1,7 @@
 import HTTPError from 'http-errors';
 import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { channelMessageTemplate, getGlobalPerms, getUser, OWNER } from './util';
+import { channelMessageTemplate, getGlobalPerms, getUser, OWNER, stampUserUpdate } from './util';
 import { isReacted, getChannelMessages, sortMessages, generateMessageId } from './util';
 import { validateUserId, getChannel, getDm, isMember, isDmMember, MEMBER } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
@@ -109,6 +109,7 @@ export function channelJoinV1(authUserId: number, channelId: number) {
         channelPermsId: MEMBER,
       });
       setData(data);
+      stampUserUpdate(authUserId, getCurrentTime());
       return ({});
     }
   }
@@ -155,7 +156,9 @@ export function channelInviteV1(authUserId: number, channelId: number, uId: numb
       });
     }
   }
+  setData(data);
   chInviteNotif(authUserId, channelId, uId);
+  stampUserUpdate(uId, getCurrentTime());
   return {};
 }
 
@@ -301,6 +304,7 @@ export function messageSendV1(authUserId: number, channelId: number, message: st
   });
   setData(data);
   tagNotifCh(authUserId, message, channelId);
+  stampUserUpdate(authUserId, getCurrentTime());
   return { messageId: data.messageIdCounter };
 }
 
@@ -532,6 +536,8 @@ export function messageSendlaterv1 (authUserId: number, channelId: number, messa
   data.messages.unshift(newMessage);
   setData(data);
   tagNotifCh(authUserId, message, channelId);
+  const delay = timeSent - getCurrentTime();
+  setTimeout(() => stampUserUpdate(authUserId, timeSent), delay);
   return {
     messageId: newMessage.messageId
   };
@@ -558,6 +564,7 @@ export function channelLeave(userId: number, chId: number) {
         if (channel.members[i].uId === userId) {
           channel.members.splice(i, 1);
           setData(data);
+          stampUserUpdate(userId, getCurrentTime());
           return {};
         }
       }
