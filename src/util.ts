@@ -190,6 +190,11 @@ export function isSender(userId: number, messageId: number) {
   return false;
 }
 
+export function getUser(userId: number) {
+  const data: DataStr = getData();
+  return data.users.find(user => user.userId === userId);
+}
+
 export function getGlobalPerms(authUserId: number) {
   const data = getData();
   return data.users.find(user => user.userId === authUserId).globalPermsId;
