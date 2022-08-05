@@ -1351,21 +1351,21 @@ Return value:
       }
     - Throws Error 400 if the token is invalid
 */
-app.get('/notifications/get/v1', (req, res) => {
-  const token: string = req.header('token');
-  if (!validToken(token)) {
-    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot request');
-  }
-  const data: DataStr = getData();
-  const id: number = decodeToken(token);
-  const user = data.users.find(obj => obj.userId === id);
-  const length = user.notifications.length - 1;
-  const returnArray = [];
-  for (let i = 0; (i < 20 && length - i >= 0); i++) {
-    returnArray.push(user.notifications[length - i]);
-  }
-  res.json(returnArray);
-});
+// app.get('/notifications/get/v1', (req, res) => {
+//   const token: string = req.header('token');
+//   if (!validToken(token)) {
+//     throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot request');
+//   }
+//   const data: DataStr = getData();
+//   const id: number = decodeToken(token);
+//   const user = data.users.find(obj => obj.userId === id);
+//   const length = user.notifications.length - 1;
+//   const returnArray = [];
+//   for (let i = 0; (i < 20 && length - i >= 0); i++) {
+//     returnArray.push(user.notifications[length - i]);
+//   }
+//   res.json(returnArray);
+// });
 
 // Calls the clearV1 function from ./other which resets the dataStore
 // Always returns {}
