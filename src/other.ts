@@ -1,4 +1,7 @@
 import { getData, DataStr, setData } from './dataStore';
+import request from 'sync-request';
+import fs from 'fs';
+import config from './config.json';
 
 // Clears the dataStore
 export function clearV1() {
@@ -42,4 +45,41 @@ export function searchV1 (queryStr: string) {
   return {
     messages: returnMessage,
   };
+}
+
+export function uploadImage (authUserId: number, imgUrl: string, xStart: number, yStart: number, xEnd: number, yEnd: number) {
+  const data: DataStr = getData();
+
+  if (imgUrl.endsWith('.jpg') === false) {
+    return { error400: 'Image is not .jpg' };
+  }
+
+  if (xEnd <= xStart || yEnd <= yStart) {
+    return { error400: 'Invalid coordinate' };
+  }
+
+  const res = request(
+    'GET',
+    imgUrl
+  );
+  const body = res.getBody();
+  const pathWay = 'src/Image/' + String(authUserId) + '.jpg';
+  fs.writeFileSync(pathWay, body, { flag: 'w' });
+
+  const xCoordinate = xEnd - xStart;
+  const yCoordinate = yEnd - yStart;
+  const sharp = require('sharp');
+  try {
+    sharp(pathWay).extract({ width: xCoordinate, height: yCoordinate, left: xStart, top: yStart }).toFile('src/Image/' + String(authUserId) + 'edited.jpg');
+    console.log('Cropping succesful');
+  } catch (error) {
+    console.log('Error');
+  }
+
+  for (const user of data.users) {
+    if (user.userId === authUserId) {
+      user.profileImgUrl = String(config.url) + ':' + String(config.port) + '/imgUrl/' + String(imgUrl);
+    }
+  }
+  setData(data);
 }

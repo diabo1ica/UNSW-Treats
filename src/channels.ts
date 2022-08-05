@@ -8,8 +8,6 @@ Create a channel with given name and whether it is public or private.
 
 Arguments:
 
-    token (string)        - a specific string point to the user that create the channel
-
     authUserId (integer)  - author user id, the user that create the channel
 
                             and a member of channel.
@@ -90,7 +88,7 @@ Arguments:
 
 Return Value:
     Returns { channels } on authUserId is valid
-    Returns {error: 'error'} on authUserId is invalid
+    Returns {error400} on authUserId is invalid
 */
 export function channelsListallV1(authUserId: number) {
   const data: DataStr = getData();

@@ -66,6 +66,12 @@ export function userSetemailV1(authUserId: number, email: string) {
   }
 
   for (const item of data.users) {
+    if (item.email === email) {
+      return { error400: 'Email taken' };
+    }
+  }
+
+  for (const item of data.users) {
     if (item.userId === authUserId) {
       item.email = email;
     }

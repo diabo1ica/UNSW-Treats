@@ -16,6 +16,7 @@ export interface User {
   password: string,
   userId: number,
   globalPermsId: number,
+  profileImgUrl: string,
   notifications: Notification[]
 }
 

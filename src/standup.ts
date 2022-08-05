@@ -3,6 +3,24 @@ import { getCurrentTime, getChannel, isMember } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 
+/*
+Start a standup for {length} second
+
+Arguments:
+    authUserId (number)    - Identification number of the user calling
+                             the function
+    channelId (number)     - Identification number of the channel which standUp will be started
+    length (number)        - the length of time of how long will standUp be start
+
+Return Value:
+    Returns {timeFinish} on valid/active token, channelId refers to valid channel,
+    length is not negative, active standup is not yet running
+    Returns {error400} on invalid channelId
+    Returns {error400} on negative length
+    Returns {error400} on active standup currently running
+    Returns {error403} on valid channelId but authUserId is not a member of the channel
+*/
+
 export function startStandUp(authUserId: number, channelId: number, length: number) {
   const data = getData();
   let timeNow: number;

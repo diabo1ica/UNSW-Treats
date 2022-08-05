@@ -5,7 +5,7 @@ import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
 import { removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1, channelInviteV1 } from './channel';
 import { getData, setData, DataStr } from './dataStore';
-import { clearV1, searchV1 } from './other';
+import { clearV1, searchV1, uploadImage } from './other';
 import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
@@ -107,6 +107,21 @@ app.post('/channels/create/v3', (req, res) => {
     const detailsObj = channelsCreateV1(authUserId, name, isPublic);
     if (detailsObj.error400) {
       throw HTTPError(INPUT_ERROR, 'Invalid Channels name');
+    }
+    res.json(detailsObj);
+  }
+});
+
+app.post('/user/profile/uploadphoto/v1', (req, res) => {
+  const token: string = req.header('token');
+  const { imgUrl, xStart, xEnd, yStart, yEnd } = req.body;
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels Create');
+  } else {
+    const authUserId = decodeToken(token);
+    const detailsObj = uploadImage(authUserId, imgUrl, xStart, yStart, xEnd, yEnd);
+    if (detailsObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid imgUrl HTTP status, or coordinated are not in the image dimension, or xEnd less than xStart, or yEnd less than yStart, or image uploaded is not .jpg');
     }
     res.json(detailsObj);
   }
@@ -794,6 +809,27 @@ app.get('/dm/messages/v2', (req, res) => {
   res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
 });
 
+/*
+Server route for message/sendlaterdm/v1, calls and responds with the output
+of sendLaterDm
+
+Arguments:
+    token (string)        - a string pertaining to an active user session
+                        decodes into the user's Id.
+    dmId (number)          - Identification number of of dm
+    message (string)       - The message that will be sent
+    timeSent (number)      - The time when the message will be send in dm
+
+Return Value:
+    Returns { messageId } on valid/active token, dmID refer to valid DM,
+    length of message is between 1 and 1000 character, timeSent is not time in past,
+    and valid dmId while authUserId is a member of the DM
+    Returns {error400} on dmId does not refer to valid DM
+    Returns {error400} on message length is less than 1 or over 1000
+    Returns {error400} on timeSent is time in the past
+    Returns {error403} on valid dmId but authUserId is not a member of the DM
+*/
+
 app.post('/message/sendlaterdm/v1', (req, res) => {
   const token = req.header('token');
   const { dmId, message, timeSent } = req.body;
@@ -801,12 +837,49 @@ app.post('/message/sendlaterdm/v1', (req, res) => {
   res.json(sendLaterDm(decodeToken(token), dmId, message, timeSent));
 });
 
+/*
+Server route for message/react/v1, calls and responds with the output
+of messageReact
+
+Arguments:
+    token (string)        - a string pertaining to an active user session
+                        decodes into the user's Id.
+    messageId (number)     - Identification number of the message which will be reacted
+    reactId (number)       - Identification number of the reaction
+
+Return Value:
+    Returns {} on valid/active token, messageId refer to valid message, valid reactId, the message
+    has not contain a react with ID reactId from authUserId
+    Returns {error400} on messageId does not refer to valid message
+    Returns {error400} on invalid reactId
+    Returns {error400} on the message contain a react with ID reactId from authUserId
+*/
+
 app.post('/message/react/v1', (req, res) => {
   const token = req.header('token');
   const { messageId, reactId } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(messageReact(decodeToken(token), messageId, reactId));
 });
+
+/*
+Server route for standup/start/v1, calls and responds with the output
+of startStandUp
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number)  - Identification number of the channel which standUp will be started
+    length  (number)    - the length of time of how long will standUp be start
+
+Return Value:
+    Returns {timeFinish} on valid/active token, channelId refers to valid channel,
+    length is not negative, active standup is not yet running
+    Returns {error400} on invalid channelId
+    Returns {error400} on negative length
+    Returns {error400} on active standup currently running
+    Returns {error403} on valid channelId but authUserId is not a member of the channel
+*/
 
 app.post('/standup/start/v1', (req, res) => {
   const token = req.header('token');
@@ -831,6 +904,23 @@ app.post('/standup/send/v1', (req, res) => {
   if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message too long');
   res.json(sendStandUp(decodeToken(token), channelId, message));
 });
+
+/*
+Server route for message/pin/v1, calls and responds with the output
+of messagePin
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    messageId (number)     - Identification number of the message which will be pinned
+
+Return Value:
+    RReturns {} on valid/active token, messageId refer to valid message, message is not yet pinned, messagedID refer to
+    a valid message and authUserId have user permission
+    Returns {error400} on messageId does not refer to valid message
+    Returns {error400} on message already pinned
+    Returns {error403} on messageId is valid but authUserId does not have user permission
+*/
 
 app.post('/message/pin/v1', (req, res) => {
   const token = req.header('token');
@@ -892,6 +982,26 @@ app.post('/channel/addowner/v2', (req, res) => {
     res.json(channelAddownerV1(authUserId, channelId, uId));
   }
 });
+
+/*
+Server route for user/profile/uploadphoto/v1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    imgUrl (string)   - the url of the image that will be cropped and stored
+    xStart (number)   - the coordinate of x-axis to start cropping
+    xEnd (number)     - the coordinate of x-axis to end cropping
+    yStart (number)   - the coordinate of y-axis to start cropping
+    yEnd (number)     - the coordinate of y-axis to end cropping
+
+Return Value:
+    Returns {} when succesfull
+    Return {error400} if imgUrl return HTTP status other than 200
+    Return {error400} if xStart yStart xEnd yEnd is invalid
+    Return {error400} if xEnd and yEnd is less than or equal to xStart and yStart
+    Return {error400} if image uploaded is not .jpg
+*/
 
 /*
 Server route for user/profile/sethandle/v1, calls and responds with the output
