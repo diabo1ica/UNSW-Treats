@@ -1296,10 +1296,17 @@ app.delete('/clear/v1', (req, res) => {
 app.use(errorHandler());
 
 // start server
+/*
 const server = app.listen(PORT, HOST, () => {
   getData(true);
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
 });
+*/
+const server = app.listen(parseInt(process.env.PORT || config.port), process.env.IP, () => {
+  getData(true);
+  console.log(`⚡️ Server listening on port ${process.env.PORT || config.port}`);
+});
+
 
 // For coverage, handle Ctrl+C gracefully
 process.on('SIGINT', () => {
