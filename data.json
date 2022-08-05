@@ -1,11 +1,11 @@
 {
     "users": [
         {
-            "nameFirst": "Apple",
-            "nameLast": "Tree",
-            "handleStr": "appletree",
-            "email": "apple@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFwcGxlMTAiLCJpYXQiOjE2NTk2NzgyMzg5MzAsImlzcyI6IjE2NTk2NzgyMzg5MzAifQ.",
+            "nameFirst": "Kennt",
+            "nameLast": "Alex",
+            "handleStr": "jingisukan",
+            "email": "Iloveyou@gmail.com",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5Njc0MzM0NDYwLCJpc3MiOiIxNjU5Njc0MzM0NDYwIn0.",
             "userId": 1,
             "globalPermsId": 1,
             "profileImgUrl": "",
@@ -29,6 +29,7 @@
     "tokenArray": [
         "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY3ODIzODkzMiwiaXNzIjoiMTY1OTY3ODIzODkzMiJ9.",
         "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY3ODIzOTEzMCwiaXNzIjoiMTY1OTY3ODIzOTEzMCJ9."
+
     ],
     "userIdCounter": 2,
     "channelIdCounter": 0,

@@ -1,5 +1,5 @@
 import { requestClear, requestRegister, requestUsersAll } from './request';
-import { OK } from './request';
+import { OK, AUTHORISATION_ERROR } from './request';
 
 describe('Test suite for /users/all/v1', () => {
   let usertoken1: string;
@@ -8,6 +8,10 @@ describe('Test suite for /users/all/v1', () => {
     requestClear();
     usertoken1 = requestRegister('apple@gmail.com', 'apple10', 'Apple', 'Tree').body.token;
     requestRegister('banana@gmail.com', 'banana10', 'Banana', 'Tree');
+  });
+
+  test('Invalid token', () => {
+    expect(requestUsersAll('-' + usertoken1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('users all (no error)', () => {

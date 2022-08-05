@@ -1,9 +1,10 @@
 import HTTPError from 'http-errors';
 import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
+import { channelMessageTemplate, getGlobalPerms, OWNER } from './util';
+import { isReacted, getChannelMessages, sortMessages, generateMessageId } from './util';
 import { validateUserId, getChannel, getDm, isMember, isDmMember, MEMBER } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
-import { isReacted, getChannelMessages, sortMessages } from './util';
 import { chInviteNotif, tagNotifCh, tagNotifChEdit, tagNotifDmEdit } from './notification';
 
 // Display channel details of channel with channelId
@@ -233,11 +234,12 @@ export function channelAddownerV1(authUserId: number, channelId: number, uId: nu
       // check if uId already owner
       if (isChannelOwner(uId, channel) === true) throw HTTPError(INPUT_ERROR, 'uId already an owner of channel');
       // check authuserId is not owner
-      if (isChannelOwner(authUserId, channel) === false) throw HTTPError(AUTHORISATION_ERROR, 'permission restricted');
-
+      if (isChannelOwner(authUserId, channel) === false && getGlobalPerms(authUserId) === MEMBER) throw HTTPError(AUTHORISATION_ERROR, 'permission restricted');
+      // global owner cannot add theirself as owner
+      if (getGlobalPerms(authUserId) === OWNER && authUserId === uId) throw HTTPError(AUTHORISATION_ERROR, 'global onwer cannot selfpromote');
       for (const item of channel.members) {
         if (item.uId === uId) {
-          item.channelPermsId = 1;
+          item.channelPermsId = OWNER;
           setData(data);
           return {};
         }
@@ -351,7 +353,6 @@ export function messageEditV1(authUserId: number, messageId: number, message: st
           throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to edit message');
         }
       } else {
-        // messageId is found in channel
         channelObj = getChannel(item.channelId);
         if (isChannelOwner(authUserId, channelObj) === true) {
           tagNotifChEdit(authUserId, item.message, message, item.channelId);
@@ -417,7 +418,6 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
           throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to remove message');
         }
       } else {
-        // messageId is found in channel
         channelObj = getChannel(item.channelId);
         if (isChannelOwner(authUserId, channelObj) === true) {
           data.messages.splice(index, 1);
@@ -492,6 +492,28 @@ export function removeowner (authUserId: number, channelId: number, uId: number)
   }
 
   return {};
+}
+
+export function messageSendlaterv1 (authUserId: number, channelId: number, message: string, timeSent: number) {
+  const data = getData();
+  const channelObj = getChannel(channelId);
+  if (channelObj === undefined) throw HTTPError(INPUT_ERROR, 'Invalid DM');
+  if (message.length < 1) throw HTTPError(INPUT_ERROR, 'Empty message');
+  if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message greater than 1000 characters');
+  if (timeSent < getCurrentTime()) throw HTTPError(INPUT_ERROR, 'Cannot send message into the past!');
+  if (!isMember(authUserId, channelObj)) throw HTTPError(AUTHORISATION_ERROR, 'Not a member of the channel');
+  const newMessage = channelMessageTemplate();
+  newMessage.messageId = generateMessageId();
+  newMessage.timeSent = timeSent;
+  newMessage.message = message;
+  newMessage.uId = authUserId;
+  newMessage.channelId = channelId;
+  data.messages.unshift(newMessage);
+  setData(data);
+  tagNotifCh(authUserId, message, channelId);
+  return {
+    messageId: newMessage.messageId
+  };
 }
 
 /*

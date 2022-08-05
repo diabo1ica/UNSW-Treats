@@ -49,7 +49,7 @@
     },
     "nyc": {
         "exclude": [
-            "echo.*"
+            "echo.*", "src/tests/request.ts"
         ]
     }
 }

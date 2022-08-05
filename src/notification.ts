@@ -167,23 +167,13 @@ export function reactNotifCh(authUserId: number, messageId: number) {
   }
 }
 
-function excludeRepeatHandle(handleArr1: string[], handleArr2: string[]) {
+function excludeRepeatHandle(array1: string[], array2: string[]) {
   const returnArr: string[] = [];
-  let array1: string[] = [];
-  let array2: string[] = [];
-  if (handleArr1.length > handleArr2.length) {
-    array1 = handleArr1;
-    array2 = handleArr2;
-  } else {
-    array1 = handleArr2;
-    array2 = handleArr1;
-  }
-  for (const str1 of array1) {
-    if (!array2.includes(str1)) {
-      returnArr.push(str1);
+  for (const str2 of array2) {
+    if (!array1.includes(str2)) {
+      returnArr.push(str2);
     }
   }
-  console.log('Here ', returnArr);
   return returnArr;
 }
 

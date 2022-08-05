@@ -155,10 +155,6 @@ export const requestJoinChannel = (token: string, channelId: number) => {
   return requestHelper('POST', '/channel/join/v3', { token: token, channelId: channelId });
 };
 
-export const requestMessageSend = (token: string, channelId: number, message: string) => {
-  return requestHelper('POST', '/message/send/v2', { token: token, channelId: channelId, message: message });
-};
-
 export const requestMessageEdit = (token: string, messageId: number, message: string) => {
   return requestHelper('PUT', '/message/edit/v2', { token: token, messageId: messageId, message: message });
 };
@@ -181,6 +177,26 @@ export const requestUsersAll = (token: string) => {
 
 export const requestUsersProfileSethandle = (token: string, handleStr: string) => {
   return requestHelper('PUT', '/user/profile/sethandle/v2', { token: token, handleStr: handleStr });
+};
+
+export const requestMessageSendlater = (token: string, channelId: number, message: string, timeSent: number) => {
+  return requestHelper('POST', '/message/sendlater/v1', { token: token, channelId: channelId, message: message, timeSent: timeSent });
+};
+
+export const requestAdminPermChange = (token: string, uId: number, permissionId: number) => {
+  return requestHelper('POST', '/admin/userpermission/change/v1', { token: token, uId: uId, permissionId: permissionId });
+};
+
+export const requestMessageUnpin = (token: string, messageId: number) => {
+  return requestHelper('POST', '/message/unpin/v1', { token: token, messageId: messageId });
+};
+
+export const requestMessageUnreact = (token: string, messageId: number, reactId: number) => {
+  return requestHelper('POST', '/message/unreact/v1', { token: token, messageId: messageId, reactId: reactId });
+};
+
+export const requestMessageShare = (token: string, ogMessageId: number, message: string, channelId: number, dmId: number) => {
+  return requestHelper('POST', '/message/share/v1', { token: token, ogMessageId: ogMessageId, message: message, channelId: channelId, dmId: dmId });
 };
 
 export const requestNotifications = (token: string) => {

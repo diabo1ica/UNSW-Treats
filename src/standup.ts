@@ -83,22 +83,6 @@ export function sendStandUp(uId: number, channelId: number, message: string) {
 
 function stUpMessageSend(authUserId: number, channelId: number, message: string) {
   const data = getData();
-  const channelObj = getChannel(channelId);
-  if (message.length > 1000) {
-    throw HTTPError(INPUT_ERROR, 'message length exceeded 1000');
-  }
-  if (message.length < 1) {
-    throw HTTPError(INPUT_ERROR, 'message is empty');
-  }
-
-  // check validity of channelId
-  if (channelObj === undefined) {
-    throw HTTPError(INPUT_ERROR, 'channelId is invalid');
-  }
-  // check if authuserId is member of channel
-  if (isMember(authUserId, channelObj) === false) {
-    throw HTTPError(AUTHORISATION_ERROR, 'you are not a member of channel');
-  }
   data.messageIdCounter += 1;
   data.messages.unshift({
     messageId: data.messageIdCounter,
