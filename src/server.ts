@@ -172,10 +172,7 @@ Response :
 */
 app.get('/channel/details/v3', (req, res) => {
   const token: string = req.header('token');
-  console.log(token);
-  console.log(decodeToken(token));
   const chId: number = parseInt(req.query.channelId as string);
-  console.log('chId : ', chId);
   if (!validToken(token)) {
     throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot access channel details');
   } else {
@@ -750,8 +747,17 @@ app.post('/standup/start/v1', (req, res) => {
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(startStandUp(decodeToken(token), channelId, length));
 });
-
-// For a given channel, return whether a standup is active in it, and what time the standup finishes.
+/*
+For a given channel, return whether a standup is active in it, and what time the standup finishes.
+Arguements:
+    - token (string)      - Takes in a token as a header
+    - channelId (number)  - Channel id of the channel where the standup activity is being checked
+Return Value:
+    - Returns an object containing the stand up's active status and time finish.
+    - Throws Error 403 on invalid token
+    - Throws Error 400 if channelId refers to an invalid channel
+    - Throws Error 403 if user is not member of channel
+*/
 app.get('/standup/active/v1', (req, res) => {
   const token = req.header('token');
   const channelId = parseInt(req.query.channelId as string);
@@ -759,7 +765,20 @@ app.get('/standup/active/v1', (req, res) => {
   res.json(activeStandUp(decodeToken(token), channelId));
 });
 
-// For a given channel, if a standup is currently active in the channel, send a message to get buffered in the standup queue.
+/*
+For a given channel, if a standup is currently active in the channel, send a message to get buffered in the standup queue.
+Arguements:
+    - token (string)      - Takes in token as a header
+    - channelId (number)  - Channel id of the channel where the standup is being held
+    - message (string)    - Message string that will be passed to the standUp message space
+Return value:
+    - Returns {} on success
+    - Throws Error 403 on invalid token
+    - Throws Error 400 if channelId refers to an invalid channel
+    - Throws Error 400 if message length is over 1000
+    - Throws Error 400 if no active standup is available in the channel
+    - Throws Error 403 if user is not member of channel
+*/
 app.post('/standup/send/v1', (req, res) => {
   const token = req.header('token');
   const { channelId, message } = req.body;
@@ -962,7 +981,7 @@ Arguements:
     - email (string)      - An email string of the user trying to request the reset
 Return Values:
     - Returns {} once the request is made
-    - Throws Error 400 if the token is invalid
+    - Throws Error 403 if the token is invalid
 */
 app.post('/auth/passwordreset/request/v1', (req, res) => {
   const { email } = req.body;
@@ -1040,6 +1059,18 @@ app.post('/auth/passwordreset/reset/v1', (req, res) => {
   res.json({});
 });
 
+/*
+Outputs the user's most recent 20 notifications, ordered from most recent to least recent.
+Arguements:
+    - token (string)    - Token passed in through header
+Return value:
+    - Returns an object {
+          channelId (number)            - the channel Id of the channel where the notif came from, if notif comes from dm then channelId is undefined
+          dmId (number)                 - the dm Id of the channel where the notif came from, if notif comes from channel then dmId is undefined
+          notificationMessage (string)  - the nitification message
+      }
+    - Throws Error 400 if the token is invalid
+*/
 app.get('/notifications/get/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
