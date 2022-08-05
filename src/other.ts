@@ -16,3 +16,30 @@ export function clearV1() {
   setData(data);
   return {};
 }
+
+export function searchV1 (queryStr: string) {
+  if (queryStr.length < 1 || queryStr.length > 1000) {
+    return { error400: 'Invalid QueryStr' };
+  }
+  const data: DataStr = getData();
+  const returnMessage: any[] = [];
+
+  for (const msg of data.messages) {
+    const lowMsg: string = msg.message.toLowerCase();
+    const lowQuery: string = queryStr.toLowerCase();
+    if (lowMsg.includes(lowQuery)) {
+      returnMessage.push({
+        messageId: msg.messageId,
+        uId: msg.uId,
+        message: msg.message,
+        timeSent: msg.timeSent,
+        reacts: msg.reacts,
+        isPinned: msg.isPinned
+      });
+    }
+  }
+
+  return {
+    messages: returnMessage,
+  };
+}

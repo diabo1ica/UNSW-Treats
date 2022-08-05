@@ -187,6 +187,26 @@ export const requestNotifications = (token: string) => {
   return requestHelper('GET', '/notifications/get/v1', { token: token });
 };
 
+export const requestSearch = (token: string, queryStr: string) => {
+  return requestHelper('GET', '/search/v1', { token: token, queryStr: queryStr });
+};
+
+export const requestUserStats = (token: string) => {
+  return requestHelper('GET', '/user/stats/v1', { token: token });
+};
+
+export const requestUsersStats = (token: string) => {
+  return requestHelper('GET', '/users/stats/v1', { token: token });
+};
+
+export const requestAdminRemove = (token: string, uId: number) => {
+  return requestHelper('DELETE', '/admin/user/remove/v1', { token: token, uId: uId });
+};
+
+export const requestUploadPhoto = (token: string, imgUrl: string, xStart: number, yStart: number, xEnd: number, yEnd: number) => {
+  return requestHelper('POST', '/user/profile/uploadphoto/v1', { token: token, imgUrl: imgUrl, xStart: xStart, yStart: yStart, xEnd: xEnd, yEnd: yEnd });
+};
+
 const requestHelper = (method: HttpVerb, route: string, payload: any) => {
   let qs = {};
   let json = {};

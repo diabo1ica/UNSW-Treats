@@ -150,6 +150,23 @@ export function isReacted(userId: number, message: Message, reactId: number) {
   else return false;
 }
 
+export function atLeastOne(userId: number) {
+  const data: DataStr = getData();
+  for (const channel of data.channels) {
+    if (isMember(userId, channel)) {
+      return 1;
+    }
+  }
+
+  for (const dms of data.dms) {
+    if (isDmMember(userId, dms)) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 export const OWNER = 1;
 export const MEMBER = 2;
 
