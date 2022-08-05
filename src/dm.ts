@@ -59,6 +59,7 @@ export function dmCreate(creatorId: number, uIds: number[]) {
   }
   setData(data); // Save changes to runtime data and data.json
   stampUserUpdate(creatorId, time);
+  stampWorkspaceUpdate(time);
   return {
     dmId: newDm.dmId
   };
@@ -145,8 +146,10 @@ export function messageSendDm(authUserId: number, dmId: number, message: string)
   newMessage.dmId = dmId;
   data.messages.unshift(newMessage); // push the new message to the beginning of the DM's messages
   setData(data); // Save changes to runtime data and data.json
-  stampUserUpdate(authUserId, getCurrentTime());
+  const time = getCurrentTime();
+  stampUserUpdate(authUserId, time);
   tagNotifDm(authUserId, message, dmId);
+  stampWorkspaceUpdate(time);
   return {
     messageId: newMessage.messageId
   };
