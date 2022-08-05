@@ -35,8 +35,10 @@ app.use(cors());
 // for logging errors
 app.use(morgan('dev'));
 
+/*
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
+*/
 
 // NOTE :
 // Some of these request paths calls wrapper functions
@@ -1364,7 +1366,7 @@ app.get('/notifications/get/v1', (req, res) => {
   for (let i = 0; (i < 20 && length - i >= 0); i++) {
     returnArray.push(user.notifications[length - i]);
   }
-  res.json(returnArray);
+  res.json({ notifications: returnArray });
 });
 
 // Calls the clearV1 function from ./other which resets the dataStore
@@ -1378,9 +1380,15 @@ app.delete('/clear/v1', (req, res) => {
 app.use(errorHandler());
 
 // start server
+/*
 const server = app.listen(PORT, HOST, () => {
   getData(true);
   console.log(`⚡️ Server listening on port ${PORT} at ${HOST}`);
+});
+*/
+const server = app.listen(parseInt(process.env.PORT || config.port), process.env.IP, () => {
+  getData(true);
+  console.log(`⚡️ Server listening on port ${process.env.PORT || config.port}`);
 });
 
 // For coverage, handle Ctrl+C gracefully

@@ -1,12 +1,15 @@
 {
     "users": [],
-    "channels": [],
-    "dms": [],
-    "messages": [],
-    "tokenArray": [],
-    "userIdCounter": 2,
-    "channelIdCounter": 1,
+    "userIdCounter": 1,
+    "channelIdCounter": 0,
     "dmIdCounter": 0,
     "messageIdCounter": 0,
-    "resetArray": []
+    "resetArray": [],
+    "removedUsers": [],
+    "updates": [],
+    "userUpdates": [],
+    "channels": [],
+    "tokenArray": [],
+    "dms": [],
+    "messages": []
 }
