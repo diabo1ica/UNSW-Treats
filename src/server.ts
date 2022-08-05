@@ -84,7 +84,7 @@ app.post('/auth/register/v3', (req, res) => {
 });
 
 /*
-Server route for channels/create/v2 calls and responds with output
+Server route for channels/create/v3 calls and responds with output
 of channelsCreateV1
 
 Arguments:
@@ -115,6 +115,28 @@ app.post('/channels/create/v3', (req, res) => {
   }
 });
 
+/*
+Server route for user/profile/uploadphoto/v1 calls and responds with output
+of uploadImage
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the authorised user's Id.
+    ImgUrl (string)   - the URL of the image
+    xStart (number)   - the start where image will be cropped in x-axis
+    yStart (number)   - the start where image will be cropped in y-axis
+    xEnd (number)     - the end where image will be cropped in x-axis
+    yEnd (number)     - the end where image will be cropped in y-axis
+
+Return Value:
+    Returns {} on imgUrl not return HTTP status other than 200, the coordinate is within the dimension,
+    xStart is less than xEnd, yStart is less than yEnd, and image uploaded as .jpg
+    Returns {error400} on imgUrl return HTTP status other than 200
+    Returns {error400} on the coordinate is not within the dimension
+    Returns {error400} on xEnd is less than xStart, yEnd is less than yStart
+    Returns {error400} on image not uploaded as .jpg
+
+*/
 app.post('/user/profile/uploadphoto/v1', (req, res) => {
   const token: string = req.header('token');
   const { imgUrl, xStart, xEnd, yStart, yEnd } = req.body;
