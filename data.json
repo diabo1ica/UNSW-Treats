@@ -1,24 +1,10 @@
 {
-    "users": [
-        {
-            "nameFirst": "Steve",
-            "nameLast": "Berrospi",
-            "handleStr": "steveberrospi",
-            "email": "z5363495@unsw.edu.au",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm8xMjMiLCJpYXQiOjE2NTk2MjU3NzM1NTEsImlzcyI6IjE2NTk2MjU3NzM1NTEifQ.",
-            "userId": 1,
-            "globalPermsId": 1,
-            "notifications": []
-        }
-    ],
+    "users": [],
     "channels": [],
     "dms": [],
     "messages": [],
-    "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTYyNTc3MzU1NCwiaXNzIjoiMTY1OTYyNTc3MzU1NCJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTYyNTc3Mzc4MiwiaXNzIjoiMTY1OTYyNTc3Mzc4MiJ9."
-    ],
-    "userIdCounter": 1,
+    "tokenArray": [],
+    "userIdCounter": 2,
     "channelIdCounter": 0,
     "dmIdCounter": 0,
     "messageIdCounter": 0,

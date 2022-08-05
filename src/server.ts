@@ -10,7 +10,10 @@ import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
-import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, channelLeave } from './channel';
+import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, messageSendlaterv1 } from './channel';
+import { messsageShareV1, messsageUnpinV1, messsageUnreactV1 } from './message';
+import { adminUserPermChange } from './admin';
+import { channelLeave } from './channel';
 import { dmCreate, messageSendDm, dmDetails, dmMessages, dmLeave, dmList, dmRemove, sendLaterDm } from './dm';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 import errorHandler from 'middleware-http-errors';
@@ -172,10 +175,9 @@ Response :
 */
 app.get('/channel/details/v3', (req, res) => {
   const token: string = req.header('token');
-  console.log(token);
-  console.log(decodeToken(token));
+
   const chId: number = parseInt(req.query.channelId as string);
-  console.log('chId : ', chId);
+
   if (!validToken(token)) {
     throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot access channel details');
   } else {
@@ -858,7 +860,7 @@ app.post('/channel/join/v3', (req, res) => {
   const { channelId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelJoinV1(authUserId, channelId));
@@ -886,7 +888,7 @@ app.post('/channel/addowner/v2', (req, res) => {
   const token: string = req.header('token');
   const { channelId, uId } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelAddownerV1(authUserId, channelId, uId));
@@ -910,7 +912,7 @@ app.put('/user/profile/sethandle/v2', (req, res) => {
   const token: string = req.header('token');
   const { handleStr } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(userProfileSethandleV1(authUserId, handleStr));
@@ -930,7 +932,7 @@ Return Value:
 app.get('/users/all/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   }
   const authUserId = decodeToken(token);
   res.json(usersAllV1(authUserId));
@@ -989,7 +991,7 @@ app.post('/message/send/v2', (req, res) => {
   const token: string = req.header('token');
   const { channelId, message } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(messageSendV1(authUserId, channelId, message));
@@ -1018,7 +1020,7 @@ app.put('/message/edit/v2', (req, res) => {
   const token: string = req.header('token');
   const { messageId, message } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     res.json(messageEditV1(authUserId, messageId, message));
@@ -1043,11 +1045,74 @@ Return Value:
 app.delete('/message/remove/v2', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const messageId: number = parseInt(req.query.messageId as string);
     const authUserId = decodeToken(token);
     res.json(messageRemoveV1(authUserId, messageId));
+  }
+});
+
+// changes user's globall permission
+app.post('/admin/userpermission/change/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
+  } else {
+    const { uId, permissionId } = req.body;
+    const authUserId = decodeToken(token);
+    res.json(adminUserPermChange(authUserId, uId, permissionId));
+  }
+});
+
+// sends a message at certain time in future
+app.post('/message/sendlater/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
+  } else {
+    const { channelId, message, timeSent } = req.body;
+    const authUserId = decodeToken(token);
+
+    res.json(messageSendlaterv1(authUserId, channelId, message, timeSent));
+  }
+});
+
+// unpins  a message
+app.post('/message/unpin/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
+  } else {
+    const { messageId } = req.body;
+    const authUserId = decodeToken(token);
+
+    res.json(messsageUnpinV1(authUserId, messageId));
+  }
+});
+
+// unreact  a message
+app.post('/message/unreact/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
+  } else {
+    const { messageId, reactId } = req.body;
+    const authUserId = decodeToken(token);
+
+    res.json(messsageUnreactV1(authUserId, messageId, reactId));
+  }
+});
+
+// share  a message
+app.post('/message/share/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
+  } else {
+    const { ogMessageId, message, channelId, dmId } = req.body;
+    const authUserId = decodeToken(token);
+    res.json(messsageShareV1(authUserId, ogMessageId, message, channelId, dmId));
   }
 });
 
