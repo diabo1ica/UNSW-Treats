@@ -1116,7 +1116,25 @@ app.delete('/message/remove/v2', (req, res) => {
   }
 });
 
-// changes user's globall permission
+/*
+Server route for admin/userpermission/change/v1 calls and responds with output
+of adminuserpermchange
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    uId (number)         - identification of user that will have its
+                        permission changed
+    permissionId (number) - new permission  that uId wil be modified to.
+
+Return Value:
+    Returns {} on correct input
+    Returns {error 400} on Invalid uId.
+    Returns {error 400} on Invalid permissionId.
+    Returns {error 400} on uId in only global owner remaining.
+    Returns {error 400} on granting same permissionId to uId's current permissionId.
+    Returns {error 403} on authuser is not global owner.
+*/
 app.post('/admin/userpermission/change/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
@@ -1128,7 +1146,26 @@ app.post('/admin/userpermission/change/v1', (req, res) => {
   }
 });
 
-// sends a message at certain time in future
+/*
+Server route for message/sendlater/v1 calls and responds with output
+of messagesendlaterv1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number) - identification number of channel that message
+                          will be sent to.
+    message (string)         - string containing message to be sent
+    timesent (number) - a specified time of when message is to be sent.
+
+Return Value:
+    Returns { messageId } on correct input
+    Returns {error 400} on Invalid channelId.
+    Returns {error 400} on Invalid message length.
+    Returns {error 400} on timesent is set to the past.
+    Returns {error 403} on channelId is valid, but user is not a
+                            member of channel
+*/
 app.post('/message/sendlater/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
@@ -1141,7 +1178,22 @@ app.post('/message/sendlater/v1', (req, res) => {
   }
 });
 
-// unpins  a message
+/*
+Server route for message/unpin/v1 calls and responds with output
+of messageUnpinV1.
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    messageId (number) - identification number of message that
+                          will be unpined.
+
+Return Value:
+    Returns {  } on correct input
+    Returns {error 400} on Invalid messageId.
+    Returns {error 403} on message is valid, but user is not a
+                            owner of channel/dm.
+*/
 app.post('/message/unpin/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
@@ -1154,7 +1206,24 @@ app.post('/message/unpin/v1', (req, res) => {
   }
 });
 
-// unreact  a message
+/*
+Server route for message/unreact/v1 calls and responds with output
+of messageUnreactV1.
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    messageId (number) - identification number of message that
+                          will be unpined.
+    reactId (number) - identification that determines types of react.
+
+Return Value:
+    Returns {  } on correct input
+    Returns {error 400} on Invalid messageId.
+    Returns {error 400} on Invalid reactId.
+    Returns {error 400} on message is valid, but user has not
+                            reacted the message.
+*/
 app.post('/message/unreact/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
@@ -1167,7 +1236,31 @@ app.post('/message/unreact/v1', (req, res) => {
   }
 });
 
-// share  a message
+/*
+Server route for message/share/v1 calls and responds with output
+of messageShareV1.
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    ogmessageId (number) - identification number of message that
+                          will be shared.
+    message (string) - string contating additional message added to
+                        original message.
+    channelId (number) - channelId that message will be sent to
+                          or else be -1.
+    dmId (number) - dmId that message will be sent to
+                          or else be -1.
+
+Return Value:
+    Returns { sharedMessageId } on correct input
+    Returns {error 400} on both channelId and dmId are invalid
+    Returns {error 400} on neither channelId nor dmId are -1.
+    Returns {error 400} on invalid ogmessageId.
+    Returns {error 400} on message lenght is over 1000.
+    Returns {error 403} on valid pair of channel/dm Id but user
+                            is not a meber of channel/dm.
+*/
 app.post('/message/share/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {

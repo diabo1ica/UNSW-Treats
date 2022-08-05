@@ -139,6 +139,7 @@ export function usersAllV1(authUserId: number) {
         nameFirst: item.nameFirst,
         nameLast: item.nameLast,
         handleStr: item.handleStr,
+        profileImgUrl: item.profileImgUrl,
       });
     }
   }
@@ -272,4 +273,4 @@ export function adminRemove (authUserId: number, uId : number) {
   return {};
 }
 
-const isAlphaNumeric = (str: string) => /^[A-Za-z0-9]+$/gi.test(str);
+const isAlphaNumeric = (str: string) => /^[A-Za-z0-9]+$/gi.test(str); // check if string only contains Alphanumberic characters
