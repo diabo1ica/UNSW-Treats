@@ -5,7 +5,7 @@
             "nameLast": "Alex",
             "handleStr": "jingisukan",
             "email": "Iloveyou@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5NjYxNDE4ODA5LCJpc3MiOiIxNjU5NjYxNDE4ODA5In0.",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5Njc0MzM0NDYwLCJpc3MiOiIxNjU5Njc0MzM0NDYwIn0.",
             "userId": 1,
             "globalPermsId": 1,
             "notifications": []
@@ -15,8 +15,8 @@
     "dms": [],
     "messages": [],
     "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY2MTQxODgxMSwiaXNzIjoiMTY1OTY2MTQxODgxMSJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY2MTQxODg0MiwiaXNzIjoiMTY1OTY2MTQxODg0MiJ9."
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY3NDMzNDQ2MSwiaXNzIjoiMTY1OTY3NDMzNDQ2MSJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY3NDMzNDQ4NywiaXNzIjoiMTY1OTY3NDMzNDQ4NyJ9."
     ],
     "userIdCounter": 1,
     "channelIdCounter": 0,

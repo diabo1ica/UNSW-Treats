@@ -5,9 +5,9 @@ import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
 import { removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1, channelInviteV1 } from './channel';
 import { getData, setData, DataStr } from './dataStore';
-import { clearV1 } from './other';
+import { clearV1, searchV1 } from './other';
 import * as jose from 'jose';
-import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1 } from './users';
+import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, messageSendlaterv1 } from './channel';
@@ -287,6 +287,34 @@ app.get('/user/profile/v3', (req, res) => {
 });
 
 /*
+Server route for search/v1 calls and responds with output
+of searchV1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    queryStr          - String that need to be search in messages inside channels/Dms
+
+Return Value:
+    Returns {messages} on Valid/active token & valid queryStr
+    Returns {error400} on Invalid QueryStr
+*/
+
+app.get('/search/v1', (req, res) => {
+  const token: string = req.header('token');
+  const queryStr: string = req.query.queryStr as string;
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const statusObj = searchV1(queryStr);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid QueryStr');
+    }
+    res.json(statusObj);
+  }
+});
+
+/*
 Server route for channel/removeowner/v1 calls and responds with output
 of removeowner
 
@@ -355,6 +383,41 @@ app.put('/user/profile/setname/v2', (req, res) => {
     res.json(statusObj);
   }
 });
+
+/*
+Server route for user/stats/v1 calls and responds with output
+of userStatsv1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+
+Return Value:
+    Returns { userStats } on Valid/active token
+*/
+/*
+app.get('/user/stats/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const authUserId = decodeToken(token);
+    const statusObj = userStatsv1(authUserId);
+    res.json(statusObj);
+  }
+});
+
+app.get('/users/stats/v1', (req, res) => {
+  const token: string = req.header('token');
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const authUserId = decodeToken(token);
+    const statusObj = usersStatsv1(authUserId);
+    res.json(statusObj);
+  }
+});
+*/
 
 /*
 Server route for user/profile/setemail/v1 calls and responds with output
@@ -447,23 +510,6 @@ Return Value:
     Returns {error: 'error} on invalid email and/or password
 */
 
-app.post('/auth/login/v2', (req, res) => {
-  try {
-    const { email, password } = req.body; // load relevant request information
-    const userId = authLoginV1(email, password).authUserId; // Login the user
-    const token = generateToken(userId); // Generate a new active token for the user
-    const data = getData(); // load the datastore
-    data.tokenArray.push(token); // Add the new active token to the datastore
-    setData(data); // save changes
-    res.json({
-      token: token,
-      authUserId: userId
-    }); // responds to request with the desired information
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.post('/auth/login/v3', (req, res) => {
   const { email, password } = req.body; // load relevant request information
   const userId = authLoginV1(email, password).authUserId; // Login the user
@@ -490,16 +536,6 @@ Return Value:
     Returns { channels } on token is valid/active
     Returns {error: 'error'} on token is invalid/inactive
 */
-
-app.get('/channels/listall/v2', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(channelsListallV1(decodeToken(token))); // respond to request with list of all channels
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
 
 app.get('/channels/listall/v3', (req, res) => {
   const token = req.header('token');
@@ -529,18 +565,6 @@ Return Value:
     member of the channel
 */
 
-app.get('/channel/messages/v2', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    const channelId = JSON.parse(req.query.channelId as string);
-    const start = JSON.parse(req.query.start as string);
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(channelMessagesV1(decodeToken(token), channelId, start)); // respond to request with list of message in channel
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.get('/channel/messages/v3', (req, res) => {
   const token = req.header('token');
   const channelId = JSON.parse(req.query.channelId as string);
@@ -566,17 +590,6 @@ Return Value:
     invalid uId are found in uIds
 */
 
-app.post('/dm/create/v1', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    const { uIds } = req.body;
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.post('/dm/create/v2', (req, res) => {
   const token = req.header('token');
   const { uIds } = req.body;
@@ -600,17 +613,6 @@ Return Value:
     of the DM
 */
 
-app.get('/dm/details/v1', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    const dmId = JSON.parse(req.query.dmId as string);
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(dmDetails(decodeToken(token), dmId)); // respond to request with details of the DM
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.get('/dm/details/v2', (req, res) => {
   const token = req.header('token');
   const dmId = JSON.parse(req.query.dmId as string);
@@ -632,18 +634,6 @@ Return Value:
     Returns {error: 'error'} on invalid DM or user is not a member
     of the DM
 */
-
-app.post('/dm/leave/v1', (req, res) => {
-  try {
-    const { dmId } = req.body;
-    const token: string = req.header('token');
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(dmLeave(decodeToken(token), dmId)); // respond to request with empty object
-  } catch (err) {
-    console.log(err);
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
 
 app.post('/dm/leave/v2', (req, res) => {
   const token = req.header('token');
@@ -672,23 +662,13 @@ Return Value:
     message is over 1000 characters, or user is not a member of the DM.
 */
 
-app.post('/message/senddm/v1', (req, res) => {
-  try {
-    const { dmId, message } = req.body;
-    const token: string = req.header('token');
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.post('/message/senddm/v2', (req, res) => {
   const token = req.header('token');
   const { dmId, message } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
   res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
 });
+
 /*
 Server route for dm/messages/v1, calls and responds with the output
 of dmMessages
@@ -710,18 +690,6 @@ Return Value:
     DM, user is not a member of DM, start is greater than the total messages in
     DM, or invalid/inactive token
 */
-
-app.get('/dm/messages/v1', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    const dmId = JSON.parse(req.query.dmId as string);
-    const start = JSON.parse(req.query.start as string);
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
 
 app.get('/dm/messages/v2', (req, res) => {
   const token = req.header('token');
@@ -893,6 +861,38 @@ app.get('/users/all/v2', (req, res) => {
   }
   const authUserId = decodeToken(token);
   res.json(usersAllV1(authUserId));
+});
+
+/*
+Server route for admin/user/remove/v1, calls and responds with the output
+of adminRemove
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    uId (number)      - id that wanted to be remove
+Return Value:
+    Returns { error400 } if uId is invalid or uId is the only global owner.
+    Returns { error403 } if authUserId is not a global owner
+    Returns {} if successfull.
+*/
+
+app.delete('/admin/user/remove/v1', (req, res) => {
+  const token = req.header('token');
+  const uId = parseInt(req.query.uId as string);
+  if (!validToken(token)) {
+    throw HTTPError(INPUT_ERROR, 'Invalid token');
+  } else {
+    const authUserId = decodeToken(token);
+    const statusObj = adminRemove(authUserId, uId);
+    if (statusObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid uId or uId is the only global owner');
+    }
+    if (statusObj.error403) {
+      throw HTTPError(INPUT_ERROR, 'authUserId is not a global owner');
+    }
+    res.json(statusObj);
+  }
 });
 
 /*

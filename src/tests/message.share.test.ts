@@ -1,4 +1,4 @@
-import { requestClear, requestRegister, requestLogin, requestChannelsCreate, requestMessageSend, generateMessage, requestMessageShare } from './request';
+import { requestClear, requestRegister, requestLogin, requestChannelsCreate, requestSendChannelMessage, generateMessage, requestMessageShare } from './request';
 import { requestDmCreate, requestSendDm } from './request';
 import { OK, INPUT_ERROR, AUTHORISATION_ERROR } from './request';
 
@@ -19,7 +19,7 @@ describe('test suite for /message/share/v1', () => {
     userId2 = requestLogin('banana@gmail.com', 'banana10').body.authUserId;
     channelId1 = requestChannelsCreate(usertoken1, 'AERO1', true).body.channelId;
     dmId1 = requestDmCreate(usertoken1, [userId2]).body.dmId;
-    messageIdCh = requestMessageSend(usertoken1, channelId1, generateMessage(5)).body.messageId;
+    messageIdCh = requestSendChannelMessage(usertoken1, channelId1, generateMessage(5)).body.messageId;
     messageIdDm = requestSendDm(usertoken1, channelId1, generateMessage(5)).body.messageId;
   });
 
