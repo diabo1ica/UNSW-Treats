@@ -28,56 +28,64 @@ describe('Notification tests', () => {
 
   test('Test channel invite notif', () => {
     requestChannelInvite(tokenId1, channelId, uId2);
-    expect(requestNotifications(tokenId2).body).toStrictEqual([{
-      channelId: channelId,
-      dmId: -1,
-      notificationMessage: 'jingisukan added you to Xhorhas'
-    }]);
+    expect(requestNotifications(tokenId2).body).toStrictEqual({
+      notifications: [{
+        channelId: channelId,
+        dmId: -1,
+        notificationMessage: 'jingisukan added you to Xhorhas'
+      }]
+    });
   });
 
   test('Test dm invite notif', () => {
     const dmId = requestDmCreate(tokenId1, [uId2]).body.dmId;
-    expect(requestNotifications(tokenId2).body).toStrictEqual([{
-      channelId: -1,
-      dmId: dmId,
-      notificationMessage: expect.any(String)
-    }]);
+    expect(requestNotifications(tokenId2).body).toStrictEqual({
+      notifications: [{
+        channelId: -1,
+        dmId: dmId,
+        notificationMessage: expect.any(String)
+      }]
+    });
   });
 
   test('Test tag notif in channel', () => {
     const messageStr = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
     requestChannelInvite(tokenId1, channelId, uId2);
     requestSendChannelMessage(tokenId1, channelId, messageStr);
-    expect(requestNotifications(tokenId2).body).toStrictEqual([
-      {
-        channelId: channelId,
-        dmId: -1,
-        notificationMessage: 'jingisukan tagged you in Xhorhas: Ajo @suske red dahli'
-      },
-      {
-        channelId: channelId,
-        dmId: -1,
-        notificationMessage: 'jingisukan added you to Xhorhas'
-      }
-    ]);
+    expect(requestNotifications(tokenId2).body).toStrictEqual({
+      notifications: [
+        {
+          channelId: channelId,
+          dmId: -1,
+          notificationMessage: 'jingisukan tagged you in Xhorhas: Ajo @suske red dahli'
+        },
+        {
+          channelId: channelId,
+          dmId: -1,
+          notificationMessage: 'jingisukan added you to Xhorhas'
+        }
+      ]
+    });
   });
 
   test('Test tag notif in dm', () => {
     const messageStr = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
     const dmId = requestDmCreate(tokenId1, [uId2]).body.dmId;
     requestSendDm(tokenId1, dmId, messageStr);
-    expect(requestNotifications(tokenId2).body).toStrictEqual([
-      {
-        channelId: -1,
-        dmId: dmId,
-        notificationMessage: 'jingisukan tagged you in jingisukan, suske: Ajo @suske red dahli'
-      },
-      {
-        channelId: -1,
-        dmId: dmId,
-        notificationMessage: 'jingisukan added you to jingisukan, suske'
-      }
-    ]);
+    expect(requestNotifications(tokenId2).body).toStrictEqual({
+      notifications: [
+        {
+          channelId: -1,
+          dmId: dmId,
+          notificationMessage: 'jingisukan tagged you in jingisukan, suske: Ajo @suske red dahli'
+        },
+        {
+          channelId: -1,
+          dmId: dmId,
+          notificationMessage: 'jingisukan added you to jingisukan, suske'
+        }
+      ]
+    });
   });
 
   test('Test react notif in channel', () => {
@@ -85,13 +93,15 @@ describe('Notification tests', () => {
     requestChannelInvite(tokenId1, channelId, uId2);
     const messageId = requestSendChannelMessage(tokenId1, channelId, messageStr).body.messageId;
     requestMessageReact(tokenId2, messageId, THUMBSUP);
-    expect(requestNotifications(tokenId1).body).toStrictEqual([
-      {
-        channelId: channelId,
-        dmId: -1,
-        notificationMessage: 'suske reacted to your message in Xhorhas'
-      }
-    ]);
+    expect(requestNotifications(tokenId1).body).toStrictEqual({
+      notifications: [
+        {
+          channelId: channelId,
+          dmId: -1,
+          notificationMessage: 'suske reacted to your message in Xhorhas'
+        }
+      ]
+    });
   });
 
   test('Test react notif in Dm', () => {
@@ -99,13 +109,15 @@ describe('Notification tests', () => {
     const dmId = requestDmCreate(tokenId1, [uId2]).body.dmId;
     const messageId = requestSendDm(tokenId1, dmId, messageStr).body.messageId;
     requestMessageReact(tokenId2, messageId, THUMBSUP);
-    expect(requestNotifications(tokenId1).body).toStrictEqual([
-      {
-        channelId: -1,
-        dmId: dmId,
-        notificationMessage: 'suske reacted to your message in jingisukan, suske'
-      }
-    ]);
+    expect(requestNotifications(tokenId1).body).toStrictEqual({
+      notifications: [
+        {
+          channelId: -1,
+          dmId: dmId,
+          notificationMessage: 'suske reacted to your message in jingisukan, suske'
+        }
+      ]
+    });
   });
 
   test('Test message edit', () => {
@@ -120,17 +132,19 @@ describe('Notification tests', () => {
     const messageId2 = requestSendDm(tokenId1, dmId, messageStr).body.messageId;
     requestMessageEdit(tokenId1, messageId2, messageStr2);
     requestMessageEdit(tokenId1, messageId2, messageStr);
-    expect(requestNotifications(tokenId1).body).toStrictEqual([
-      {
-        channelId: -1,
-        dmId: dmId,
-        notificationMessage: 'jingisukan tagged you in jingisukan, suske: Ajo @suske thegreat@'
-      },
-      {
-        channelId: channelId,
-        dmId: -1,
-        notificationMessage: 'jingisukan tagged you in Xhorhas: Ajo @suske thegreat@'
-      }
-    ]);
+    expect(requestNotifications(tokenId1).body).toStrictEqual({
+      notifications: [
+        {
+          channelId: -1,
+          dmId: dmId,
+          notificationMessage: 'jingisukan tagged you in jingisukan, suske: Ajo @suske thegreat@'
+        },
+        {
+          channelId: channelId,
+          dmId: -1,
+          notificationMessage: 'jingisukan tagged you in Xhorhas: Ajo @suske thegreat@'
+        }
+      ]
+    });
   });
 });

@@ -1366,7 +1366,7 @@ app.get('/notifications/get/v1', (req, res) => {
   for (let i = 0; (i < 20 && length - i >= 0); i++) {
     returnArray.push(user.notifications[length - i]);
   }
-  res.json(returnArray);
+  res.json({ notifications: returnArray });
 });
 
 // Calls the clearV1 function from ./other which resets the dataStore
