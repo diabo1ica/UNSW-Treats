@@ -4,10 +4,10 @@ import morgan from 'morgan';
 import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
 import { removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1, channelInviteV1 } from './channel';
-import { getData, setData, DataStr } from './dataStore';
+import { getData, setData, DataStr, userUpdate } from './dataStore';
 import { clearV1, searchV1 } from './other';
 import * as jose from 'jose';
-import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove } from './users';
+import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove, userStats } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, messageSendlaterv1 } from './channel';
@@ -20,6 +20,7 @@ import errorHandler from 'middleware-http-errors';
 import HTTPError from 'http-errors';
 import { startStandUp, activeStandUp, sendStandUp } from './standup';
 import { messagePin, messageReact } from './message';
+import { getChannel, getCurrentTime, getDm, getUserChannelsJoined, getUserDmsJoined, getUserMessagesSent } from './util';
 
 // Set up web app, use JSON
 const app = express();
@@ -67,6 +68,7 @@ Response :
     - Throws Error 400 if authRegisterV1 returns an error
 */
 app.post('/auth/register/v3', (req, res) => {
+  const timeStamp = getCurrentTime();
   const { email, password, nameFirst, nameLast } = req.body;
   const id = authRegisterV1(email, password, nameFirst, nameLast);
   if (id.error) {
@@ -81,6 +83,7 @@ app.post('/auth/register/v3', (req, res) => {
     authUserId: id.authUserId
   };
   res.json(returnObj);
+  stampUserUpdate(id.authUserId, timeStamp);
 });
 
 /*
@@ -101,6 +104,7 @@ Return Value:
 */
 
 app.post('/channels/create/v3', (req, res) => {
+  const timeStamp = getCurrentTime();
   const { name, isPublic } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
@@ -112,6 +116,7 @@ app.post('/channels/create/v3', (req, res) => {
       throw HTTPError(INPUT_ERROR, 'Invalid Channels name');
     }
     res.json(detailsObj);
+    stampUserUpdate(authUserId, timeStamp);
   }
 });
 
@@ -211,6 +216,7 @@ Return Value:
 */
 
 app.post('/channel/invite/v3', (req, res) => {
+  const timeStamp = getCurrentTime();
   const { channelId, uId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
@@ -225,6 +231,7 @@ app.post('/channel/invite/v3', (req, res) => {
       throw HTTPError(AUTHORISATION_ERROR, 'Valid ChannelId but authUserId is not a member');
     }
     res.json(statusObj);
+    stampUserUpdate(uId, timeStamp);
   }
 });
 
@@ -240,6 +247,7 @@ Response :
     - Throws Error 403 if the token points to a uid that doesn't exist in the channel's members array
 */
 app.post('/channel/leave/v2', (req, res) => {
+  const timeStamp = getCurrentTime();
   const { channelId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
@@ -254,6 +262,7 @@ app.post('/channel/leave/v2', (req, res) => {
       throw HTTPError(AUTHORISATION_ERROR, 'Invalid uid, cannot leave channel');
     }
     res.json(leaveStatus);
+    stampUserUpdate(userId, timeStamp);
   }
 });
 
@@ -480,11 +489,13 @@ Response  :
     - Throws Error 400 if the token points to a uid that does not exist in the dataStore
 */
 app.delete('/dm/remove/v2', (req, res) => {
+  const timeStamp = getCurrentTime();
   const token: string = req.header('token');
   const dmId = parseInt(req.query.dmId as string);
   if (!validToken(token)) {
     throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot remove dm');
   } else {
+    const members = getDm(dmId).members;
     const removeStatus = dmRemove(decodeToken(token), dmId);
     if (removeStatus.error400) {
       throw HTTPError(INPUT_ERROR, 'Invalid channel id, cannot remove dm');
@@ -493,6 +504,7 @@ app.delete('/dm/remove/v2', (req, res) => {
       throw HTTPError(AUTHORISATION_ERROR, 'Invalid uid, cannot remove dm');
     }
     res.json(removeStatus);
+    members.forEach(member => {stampUserUpdate(member.uId, timeStamp)});
   }
 });
 
@@ -591,10 +603,15 @@ Return Value:
 */
 
 app.post('/dm/create/v2', (req, res) => {
+  const timeStamp = getCurrentTime();
   const token = req.header('token');
   const { uIds } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
-  res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
+  else { 
+    res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
+    stampUserUpdate(decodeToken(token), timeStamp);
+    uIds.foreach((uId: number) => {stampUserUpdate(uId, timeStamp)})
+  }
 });
 
 /*
@@ -636,10 +653,12 @@ Return Value:
 */
 
 app.post('/dm/leave/v2', (req, res) => {
+  const timeStamp = getCurrentTime();
   const token = req.header('token');
   const { dmId } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
   res.json(dmLeave(decodeToken(token), dmId)); // respond to request with empty object
+  stampUserUpdate(decodeToken(token), timeStamp);
 });
 
 /*
@@ -663,10 +682,12 @@ Return Value:
 */
 
 app.post('/message/senddm/v2', (req, res) => {
+  const timeStamp = getCurrentTime();
   const token = req.header('token');
   const { dmId, message } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token'); // Throw error if token is not active
   res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
+  stampUserUpdate(decodeToken(token), timeStamp);
 });
 
 /*
@@ -704,6 +725,7 @@ app.post('/message/sendlaterdm/v1', (req, res) => {
   const { dmId, message, timeSent } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(sendLaterDm(decodeToken(token), dmId, message, timeSent));
+  stampUserUpdate(decodeToken(token), timeSent);
 });
 
 app.post('/message/react/v1', (req, res) => {
@@ -757,6 +779,8 @@ app.post('/standup/send/v1', (req, res) => {
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message too long');
   res.json(sendStandUp(decodeToken(token), channelId, message));
+  const timeFinish = getChannel(channelId).standUp.timeFinish;
+  stampUserUpdate(decodeToken(token), timeFinish);
 });
 
 app.post('/message/pin/v1', (req, res) => {
@@ -764,6 +788,12 @@ app.post('/message/pin/v1', (req, res) => {
   const { messageId } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(messagePin(decodeToken(token), messageId));
+});
+
+app.get('/user/stats/v1', (req, res) => {
+  const token = req.header('token');
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(userStats(decodeToken(token)));
 });
 
 /*
@@ -782,6 +812,7 @@ Return Value:
                         of channel, channel is private and user has no globalperm
 */
 app.post('/channel/join/v3', (req, res) => {
+  const timeStamp = getCurrentTime();
   const { channelId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
@@ -789,6 +820,7 @@ app.post('/channel/join/v3', (req, res) => {
   } else {
     const authUserId = decodeToken(token);
     res.json(channelJoinV1(authUserId, channelId));
+    stampUserUpdate(authUserId, timeStamp);
   }
 });
 
@@ -913,6 +945,7 @@ Return Value:
                             usr is a part of.
 */
 app.post('/message/send/v2', (req, res) => {
+  const timeStamp = getCurrentTime();
   const token: string = req.header('token');
   const { channelId, message } = req.body;
   if (!validToken(token)) {
@@ -920,6 +953,7 @@ app.post('/message/send/v2', (req, res) => {
   } else {
     const authUserId = decodeToken(token);
     res.json(messageSendV1(authUserId, channelId, message));
+    stampUserUpdate(authUserId, timeStamp);
   }
 });
 
@@ -1000,6 +1034,7 @@ app.post('/message/sendlater/v1', (req, res) => {
     const authUserId = decodeToken(token);
 
     res.json(messageSendlaterv1(authUserId, channelId, message, timeSent));
+    stampUserUpdate(authUserId, timeSent);
   }
 });
 
@@ -1216,4 +1251,17 @@ function closeAllSession(token: string) {
       i--;
     }
   }
+}
+
+function stampUserUpdate(authUserId: number, timeStamp: number): void {
+  const data = getData();
+  const userUpdate: userUpdate = {
+    numChannelsJoined: getUserChannelsJoined(authUserId),
+    numDmsJoined: getUserDmsJoined(authUserId),
+    numMessagesSent: getUserMessagesSent(authUserId),
+    uId: authUserId,
+    timeStamp: timeStamp
+  }
+  data.userUpdates.push(userUpdate);
+  setData(data);
 }

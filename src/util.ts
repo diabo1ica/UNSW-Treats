@@ -1,4 +1,4 @@
-import { getData, setData, Dm, Message, DmMember, DataStr, Channel } from './dataStore';
+import { getData, setData, Dm, Message, DmMember, DataStr, Channel, userUpdate } from './dataStore';
 // creates a template for new DMs
 export const dmTemplate = (): Dm => {
   return {
@@ -215,4 +215,75 @@ export function getUser(userId: number) {
 export function getGlobalPerms(authUserId: number) {
   const data = getData();
   return data.users.find(user => user.userId === authUserId).globalPermsId;
+}
+
+export function getUserChannelsJoined(authUserId: number): number {
+  const data = getData();
+  return data.channels.filter(channel => isMember(authUserId, channel)).length;
+}
+
+export function getUserDmsJoined(authUserId: number): number {
+  const data = getData();
+  return data.dms.filter(dm => isDmMember(authUserId, dm)).length;
+}
+
+export function getUserMessagesSent(authUserId: number): number {
+  const data = getData();
+  return data.messages.filter(message => message.uId === authUserId && isMessageSent(message)).length;
+}
+
+export function getNumMessagesSent(): number {
+  const data = getData();
+  return data.messages.filter(message => isMessageSent(message)).length;
+}
+
+export function getNumChannels(): number {
+  const data = getData();
+  return data.channels.length;
+}
+
+export function getNumDms(): number {
+  const data = getData();
+  return data.dms.length;
+}
+
+export function filterChannelsJoined(updates: userUpdate[]): void {
+  for (let item of updates) {
+    delete item.numDmsJoined;
+    delete item.numMessagesSent;
+    delete item.uId
+  }
+}
+
+export function filterDmsJoined(updates: userUpdate[]): void {
+  for (let item of updates) {
+    delete item.numChannelsJoined;
+    delete item.numMessagesSent;
+    delete item.uId;
+  }
+}
+
+export function filterMessagesSent(updates: userUpdate[]): void {
+  for (let item of updates) {
+    delete item.numChannelsJoined;
+    delete item.numDmsJoined;
+    delete item.uId;
+  }
+}
+
+export function getUserInvolvement(numChannelsJoined: number, numDmsJoined: number, numMsgsSent: number) {
+  const denominator = getNumChannels() + getNumDms() + getNumMessagesSent();
+  if (denominator === 0) return 0;
+  const involvement = (numChannelsJoined + numDmsJoined + numMsgsSent) / denominator;
+  if (involvement > 1) return 1;
+  return involvement;
+}
+
+export function getUserUpdates(authUserId: number) {
+  const data = getData();
+  return data.userUpdates.filter(update => update.uId === authUserId);
+}
+
+export function deepCopy(object: any) {
+  return JSON.parse(JSON.stringify(object));
 }

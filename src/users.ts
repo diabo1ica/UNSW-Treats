@@ -2,7 +2,7 @@ import HTTPError from 'http-errors';
 import { INPUT_ERROR } from './tests/request';
 import { getData, DataStr, setData } from './dataStore';
 import validator from 'validator';
-import { isDmMember, isMember, validateUserId } from './util';
+import { deepCopy, filterChannelsJoined, filterDmsJoined, filterMessagesSent, getUserChannelsJoined, getUserDmsJoined, getUserInvolvement, getUserMessagesSent, getUserUpdates, isDmMember, isMember, validateUserId } from './util';
 import { channelLeave } from './channel';
 import { dmLeave } from './dm';
 
@@ -140,65 +140,24 @@ export function usersAllV1(authUserId: number) {
   return { users: allUsers };
 }
 
-/*
-export function userStatsv1 (authUserId: number) {
-  const data: DataStr = getData();
-  const channelsJoined: any[] = [];
-  const dmsJoined: any[] = [];
-  const messageSent: any[] = [];
-
-  let numChannel = data.channels.length;
-  let numDms = data.dms.length;
-  let numMsg = data.messages.length;
-
-  let i = 0;
-  for (const channel of data.channels) {
-    if (isMember(authUserId, channel)) {
-      channelsJoined.push({
-        numChannelsJoined: i,
-        timeStamp: 0,
-      });
-      i++;
-    }
-  }
-
-  let j = 0;
-  for (const dm of data.dms) {
-    if (isDmMember(authUserId, dm)) {
-      dmsJoined.push({
-        numDmsJoined: j,
-        timeStamp: 0,
-      });
-      j++;
-    }
-  }
-
-  let k = 0;
-  for (const msg of data.messages) {
-    if (msg.uId === authUserId) {
-      messageSent.push({
-        numMessagesExist: k,
-        timeStamp: 0,
-      });
-      k++;
-    }
-  }
-  let involvement = 0;
-  if ((numChannel + numDms + numMsg) !== 0) {
-    involvement = Math.round((((i + j + k) / (numChannel + numDms + numMsg)) * 10) / 10);
-    if (involvement > 1) {
-      involvement = 1;
-    }
-  }
+export function userStats(authUserId: number) { 
+  const messagesSent = deepCopy(getUserUpdates(authUserId));
+  const dmsJoined = deepCopy(getUserUpdates(authUserId));
+  const channelsJoined = deepCopy(getUserUpdates(authUserId));
+  filterChannelsJoined(channelsJoined);
+  filterDmsJoined(dmsJoined);
+  filterMessagesSent(messagesSent);
 
   return {
-    channelsJoined: channelsJoined,
-    dmsJoined: dmsJoined,
-    messagesSent: messageSent,
-    involvementRate: involvement,
-  };
+    userStats: {
+      channelsJoined: channelsJoined,
+      dmsJoined: dmsJoined,
+      messagesSent: messagesSent,
+      involvementRate: getUserInvolvement(getUserChannelsJoined(authUserId), getUserDmsJoined(authUserId), getUserMessagesSent(authUserId))
+    }
+  }
 }
-
+/*
 export function usersStatsv1 (authUserId: number) {
   const data: DataStr = getData();
   const channelsExist: any[] = [];
