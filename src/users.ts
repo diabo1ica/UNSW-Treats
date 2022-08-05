@@ -66,6 +66,12 @@ export function userSetemailV1(authUserId: number, email: string) {
   }
 
   for (const item of data.users) {
+    if (item.email === email) {
+      return { error400: 'Email taken' };
+    }
+  }
+
+  for (const item of data.users) {
     if (item.userId === authUserId) {
       item.email = email;
     }
@@ -126,13 +132,14 @@ export function usersAllV1(authUserId: number) {
   const allUsers: any[] = [];
 
   for (const item of data.users) {
-    if (item.nameFirst !== 'Removed' && item.nameLast !== 'user') {
+    if (item.counterRemoved !== 2) {
       allUsers.push({
         userId: item.userId,
         email: item.email,
         nameFirst: item.nameFirst,
         nameLast: item.nameLast,
         handleStr: item.handleStr,
+        profileImgUrl: item.profileImgUrl,
       });
     }
   }
@@ -299,6 +306,7 @@ export function adminRemove (authUserId: number, uId : number) {
   for (const user of data.users) {
     if (user.userId === uId) {
       userSetNameV1(uId, 'Removed', 'user');
+      user.counterRemoved = 2;
     }
   }
 

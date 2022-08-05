@@ -7,24 +7,30 @@ describe('auth path tests', () => {
   });
 
   test('Test successful and unsuccessful auth register', () => {
-    const res = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
+    const res = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisukankenkinkonkun', 'Kan');
     expect(res.statusCode).toStrictEqual(OK);
     expect(res.body).toEqual({
       token: expect.any(String),
       authUserId: 1
     });
-    const res2 = requestRegister('hero@gmail.com', 'Coursehero', 'Hiiro', 'Heroe');
+    const res2 = requestRegister('hero@gmail.com', 'Coursehero', 'Jingisukankenkinkonkun', 'Kan');
     expect(res2.statusCode).toStrictEqual(OK);
     expect(res2.body).toEqual({
       token: expect.any(String),
       authUserId: 2
     });
-    const res3 = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
+    const res3 = requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisukankenkinkonkun', 'Kan');
     expect(res3.statusCode).toStrictEqual(INPUT_ERROR);
     const res4 = requestRegister('kl@gmail.com', 'Ss', 'Jingisu', 'Kan');
     expect(res4.statusCode).toStrictEqual(INPUT_ERROR);
     const res5 = requestRegister('Alalaly@gmail.com', 'Sk8terboiyo', '', 'Kanaskhdsfhewfbsdkvbdshvbfdhvbdfvbdsfhvbdvbjvbsuivbfjbvfdjkbvjfbvjbvkjfdbvkhdfbvfdbvdfbvhfdbvkbvjcvkhfdbvfbvc vhfbvjdfbvjsdfbvjsfbvkjdfbvjdbajfd');
     expect(res5.statusCode).toStrictEqual(INPUT_ERROR);
+    const res6 = requestRegister('heroes@gmail.com', 'Courseheroes', 'Jingisukankenkinkonkun', 'Kan');
+    expect(res6.statusCode).toStrictEqual(OK);
+    expect(res6.body).toEqual({
+      token: expect.any(String),
+      authUserId: 3
+    });
   });
 
   test('Test logout', () => {

@@ -5,7 +5,7 @@ import config from './config.json';
 import { channelsCreateV1, channelsListV1, channelsListallV1 } from './channels';
 import { removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1, channelInviteV1 } from './channel';
 import { getData, setData, DataStr } from './dataStore';
-import { clearV1, searchV1 } from './other';
+import { clearV1, searchV1, uploadImage } from './other';
 import * as jose from 'jose';
 import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
@@ -84,7 +84,7 @@ app.post('/auth/register/v3', (req, res) => {
 });
 
 /*
-Server route for channels/create/v2 calls and responds with output
+Server route for channels/create/v3 calls and responds with output
 of channelsCreateV1
 
 Arguments:
@@ -104,12 +104,49 @@ app.post('/channels/create/v3', (req, res) => {
   const { name, isPublic } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels Create');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot proceed Channels Create');
   } else {
     const authUserId = decodeToken(token);
     const detailsObj = channelsCreateV1(authUserId, name, isPublic);
     if (detailsObj.error400) {
       throw HTTPError(INPUT_ERROR, 'Invalid Channels name');
+    }
+    res.json(detailsObj);
+  }
+});
+
+/*
+Server route for user/profile/uploadphoto/v1 calls and responds with output
+of uploadImage
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the authorised user's Id.
+    ImgUrl (string)   - the URL of the image
+    xStart (number)   - the start where image will be cropped in x-axis
+    yStart (number)   - the start where image will be cropped in y-axis
+    xEnd (number)     - the end where image will be cropped in x-axis
+    yEnd (number)     - the end where image will be cropped in y-axis
+
+Return Value:
+    Returns {} on imgUrl not return HTTP status other than 200, the coordinate is within the dimension,
+    xStart is less than xEnd, yStart is less than yEnd, and image uploaded as .jpg
+    Returns {error400} on imgUrl return HTTP status other than 200
+    Returns {error400} on the coordinate is not within the dimension
+    Returns {error400} on xEnd is less than xStart, yEnd is less than yStart
+    Returns {error400} on image not uploaded as .jpg
+
+*/
+app.post('/user/profile/uploadphoto/v1', (req, res) => {
+  const token: string = req.header('token');
+  const { imgUrl, xStart, xEnd, yStart, yEnd } = req.body;
+  if (!validToken(token)) {
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot proceed Channels Create');
+  } else {
+    const authUserId = decodeToken(token);
+    const detailsObj = uploadImage(authUserId, imgUrl, xStart, yStart, xEnd, yEnd);
+    if (detailsObj.error400) {
+      throw HTTPError(INPUT_ERROR, 'Invalid imgUrl HTTP status, or coordinated are not in the image dimension, or xEnd less than xStart, or yEnd less than yStart, or image uploaded is not .jpg');
     }
     res.json(detailsObj);
   }
@@ -131,7 +168,7 @@ Return Value:
 app.get('/channels/list/v3', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels List');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot proceed Channels List');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelsListV1(authUserId));
@@ -175,7 +212,6 @@ Response :
 */
 app.get('/channel/details/v3', (req, res) => {
   const token: string = req.header('token');
-
   const chId: number = parseInt(req.query.channelId as string);
 
   if (!validToken(token)) {
@@ -215,7 +251,7 @@ app.post('/channel/invite/v3', (req, res) => {
   const { channelId, uId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = channelInviteV1(authUserId, channelId, uId);
@@ -277,7 +313,7 @@ app.get('/user/profile/v3', (req, res) => {
   const token: string = req.header('token');
   const uID: number = parseInt(req.query.uId as string);
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const statusObj = userProfileV1(uID);
     if (statusObj.error400) {
@@ -305,7 +341,7 @@ app.get('/search/v1', (req, res) => {
   const token: string = req.header('token');
   const queryStr: string = req.query.queryStr as string;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const statusObj = searchV1(queryStr);
     if (statusObj.error400) {
@@ -339,7 +375,7 @@ app.post('/channel/removeowner/v2', (req, res) => {
   const { channelId, uId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = removeowner(authUserId, channelId, uId);
@@ -374,7 +410,7 @@ app.put('/user/profile/setname/v2', (req, res) => {
   const { nameFirst, nameLast } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = userSetNameV1(authUserId, nameFirst, nameLast);
@@ -439,7 +475,7 @@ app.put('/user/profile/setemail/v2', (req, res) => {
   const { email } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = userSetemailV1(authUserId, email);
@@ -511,23 +547,6 @@ Return Value:
     Returns {error: 'error} on invalid email and/or password
 */
 
-app.post('/auth/login/v2', (req, res) => {
-  try {
-    const { email, password } = req.body; // load relevant request information
-    const userId = authLoginV1(email, password).authUserId; // Login the user
-    const token = generateToken(userId); // Generate a new active token for the user
-    const data = getData(); // load the datastore
-    data.tokenArray.push(token); // Add the new active token to the datastore
-    setData(data); // save changes
-    res.json({
-      token: token,
-      authUserId: userId
-    }); // responds to request with the desired information
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.post('/auth/login/v3', (req, res) => {
   const { email, password } = req.body; // load relevant request information
   const userId = authLoginV1(email, password).authUserId; // Login the user
@@ -554,16 +573,6 @@ Return Value:
     Returns { channels } on token is valid/active
     Returns {error: 'error'} on token is invalid/inactive
 */
-
-app.get('/channels/listall/v2', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(channelsListallV1(decodeToken(token))); // respond to request with list of all channels
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
 
 app.get('/channels/listall/v3', (req, res) => {
   const token = req.header('token');
@@ -593,18 +602,6 @@ Return Value:
     member of the channel
 */
 
-app.get('/channel/messages/v2', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    const channelId = JSON.parse(req.query.channelId as string);
-    const start = JSON.parse(req.query.start as string);
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(channelMessagesV1(decodeToken(token), channelId, start)); // respond to request with list of message in channel
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.get('/channel/messages/v3', (req, res) => {
   const token = req.header('token');
   const channelId = JSON.parse(req.query.channelId as string);
@@ -630,17 +627,6 @@ Return Value:
     invalid uId are found in uIds
 */
 
-app.post('/dm/create/v1', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    const { uIds } = req.body;
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(dmCreate(decodeToken(token), uIds)); // respond to request with the new DM's id
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.post('/dm/create/v2', (req, res) => {
   const token = req.header('token');
   const { uIds } = req.body;
@@ -664,17 +650,6 @@ Return Value:
     of the DM
 */
 
-app.get('/dm/details/v1', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    const dmId = JSON.parse(req.query.dmId as string);
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(dmDetails(decodeToken(token), dmId)); // respond to request with details of the DM
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.get('/dm/details/v2', (req, res) => {
   const token = req.header('token');
   const dmId = JSON.parse(req.query.dmId as string);
@@ -696,18 +671,6 @@ Return Value:
     Returns {error: 'error'} on invalid DM or user is not a member
     of the DM
 */
-
-app.post('/dm/leave/v1', (req, res) => {
-  try {
-    const { dmId } = req.body;
-    const token: string = req.header('token');
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(dmLeave(decodeToken(token), dmId)); // respond to request with empty object
-  } catch (err) {
-    console.log(err);
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
 
 app.post('/dm/leave/v2', (req, res) => {
   const token = req.header('token');
@@ -735,17 +698,6 @@ Return Value:
     Returns {error: 'error'} on dmId refers to invalid DM, message is empty,
     message is over 1000 characters, or user is not a member of the DM.
 */
-
-app.post('/message/senddm/v1', (req, res) => {
-  try {
-    const { dmId, message } = req.body;
-    const token: string = req.header('token');
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(messageSendDm(decodeToken(token), dmId, message)); // respond to request with messageId
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
 
 app.post('/message/senddm/v2', (req, res) => {
   const token = req.header('token');
@@ -776,18 +728,6 @@ Return Value:
     DM, or invalid/inactive token
 */
 
-app.get('/dm/messages/v1', (req, res) => {
-  try {
-    const token: string = req.header('token');
-    const dmId = JSON.parse(req.query.dmId as string);
-    const start = JSON.parse(req.query.start as string);
-    if (!validToken(token)) throw new Error('Invalid/Inactive Token'); // Throw error if token is not active
-    res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
-  } catch (err) {
-    res.json({ error: 'error' }); // responds to request with error if any errors are thrown
-  }
-});
-
 app.get('/dm/messages/v2', (req, res) => {
   const token = req.header('token');
   const dmId = JSON.parse(req.query.dmId as string);
@@ -796,12 +736,51 @@ app.get('/dm/messages/v2', (req, res) => {
   res.json(dmMessages(decodeToken(token), dmId, start)); // respond to request with list of messages, start and end indexes
 });
 
+/*
+Server route for message/sendlaterdm/v1, calls and responds with the output
+of sendLaterDm
+
+Arguments:
+    token (string)        - a string pertaining to an active user session
+                        decodes into the user's Id.
+    dmId (number)          - Identification number of of dm
+    message (string)       - The message that will be sent
+    timeSent (number)      - The time when the message will be send in dm
+
+Return Value:
+    Returns { messageId } on valid/active token, dmID refer to valid DM,
+    length of message is between 1 and 1000 character, timeSent is not time in past,
+    and valid dmId while authUserId is a member of the DM
+    Returns {error400} on dmId does not refer to valid DM
+    Returns {error400} on message length is less than 1 or over 1000
+    Returns {error400} on timeSent is time in the past
+    Returns {error403} on valid dmId but authUserId is not a member of the DM
+*/
+
 app.post('/message/sendlaterdm/v1', (req, res) => {
   const token = req.header('token');
   const { dmId, message, timeSent } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(sendLaterDm(decodeToken(token), dmId, message, timeSent));
 });
+
+/*
+Server route for message/react/v1, calls and responds with the output
+of messageReact
+
+Arguments:
+    token (string)        - a string pertaining to an active user session
+                        decodes into the user's Id.
+    messageId (number)     - Identification number of the message which will be reacted
+    reactId (number)       - Identification number of the reaction
+
+Return Value:
+    Returns {} on valid/active token, messageId refer to valid message, valid reactId, the message
+    has not contain a react with ID reactId from authUserId
+    Returns {error400} on messageId does not refer to valid message
+    Returns {error400} on invalid reactId
+    Returns {error400} on the message contain a react with ID reactId from authUserId
+*/
 
 app.post('/message/react/v1', (req, res) => {
   const token = req.header('token');
@@ -810,14 +789,42 @@ app.post('/message/react/v1', (req, res) => {
   res.json(messageReact(decodeToken(token), messageId, reactId));
 });
 
+/*
+Server route for standup/start/v1, calls and responds with the output
+of startStandUp
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    channelId (number)  - Identification number of the channel which standUp will be started
+    length  (number)    - the length of time of how long will standUp be start
+
+Return Value:
+    Returns {timeFinish} on valid/active token, channelId refers to valid channel,
+    length is not negative, active standup is not yet running
+    Returns {error400} on invalid channelId
+    Returns {error400} on negative length
+    Returns {error400} on active standup currently running
+    Returns {error403} on valid channelId but authUserId is not a member of the channel
+*/
+
 app.post('/standup/start/v1', (req, res) => {
   const token = req.header('token');
   const { channelId, length } = req.body;
   if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
   res.json(startStandUp(decodeToken(token), channelId, length));
 });
-
-// For a given channel, return whether a standup is active in it, and what time the standup finishes.
+/*
+For a given channel, return whether a standup is active in it, and what time the standup finishes.
+Arguements:
+    - token (string)      - Takes in a token as a header
+    - channelId (number)  - Channel id of the channel where the standup activity is being checked
+Return Value:
+    - Returns an object containing the stand up's active status and time finish.
+    - Throws Error 403 on invalid token
+    - Throws Error 400 if channelId refers to an invalid channel
+    - Throws Error 403 if user is not member of channel
+*/
 app.get('/standup/active/v1', (req, res) => {
   const token = req.header('token');
   const channelId = parseInt(req.query.channelId as string);
@@ -825,7 +832,20 @@ app.get('/standup/active/v1', (req, res) => {
   res.json(activeStandUp(decodeToken(token), channelId));
 });
 
-// For a given channel, if a standup is currently active in the channel, send a message to get buffered in the standup queue.
+/*
+For a given channel, if a standup is currently active in the channel, send a message to get buffered in the standup queue.
+Arguements:
+    - token (string)      - Takes in token as a header
+    - channelId (number)  - Channel id of the channel where the standup is being held
+    - message (string)    - Message string that will be passed to the standUp message space
+Return value:
+    - Returns {} on success
+    - Throws Error 403 on invalid token
+    - Throws Error 400 if channelId refers to an invalid channel
+    - Throws Error 400 if message length is over 1000
+    - Throws Error 400 if no active standup is available in the channel
+    - Throws Error 403 if user is not member of channel
+*/
 app.post('/standup/send/v1', (req, res) => {
   const token = req.header('token');
   const { channelId, message } = req.body;
@@ -833,6 +853,23 @@ app.post('/standup/send/v1', (req, res) => {
   if (message.length > 1000) throw HTTPError(INPUT_ERROR, 'Message too long');
   res.json(sendStandUp(decodeToken(token), channelId, message));
 });
+
+/*
+Server route for message/pin/v1, calls and responds with the output
+of messagePin
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    messageId (number)     - Identification number of the message which will be pinned
+
+Return Value:
+    RReturns {} on valid/active token, messageId refer to valid message, message is not yet pinned, messagedID refer to
+    a valid message and authUserId have user permission
+    Returns {error400} on messageId does not refer to valid message
+    Returns {error400} on message already pinned
+    Returns {error403} on messageId is valid but authUserId does not have user permission
+*/
 
 app.post('/message/pin/v1', (req, res) => {
   const token = req.header('token');
@@ -896,6 +933,26 @@ app.post('/channel/addowner/v2', (req, res) => {
 });
 
 /*
+Server route for user/profile/uploadphoto/v1
+
+Arguments:
+    token (string)    - a string pertaining to an active user session
+                        decodes into the user's Id.
+    imgUrl (string)   - the url of the image that will be cropped and stored
+    xStart (number)   - the coordinate of x-axis to start cropping
+    xEnd (number)     - the coordinate of x-axis to end cropping
+    yStart (number)   - the coordinate of y-axis to start cropping
+    yEnd (number)     - the coordinate of y-axis to end cropping
+
+Return Value:
+    Returns {} when succesfull
+    Return {error400} if imgUrl return HTTP status other than 200
+    Return {error400} if xStart yStart xEnd yEnd is invalid
+    Return {error400} if xEnd and yEnd is less than or equal to xStart and yStart
+    Return {error400} if image uploaded is not .jpg
+*/
+
+/*
 Server route for user/profile/sethandle/v1, calls and responds with the output
 of userProfileSethandleV1
 
@@ -956,7 +1013,7 @@ app.delete('/admin/user/remove/v1', (req, res) => {
   const token = req.header('token');
   const uId = parseInt(req.query.uId as string);
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = adminRemove(authUserId, uId);
@@ -1216,7 +1273,7 @@ Arguements:
     - email (string)      - An email string of the user trying to request the reset
 Return Values:
     - Returns {} once the request is made
-    - Throws Error 400 if the token is invalid
+    - Throws Error 403 if the token is invalid
 */
 app.post('/auth/passwordreset/request/v1', (req, res) => {
   const { email } = req.body;
@@ -1255,7 +1312,6 @@ app.post('/auth/passwordreset/request/v1', (req, res) => {
     subject: 'Treats Reset Password Code',
     text: code
   };
-
   transporter.sendMail(mailOptions);
   res.json({});
 });
@@ -1294,6 +1350,18 @@ app.post('/auth/passwordreset/reset/v1', (req, res) => {
   res.json({});
 });
 
+/*
+Outputs the user's most recent 20 notifications, ordered from most recent to least recent.
+Arguements:
+    - token (string)    - Token passed in through header
+Return value:
+    - Returns an object {
+          channelId (number)            - the channel Id of the channel where the notif came from, if notif comes from dm then channelId is undefined
+          dmId (number)                 - the dm Id of the channel where the notif came from, if notif comes from channel then dmId is undefined
+          notificationMessage (string)  - the nitification message
+      }
+    - Throws Error 400 if the token is invalid
+*/
 app.get('/notifications/get/v1', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {

@@ -155,10 +155,6 @@ export const requestJoinChannel = (token: string, channelId: number) => {
   return requestHelper('POST', '/channel/join/v3', { token: token, channelId: channelId });
 };
 
-export const requestMessageSend = (token: string, channelId: number, message: string) => {
-  return requestHelper('POST', '/message/send/v2', { token: token, channelId: channelId, message: message });
-};
-
 export const requestMessageEdit = (token: string, messageId: number, message: string) => {
   return requestHelper('PUT', '/message/edit/v2', { token: token, messageId: messageId, message: message });
 };
@@ -202,6 +198,7 @@ export const requestMessageUnreact = (token: string, messageId: number, reactId:
 export const requestMessageShare = (token: string, ogMessageId: number, message: string, channelId: number, dmId: number) => {
   return requestHelper('POST', '/message/share/v1', { token: token, ogMessageId: ogMessageId, message: message, channelId: channelId, dmId: dmId });
 };
+
 export const requestNotifications = (token: string) => {
   return requestHelper('GET', '/notifications/get/v1', { token: token });
 };

@@ -1,4 +1,4 @@
-import { requestClear, requestRegister, requestLogin, requestChannelsCreate, requestChannelJoin, requestMessageSend, requestMessageRemove } from './request';
+import { requestClear, requestRegister, requestLogin, requestChannelsCreate, requestChannelJoin, requestSendChannelMessage, requestMessageRemove } from './request';
 import { requestDmCreate, requestSendDm } from './request';
 import { OK, INPUT_ERROR, AUTHORISATION_ERROR } from './request';
 
@@ -17,7 +17,7 @@ describe('Test suite channel for /message/remove/v1', () => {
   });
 
   test('message remove success', () => {
-    messageId = requestMessageSend(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
+    messageId = requestSendChannelMessage(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
     const messageObj = requestMessageRemove(usertoken1, messageId);
     expect(messageObj.statusCode).toStrictEqual(OK);
     expect(messageObj.body).toStrictEqual({});
@@ -26,7 +26,7 @@ describe('Test suite channel for /message/remove/v1', () => {
   // user with owner permission can remove any message
   test('message remove success by owners', () => {
     requestChannelJoin(usertoken2, channelId1);
-    messageId = requestMessageSend(usertoken2, channelId1, 'Helloooo!!!!!').body.messageId;
+    messageId = requestSendChannelMessage(usertoken2, channelId1, 'Helloooo!!!!!').body.messageId;
     const messageObj = requestMessageRemove(usertoken1, messageId);
     expect(messageObj.statusCode).toStrictEqual(OK);
     expect(messageObj.body).toStrictEqual({});
@@ -36,26 +36,26 @@ describe('Test suite channel for /message/remove/v1', () => {
   test('message remove success by global owners', () => {
     channelId2 = requestChannelsCreate(usertoken2, 'AERO2', true).body.channelId;
     requestChannelJoin(usertoken1, channelId2);
-    messageId = requestMessageSend(usertoken2, channelId2, 'Helloooo!!!!!').body.messageId;
+    messageId = requestSendChannelMessage(usertoken2, channelId2, 'Helloooo!!!!!').body.messageId;
     const messageObj = requestMessageRemove(usertoken1, messageId);
     expect(messageObj.statusCode).toStrictEqual(OK);
     expect(messageObj.body).toStrictEqual({});
   });
 
   test('Invalid token', () => {
-    messageId = requestMessageSend(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
+    messageId = requestSendChannelMessage(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
     expect(requestMessageRemove('-' + usertoken1, messageId).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   // messageId does not refer to a valid message within a channel/DM that the authorised user has joined
   test('invalid messageId for user (400 error)', () => {
-    messageId = requestMessageSend(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
+    messageId = requestSendChannelMessage(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
     expect(requestMessageRemove(usertoken1, -1).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
   // user that is a member cannot remove other's message
   test('not original user who sent the message (403 error)', () => {
-    messageId = requestMessageSend(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
+    messageId = requestSendChannelMessage(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
     requestChannelJoin(usertoken2, channelId1);
     expect(requestMessageRemove(usertoken2, messageId).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });

@@ -1,5 +1,5 @@
 import { requestClear, requestRegister, requestChannelsCreate, requestDmCreate, requestNotifications, requestChannelInvite } from './request';
-import { requestSendChannelMessage, requestSendDm, requestMessageReact, requestMessageEdit } from './request';
+import { requestSendChannelMessage, requestSendDm, requestMessageReact, requestMessageEdit, AUTHORISATION_ERROR } from './request';
 import { THUMBSUP } from '../dataStore';
 
 describe('Notification tests', () => {
@@ -18,8 +18,12 @@ describe('Notification tests', () => {
     const user2 = requestRegister('suskemogus@unsw.edu.au', 'iswearhevented', 'sus', 'ke').body;
     uId2 = user2.authUserId;
     tokenId2 = user2.token;
-    // uId3 = requestRegister('z4234824@unsw.edu.au', 'aero654', 'David', 'Pei').body.authUserId;
     channelId = requestChannelsCreate(tokenId1, 'Xhorhas', true).body.channelId;
+  });
+
+  test('Test invalid token', () => {
+    requestChannelInvite(tokenId1, channelId, uId2);
+    expect(requestNotifications('Hiyahiya').statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('Test channel invite notif', () => {
@@ -107,7 +111,7 @@ describe('Notification tests', () => {
   test('Test message edit', () => {
     const messageStr = 'Ajo @suske red dahlia be venting 24/7 morbussin all over the place';
     const messageStr2 = 'Ajo @suske thegreat@jingisukan be venting 24/7 morbussin all over the place';
-    // Dm test
+    // Channel test
     requestChannelInvite(tokenId1, channelId, uId2);
     const messageId = requestSendChannelMessage(tokenId1, channelId, messageStr).body.messageId;
     requestMessageEdit(tokenId1, messageId, messageStr2);
@@ -115,6 +119,7 @@ describe('Notification tests', () => {
     const dmId = requestDmCreate(tokenId1, [uId2]).body.dmId;
     const messageId2 = requestSendDm(tokenId1, dmId, messageStr).body.messageId;
     requestMessageEdit(tokenId1, messageId2, messageStr2);
+    requestMessageEdit(tokenId1, messageId2, messageStr);
     expect(requestNotifications(tokenId1).body).toStrictEqual([
       {
         channelId: -1,

@@ -1,12 +1,109 @@
 {
-    "users": [],
-    "channels": [],
-    "dms": [],
-    "messages": [],
-    "tokenArray": [],
-    "userIdCounter": 2,
+    "users": [
+        {
+            "nameFirst": "Steve",
+            "nameLast": "Berrospi",
+            "handleStr": "steveberrospi",
+            "email": "z5363495@unsw.edu.au",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm8xMjMiLCJpYXQiOjE2NTk2OTI1NzU1NTEsImlzcyI6IjE2NTk2OTI1NzU1NTEifQ.",
+            "userId": 1,
+            "globalPermsId": 1,
+            "counterRemoved": 1,
+            "profileImgUrl": "",
+            "notifications": []
+        },
+        {
+            "nameFirst": "Gary",
+            "nameLast": "Ang",
+            "handleStr": "garyang",
+            "email": "z3329234@unsw.edu.au",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm8zMjEiLCJpYXQiOjE2NTk2OTI1NzU3NzQsImlzcyI6IjE2NTk2OTI1NzU3NzQifQ.",
+            "userId": 2,
+            "globalPermsId": 2,
+            "counterRemoved": 1,
+            "profileImgUrl": "",
+            "notifications": [
+                {
+                    "channelId": -1,
+                    "dmId": 1,
+                    "notificationMessage": "steveberrospi added you to garyang, steveberrospi"
+                }
+            ]
+        },
+        {
+            "nameFirst": "Kenneth",
+            "nameLast": "Kuo",
+            "handleStr": "kennethkuo",
+            "email": "z5363442@unsw.edu.au",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm80NTYiLCJpYXQiOjE2NTk2OTI1NzU5NDgsImlzcyI6IjE2NTk2OTI1NzU5NDgifQ.",
+            "userId": 3,
+            "globalPermsId": 2,
+            "counterRemoved": 1,
+            "profileImgUrl": "",
+            "notifications": []
+        }
+    ],
+    "channels": [
+        {
+            "channelId": 1,
+            "name": "AERO",
+            "isPublic": true,
+            "members": [
+                {
+                    "uId": 3,
+                    "channelPermsId": 1
+                }
+            ],
+            "standUp": {
+                "messageId": 0
+            }
+        }
+    ],
+    "dms": [
+        {
+            "members": [
+                {
+                    "uId": 2,
+                    "dmPermsId": 2
+                },
+                {
+                    "uId": 1,
+                    "dmPermsId": 1
+                }
+            ],
+            "dmId": 1,
+            "creatorId": 1,
+            "name": "garyang, steveberrospi"
+        }
+    ],
+    "messages": [
+        {
+            "messageId": 2,
+            "uId": 3,
+            "message": "PIN ME TOO",
+            "timeSent": 1659692576,
+            "isPinned": false,
+            "reacts": [],
+            "channelId": 1
+        },
+        {
+            "messageId": 1,
+            "uId": 1,
+            "message": "PIN ME",
+            "timeSent": 1659692576,
+            "isPinned": false,
+            "reacts": [],
+            "dmId": 1
+        }
+    ],
+    "tokenArray": [
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY5MjU3NTU1NywiaXNzIjoiMTY1OTY5MjU3NTU1NyJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY5MjU3NTc4NCwiaXNzIjoiMTY1OTY5MjU3NTc4NCJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjMsImlhdCI6MTY1OTY5MjU3NTk1MywiaXNzIjoiMTY1OTY5MjU3NTk1MyJ9."
+    ],
+    "userIdCounter": 3,
     "channelIdCounter": 1,
-    "dmIdCounter": 0,
-    "messageIdCounter": 0,
+    "dmIdCounter": 1,
+    "messageIdCounter": 2,
     "resetArray": []
 }
