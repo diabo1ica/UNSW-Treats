@@ -2,7 +2,7 @@ import HTTPError from 'http-errors';
 import { INPUT_ERROR } from './tests/request';
 import { getData, DataStr, setData } from './dataStore';
 import validator from 'validator';
-import { deepCopy, filterChannelsJoined, filterDmsJoined, filterMessagesSent, getUserChannelsJoined, getUserDmsJoined, getUserInvolvement, getUserMessagesSent, getUserUpdates, isDmMember, isMember, validateUserId } from './util';
+import { deepCopy, filterChannelsExist, filterChannelsJoined, filterDmsExist, filterDmsJoined, filterMessagesExist, filterMessagesSent, getUpdates, getUserChannelsJoined, getUserDmsJoined, getUserInvolvement, getUserMessagesSent, getUserUpdates, getUtilization, isDmMember, isMember, validateUserId } from './util';
 import { channelLeave } from './channel';
 import { dmLeave } from './dm';
 
@@ -164,59 +164,23 @@ export function userStats(authUserId: number) {
     }
   };
 }
-/*
-export function usersStatsv1 (authUserId: number) {
-  const data: DataStr = getData();
-  const channelsExist: any[] = [];
-  const dmsExist: any[] = [];
-  const messagesExist: any[] = [];
 
-  let numChannel = data.channels.length;
-  let numDms = data.dms.length;
-  let numMsg = data.messages.length;
-
-  for (const channel of data.channels) {
-    channelsExist.push({
-      numChannelsExist: numChannel,
-      timeStamp: 0,
-    });
-    numChannel++;
-  }
-
-  for (const dms of data.dms) {
-    dmsExist.push({
-      numDmsExist: numDms,
-      timeStamp: 0,
-    });
-    numDms++;
-  }
-
-  for (const msg of data.messages) {
-    messagesExist.push({
-      numMessagesExist: numMsg,
-      timeStamp: 0,
-    });
-    numMsg++;
-  }
-
-  let utilization = 0;
-  let numUserAtOne = 0;
-  let numUser = 0;
-  for (const user of data.users) {
-    numUserAtOne = numUserAtOne + atLeastOne(user.userId);
-    numUser++;
-  }
-
-  utilization = Math.round(((numUserAtOne / numUser) * 10) / 10);
-
+export function usersStats() {
+  const channelsExist = deepCopy(getUpdates());
+  const dmsExist = deepCopy(getUpdates());
+  const messagesExist = deepCopy(getUpdates());
+  filterChannelsExist(channelsExist);
+  filterDmsExist(dmsExist);
+  filterMessagesExist(messagesExist);
   return {
-    channelsExist: channelsExist,
-    dmsExist: dmsExist,
-    messagesExist: messagesExist,
-    utilizationRate: utilization,
+    workspaceStats: {
+      channelsExist: channelsExist,
+      dmsExist: dmsExist,
+      messagesExist: messagesExist,
+      utilizationRate: getUtilization()
+    }
   };
 }
-*/
 
 export function adminRemove (authUserId: number, uId : number) {
   const data: DataStr = getData();
