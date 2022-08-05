@@ -32,7 +32,7 @@ describe('Test suite channel for /message/remove/v1', () => {
   });
 
   test('Invalid token', () => {
-    messageId = requestMessageSend(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
+    messageId = requestSendChannelMessage(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
     expect(requestMessageRemove('-' + usertoken1, messageId).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
