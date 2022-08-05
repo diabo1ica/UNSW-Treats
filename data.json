@@ -1,26 +1,38 @@
 {
     "users": [
         {
-            "nameFirst": "Jingisu",
-            "nameLast": "Kan",
-            "handleStr": "jingisukan",
-            "email": "Alalalyeehoo@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5NjgwMzcyMTc3LCJpc3MiOiIxNjU5NjgwMzcyMTc3In0.",
+            "nameFirst": "Steve",
+            "nameLast": "Berrospi",
+            "handleStr": "steveberrospi",
+            "email": "z5363495@unsw.edu.au",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm8xMjMiLCJpYXQiOjE2NTk2ODI1OTg0ODcsImlzcyI6IjE2NTk2ODI1OTg0ODcifQ.",
             "userId": 1,
             "globalPermsId": 1,
             "profileImgUrl": "",
             "notifications": []
         }
     ],
-    "channels": [],
+    "channels": [
+        {
+            "channelId": 1,
+            "name": "air",
+            "isPublic": true,
+            "members": [
+                {
+                    "uId": 1,
+                    "channelPermsId": 1
+                }
+            ],
+            "standUp": {
+                "messageId": 0
+            }
+        }
+    ],
     "dms": [],
     "messages": [],
-    "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY4MDM3MjE3OSwiaXNzIjoiMTY1OTY4MDM3MjE3OSJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY4MDM3MjYwNSwiaXNzIjoiMTY1OTY4MDM3MjYwNSJ9."
-    ],
+    "tokenArray": [],
     "userIdCounter": 1,
-    "channelIdCounter": 0,
+    "channelIdCounter": 1,
     "dmIdCounter": 0,
     "messageIdCounter": 0,
     "resetArray": []
