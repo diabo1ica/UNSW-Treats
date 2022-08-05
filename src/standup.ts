@@ -1,5 +1,5 @@
 import { getData, setData } from './dataStore';
-import { getCurrentTime, getChannel, isMember, stampUserUpdate } from './util';
+import { getCurrentTime, getChannel, isMember, stampUserUpdate, stampWorkspaceUpdate } from './util';
 import HTTPError from 'http-errors';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
 
@@ -99,5 +99,6 @@ function stUpMessageSend(authUserId: number, channelId: number, message: string)
   setData(data);
   const delay = getChannel(channelId).standUp.timeFinish - (getCurrentTime());
   setTimeout(() => stampUserUpdate(authUserId, timeFinish), delay);
+  setTimeout(() => stampWorkspaceUpdate(timeFinish), delay);
   return { messageId: data.messageIdCounter };
 }
