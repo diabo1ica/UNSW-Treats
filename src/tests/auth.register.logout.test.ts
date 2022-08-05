@@ -25,6 +25,12 @@ describe('auth path tests', () => {
     expect(res4.statusCode).toStrictEqual(INPUT_ERROR);
     const res5 = requestRegister('Alalaly@gmail.com', 'Sk8terboiyo', '', 'Kanaskhdsfhewfbsdkvbdshvbfdhvbdfvbdsfhvbdvbjvbsuivbfjbvfdjkbvjfbvjbvkjfdbvkhdfbvfdbvdfbvhfdbvkbvjcvkhfdbvfbvc vhfbvjdfbvjsdfbvjsfbvkjdfbvjdbajfd');
     expect(res5.statusCode).toStrictEqual(INPUT_ERROR);
+    const res6 = requestRegister('heroes@gmail.com', 'Courseheroes', 'Jingisukankenkinkonkun', 'Kan');
+    expect(res6.statusCode).toStrictEqual(OK);
+    expect(res6.body).toEqual({
+      token: expect.any(String),
+      authUserId: 3
+    });
   });
 
   test('Test logout', () => {
