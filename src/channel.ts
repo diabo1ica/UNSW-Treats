@@ -1,7 +1,7 @@
 import HTTPError from 'http-errors';
 import { getData, setData, DataStr, Channel, Message, User, Dm } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { channelMessageTemplate, getGlobalPerms, OWNER, stampUserUpdate } from './util';
+import { channelMessageTemplate, getGlobalPerms, OWNER, stampUserUpdate, stampWorkspaceUpdate } from './util';
 import { isReacted, getChannelMessages, sortMessages, generateMessageId } from './util';
 import { validateUserId, getChannel, getDm, isMember, isDmMember, MEMBER } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
@@ -287,11 +287,12 @@ export function messageSendV1(authUserId: number, channelId: number, message: st
     throw HTTPError(AUTHORISATION_ERROR, 'you are not a member of channel');
   }
   data.messageIdCounter += 1;
+  let time: number;
   data.messages.unshift({
     messageId: data.messageIdCounter,
     uId: authUserId,
     message: message,
-    timeSent: getCurrentTime(),
+    timeSent: (time = getCurrentTime()),
     isPinned: false,
     reacts: [],
     channelId: channelId,
@@ -299,7 +300,8 @@ export function messageSendV1(authUserId: number, channelId: number, message: st
   });
   setData(data);
   tagNotifCh(authUserId, message, channelId);
-  stampUserUpdate(authUserId, getCurrentTime());
+  stampUserUpdate(authUserId, time);
+  stampWorkspaceUpdate(time);
   return { messageId: data.messageIdCounter };
 }
 
@@ -517,6 +519,7 @@ export function messageSendlaterv1 (authUserId: number, channelId: number, messa
   tagNotifCh(authUserId, message, channelId);
   const delay = timeSent - getCurrentTime();
   setTimeout(() => stampUserUpdate(authUserId, timeSent), delay);
+  setTimeout(() => stampWorkspaceUpdate(timeSent), delay);
   return {
     messageId: newMessage.messageId
   };

@@ -1,4 +1,4 @@
-import { getData, setData, Dm, Message, DmMember, DataStr, Channel, userUpdate } from './dataStore';
+import { getData, setData, Dm, Message, DmMember, DataStr, Channel, userUpdate, update } from './dataStore';
 // creates a template for new DMs
 export const dmTemplate = (): Dm => {
   return {
@@ -235,7 +235,12 @@ export function getUserMessagesSent(authUserId: number): number {
 
 export function getNumMessagesSent(): number {
   const data = getData();
-  return data.messages.filter(message => isMessageSent(message)).length;
+  return data.messages.filter(message => isMessageSent(message) && !isMessageRemoved(message)).length;
+}
+
+export function isMessageRemoved(message: Message): boolean {
+  if (message.messageId === undefined) return true;
+  return false;
 }
 
 export function getNumChannels(): number {
@@ -304,5 +309,59 @@ export function stampUserUpdate(authUserId: number, timeStamp: number) {
     timeStamp: timeStamp
   };
   data.userUpdates.push(userUpdate);
+  setData(data);
+}
+
+export function getUpdates() {
+  const data = getData();
+  return data.updates;
+}
+
+export function filterChannelsExist(updates: update[]): void {
+  for (let item of updates) {
+    delete item.numDmsExist;
+    delete item.numMessagesExist
+  }
+}
+
+export function filterDmsExist(updates: update[]): void {
+  for (let item of updates) {
+    delete item.numChannelsExist;
+    delete item.numMessagesExist;
+  }
+}
+
+export function filterMessagesExist(updates: update[]): void {
+  for (let item of updates) {
+    delete item.numChannelsExist;
+    delete item.numDmsExist;
+  }
+}
+
+export function NumCurrentUsers(): number {
+  const data = getData();
+  return data.users.filter(user => !data.removedUsers.some(uId => uId === user.userId)).length;
+}
+
+export function getUtilization() {
+  let numUsersWhoHaveJoinedAtLeastOneChannelOrDm = 0;
+  const data = getData();
+  for (let user of data.users) {
+    if (data.channels.some(channel => isMember(user.userId, channel)) || data.dms.some(dm => isDmMember(user.userId, dm))) numUsersWhoHaveJoinedAtLeastOneChannelOrDm++;
+  }
+  const currentUsers = NumCurrentUsers();
+  if (currentUsers === 0) return 0;
+  return numUsersWhoHaveJoinedAtLeastOneChannelOrDm / currentUsers;
+}
+
+export function stampWorkspaceUpdate(timeStamp: number)  {
+  const data = getData();
+  const workspaceUpdate: update = {
+    numChannelsExist: getNumChannels(),
+    numDmsExist: getNumDms(),
+    numMessagesExist: getNumMessagesSent(),
+    timeStamp: timeStamp,
+  }
+  data.updates.push(workspaceUpdate)
   setData(data);
 }

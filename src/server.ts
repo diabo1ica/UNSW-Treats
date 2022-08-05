@@ -7,7 +7,7 @@ import { removeowner, channelMessagesV1, channelAddownerV1, channelJoinV1, chann
 import { getData, setData, DataStr } from './dataStore';
 import { clearV1, searchV1, uploadImage } from './other';
 import * as jose from 'jose';
-import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove, userStats } from './users';
+import { userProfileV1, userSetNameV1, userSetemailV1, userProfileSethandleV1, usersAllV1, adminRemove, userStats, usersStats } from './users';
 import { authRegisterV1, authLoginV1 } from './auth';
 import cors from 'cors';
 import { channelDetailsV1, messageEditV1, messageRemoveV1, messageSendV1, messageSendlaterv1 } from './channel';
@@ -432,29 +432,19 @@ Arguments:
 Return Value:
     Returns { userStats } on Valid/active token
 */
-/*
+
 app.get('/user/stats/v1', (req, res) => {
-  const token: string = req.header('token');
-  if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
-  } else {
-    const authUserId = decodeToken(token);
-    const statusObj = userStatsv1(authUserId);
-    res.json(statusObj);
-  }
+  const token = req.header('token');
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(userStats(decodeToken(token)));
 });
 
 app.get('/users/stats/v1', (req, res) => {
-  const token: string = req.header('token');
-  if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
-  } else {
-    const authUserId = decodeToken(token);
-    const statusObj = usersStatsv1(authUserId);
-    res.json(statusObj);
-  }
-});
-*/
+  const token = req.header('token');
+  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
+  res.json(usersStats());
+})
+
 
 /*
 Server route for user/profile/setemail/v1 calls and responds with output
@@ -878,11 +868,6 @@ app.post('/message/pin/v1', (req, res) => {
   res.json(messagePin(decodeToken(token), messageId));
 });
 
-app.get('/user/stats/v1', (req, res) => {
-  const token = req.header('token');
-  if (!validToken(token)) throw HTTPError(AUTHORISATION_ERROR, 'Invalid/Inactive Token');
-  res.json(userStats(decodeToken(token)));
-});
 
 /*
 Server route for channel/join/v2, calls and responds with the output
