@@ -1087,7 +1087,6 @@ app.post('/auth/passwordreset/request/v1', (req, res) => {
     subject: 'Treats Reset Password Code',
     text: code
   };
-
   transporter.sendMail(mailOptions);
   res.json({});
 });

@@ -5,7 +5,7 @@
     "messages": [],
     "tokenArray": [],
     "userIdCounter": 2,
-    "channelIdCounter": 1,
+    "channelIdCounter": 0,
     "dmIdCounter": 0,
     "messageIdCounter": 0,
     "resetArray": []
