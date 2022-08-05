@@ -149,7 +149,7 @@ export function messageSendDm(authUserId: number, dmId: number, message: string)
   const time = getCurrentTime();
   stampUserUpdate(authUserId, time);
   tagNotifDm(authUserId, message, dmId);
-  stampWorkspaceUpdate(time)
+  stampWorkspaceUpdate(time);
   return {
     messageId: newMessage.messageId
   };
