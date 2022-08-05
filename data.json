@@ -1,33 +1,58 @@
 {
     "users": [
         {
-            "nameFirst": "Apple",
-            "nameLast": "Tree",
-            "handleStr": "appletree",
-            "email": "apple@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFwcGxlMTAiLCJpYXQiOjE2NTk2OTAxMjIyMTAsImlzcyI6IjE2NTk2OTAxMjIyMTAifQ.",
+            "nameFirst": "Steve",
+            "nameLast": "Berrospi",
+            "handleStr": "steveberrospi",
+            "email": "z5363495@unsw.edu.au",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm8xMjMiLCJpYXQiOjE2NTk2OTE1Njk2NjUsImlzcyI6IjE2NTk2OTE1Njk2NjUifQ.",
             "userId": 1,
             "globalPermsId": 1,
             "notifications": []
         },
         {
-            "nameFirst": "Banana",
-            "nameLast": "Tree",
-            "handleStr": "bananatree",
-            "email": "banana@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImJhbmFuYTEwIiwiaWF0IjoxNjU5NjkwMTIyMjU2LCJpc3MiOiIxNjU5NjkwMTIyMjU2In0.",
+            "nameFirst": "Gary",
+            "nameLast": "Ang",
+            "handleStr": "garyang",
+            "email": "z3329234@unsw.edu.au",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm8zMjEiLCJpYXQiOjE2NTk2OTE1Njk3MzgsImlzcyI6IjE2NTk2OTE1Njk3MzgifQ.",
             "userId": 2,
             "globalPermsId": 2,
             "notifications": [
                 {
                     "channelId": -1,
                     "dmId": 1,
-                    "notificationMessage": "appletree added you to appletree, bananatree"
+                    "notificationMessage": "steveberrospi added you to garyang, steveberrospi"
                 }
             ]
+        },
+        {
+            "nameFirst": "Kenneth",
+            "nameLast": "Kuo",
+            "handleStr": "kennethkuo",
+            "email": "z5363442@unsw.edu.au",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm80NTYiLCJpYXQiOjE2NTk2OTE1Njk3OTUsImlzcyI6IjE2NTk2OTE1Njk3OTUifQ.",
+            "userId": 3,
+            "globalPermsId": 2,
+            "notifications": []
         }
     ],
-    "channels": [],
+    "channels": [
+        {
+            "channelId": 1,
+            "name": "AERO",
+            "isPublic": true,
+            "members": [
+                {
+                    "uId": 3,
+                    "channelPermsId": 1
+                }
+            ],
+            "standUp": {
+                "messageId": 0
+            }
+        }
+    ],
     "dms": [
         {
             "members": [
@@ -42,28 +67,18 @@
             ],
             "dmId": 1,
             "creatorId": 1,
-            "name": "appletree, bananatree"
+            "name": "garyang, steveberrospi"
         }
     ],
-    "messages": [
-        {
-            "messageId": 1,
-            "uId": 1,
-            "message": "Helloooo!!!!!",
-            "timeSent": 1659690122,
-            "isPinned": false,
-            "reacts": [],
-            "dmId": 1
-        }
-    ],
+    "messages": [],
     "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY5MDEyMjIxNSwiaXNzIjoiMTY1OTY5MDEyMjIxNSJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY5MDEyMjI3MSwiaXNzIjoiMTY1OTY5MDEyMjI3MSJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY5MDEyMjMxMCwiaXNzIjoiMTY1OTY5MDEyMjMxMCJ9."
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY5MTU2OTY3MiwiaXNzIjoiMTY1OTY5MTU2OTY3MiJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY5MTU2OTc0MiwiaXNzIjoiMTY1OTY5MTU2OTc0MiJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjMsImlhdCI6MTY1OTY5MTU2OTgwMCwiaXNzIjoiMTY1OTY5MTU2OTgwMCJ9."
     ],
-    "userIdCounter": 2,
-    "channelIdCounter": 0,
+    "userIdCounter": 3,
+    "channelIdCounter": 1,
     "dmIdCounter": 1,
-    "messageIdCounter": 1,
+    "messageIdCounter": 0,
     "resetArray": []
 }
