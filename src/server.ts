@@ -104,7 +104,7 @@ app.post('/channels/create/v3', (req, res) => {
   const { name, isPublic } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels Create');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot proceed Channels Create');
   } else {
     const authUserId = decodeToken(token);
     const detailsObj = channelsCreateV1(authUserId, name, isPublic);
@@ -141,7 +141,7 @@ app.post('/user/profile/uploadphoto/v1', (req, res) => {
   const token: string = req.header('token');
   const { imgUrl, xStart, xEnd, yStart, yEnd } = req.body;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels Create');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot proceed Channels Create');
   } else {
     const authUserId = decodeToken(token);
     const detailsObj = uploadImage(authUserId, imgUrl, xStart, yStart, xEnd, yEnd);
@@ -168,7 +168,7 @@ Return Value:
 app.get('/channels/list/v3', (req, res) => {
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token, cannot proceed Channels List');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token, cannot proceed Channels List');
   } else {
     const authUserId = decodeToken(token);
     res.json(channelsListV1(authUserId));
@@ -251,7 +251,7 @@ app.post('/channel/invite/v3', (req, res) => {
   const { channelId, uId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = channelInviteV1(authUserId, channelId, uId);
@@ -313,7 +313,7 @@ app.get('/user/profile/v3', (req, res) => {
   const token: string = req.header('token');
   const uID: number = parseInt(req.query.uId as string);
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const statusObj = userProfileV1(uID);
     if (statusObj.error400) {
@@ -341,7 +341,7 @@ app.get('/search/v1', (req, res) => {
   const token: string = req.header('token');
   const queryStr: string = req.query.queryStr as string;
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const statusObj = searchV1(queryStr);
     if (statusObj.error400) {
@@ -375,7 +375,7 @@ app.post('/channel/removeowner/v2', (req, res) => {
   const { channelId, uId } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = removeowner(authUserId, channelId, uId);
@@ -410,7 +410,7 @@ app.put('/user/profile/setname/v2', (req, res) => {
   const { nameFirst, nameLast } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = userSetNameV1(authUserId, nameFirst, nameLast);
@@ -475,7 +475,7 @@ app.put('/user/profile/setemail/v2', (req, res) => {
   const { email } = req.body;
   const token: string = req.header('token');
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = userSetemailV1(authUserId, email);
@@ -1013,7 +1013,7 @@ app.delete('/admin/user/remove/v1', (req, res) => {
   const token = req.header('token');
   const uId = parseInt(req.query.uId as string);
   if (!validToken(token)) {
-    throw HTTPError(INPUT_ERROR, 'Invalid token');
+    throw HTTPError(AUTHORISATION_ERROR, 'Invalid token');
   } else {
     const authUserId = decodeToken(token);
     const statusObj = adminRemove(authUserId, uId);
