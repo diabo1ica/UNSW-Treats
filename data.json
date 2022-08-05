@@ -1,84 +1,12 @@
 {
-    "users": [
-        {
-            "nameFirst": "Steve",
-            "nameLast": "Berrospi",
-            "handleStr": "steveberrospi",
-            "email": "z5363495@unsw.edu.au",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm8xMjMiLCJpYXQiOjE2NTk2OTE1Njk2NjUsImlzcyI6IjE2NTk2OTE1Njk2NjUifQ.",
-            "userId": 1,
-            "globalPermsId": 1,
-            "notifications": []
-        },
-        {
-            "nameFirst": "Gary",
-            "nameLast": "Ang",
-            "handleStr": "garyang",
-            "email": "z3329234@unsw.edu.au",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm8zMjEiLCJpYXQiOjE2NTk2OTE1Njk3MzgsImlzcyI6IjE2NTk2OTE1Njk3MzgifQ.",
-            "userId": 2,
-            "globalPermsId": 2,
-            "notifications": [
-                {
-                    "channelId": -1,
-                    "dmId": 1,
-                    "notificationMessage": "steveberrospi added you to garyang, steveberrospi"
-                }
-            ]
-        },
-        {
-            "nameFirst": "Kenneth",
-            "nameLast": "Kuo",
-            "handleStr": "kennethkuo",
-            "email": "z5363442@unsw.edu.au",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFlcm80NTYiLCJpYXQiOjE2NTk2OTE1Njk3OTUsImlzcyI6IjE2NTk2OTE1Njk3OTUifQ.",
-            "userId": 3,
-            "globalPermsId": 2,
-            "notifications": []
-        }
-    ],
-    "channels": [
-        {
-            "channelId": 1,
-            "name": "AERO",
-            "isPublic": true,
-            "members": [
-                {
-                    "uId": 3,
-                    "channelPermsId": 1
-                }
-            ],
-            "standUp": {
-                "messageId": 0
-            }
-        }
-    ],
-    "dms": [
-        {
-            "members": [
-                {
-                    "uId": 2,
-                    "dmPermsId": 2
-                },
-                {
-                    "uId": 1,
-                    "dmPermsId": 1
-                }
-            ],
-            "dmId": 1,
-            "creatorId": 1,
-            "name": "garyang, steveberrospi"
-        }
-    ],
+    "users": [],
+    "channels": [],
+    "dms": [],
     "messages": [],
-    "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY5MTU2OTY3MiwiaXNzIjoiMTY1OTY5MTU2OTY3MiJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY5MTU2OTc0MiwiaXNzIjoiMTY1OTY5MTU2OTc0MiJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjMsImlhdCI6MTY1OTY5MTU2OTgwMCwiaXNzIjoiMTY1OTY5MTU2OTgwMCJ9."
-    ],
-    "userIdCounter": 3,
+    "tokenArray": [],
+    "userIdCounter": 2,
     "channelIdCounter": 1,
-    "dmIdCounter": 1,
+    "dmIdCounter": 0,
     "messageIdCounter": 0,
     "resetArray": []
 }
