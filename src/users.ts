@@ -90,7 +90,6 @@ export function userProfileSethandleV1(authUserId:number, handleStr: string) {
   }
   // check if handStr is occupied
   for (const item of data.users) {
-    console.log(handleStr, item.handleStr);
     if (item.handleStr === handleStr) {
       throw HTTPError(INPUT_ERROR, 'handleStr is occupied');
     }

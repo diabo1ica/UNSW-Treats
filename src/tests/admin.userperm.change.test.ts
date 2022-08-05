@@ -22,6 +22,10 @@ describe('test suite for admin/userpermission/change/v1', () => {
     expect(adminObj.body).toEqual({});
   });
 
+  test('Invalid token', () => {
+    expect(requestAdminPermChange('-' + usertoken1, userId2, OWNER).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  });
+
   test('Invalid uId (400 error)', () => {
     expect(requestAdminPermChange(usertoken1, -1, OWNER).statusCode).toStrictEqual(INPUT_ERROR);
   });

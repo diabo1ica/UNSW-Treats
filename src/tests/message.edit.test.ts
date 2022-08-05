@@ -31,6 +31,11 @@ describe('Test suite channel for /message/edit/v1', () => {
     expect(messageObj.body).toStrictEqual({});
   });
 
+  test('Invalid token', () => {
+    messageId = requestMessageSend(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
+    expect(requestMessageEdit(usertoken1 + '-', messageId, '').statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  });
+
   // user with owner permission channel/global can edit other's message
   test('global/channel owner edit any message success', () => {
     requestChannelJoin(usertoken2, channelId1);

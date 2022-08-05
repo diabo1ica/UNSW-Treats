@@ -19,6 +19,10 @@ describe('Error cases', () => {
     requestChannelJoin(user1.token, channelId);
   });
 
+  test('Invalid token', () => {
+    expect(requestMessageUnpin('-' + user3.token, messageId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  });
+
   test('Invalid messageId', () => {
     requestMessagePin(user1.token, messageId1);
     expect(requestMessageUnpin(user1.token, messageId1 - 1000).statusCode).toStrictEqual(INPUT_ERROR);

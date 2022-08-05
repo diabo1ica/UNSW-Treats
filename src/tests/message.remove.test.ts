@@ -31,6 +31,11 @@ describe('Test suite channel for /message/remove/v1', () => {
     expect(messageObj.body).toStrictEqual({});
   });
 
+  test('Invalid token', () => {
+    messageId = requestMessageSend(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;
+    expect(requestMessageRemove('-' + usertoken1, messageId).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  });
+
   // messageId does not refer to a valid message within a channel/DM that the authorised user has joined
   test('invalid messageId for user (400 error)', () => {
     messageId = requestMessageSend(usertoken1, channelId1, 'Helloooo!!!!!').body.messageId;

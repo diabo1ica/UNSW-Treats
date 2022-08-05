@@ -39,6 +39,10 @@ describe('test suite for /message/share/v1', () => {
     });
   });
 
+  test('Invalid token', () => {
+    expect(requestMessageShare('-' + usertoken1, messageIdDm, generateMessage(5), channelId1, -1).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  });
+
   test('Invalid channelId (400 error)', () => {
     expect(requestMessageShare(usertoken1, messageIdDm, generateMessage(5), channelId1 - 1000, -1).statusCode).toStrictEqual(INPUT_ERROR);
     expect(requestMessageShare(usertoken1, messageIdCh, generateMessage(5), channelId1 - 1000, -1).statusCode).toStrictEqual(INPUT_ERROR);
