@@ -396,13 +396,16 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
   let channelObj: Channel;
   let dmObj: Dm;
   let index = 0;
+
+
   for (const item of data.messages) {
     if (item.messageId === messageId) {
       // messageId is found in dm
       if (item.channelId === undefined) {
         dmObj = getDm(item.dmId);
         if (isDmOwner(authUserId, dmObj) === true) {
-          data.messages.splice(index, 1);
+          data.messages[index].dmId = undefined;
+          data.messages[index].messageId = undefined;
           setData(data);
           return ({});
         }
@@ -410,7 +413,8 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
           throw HTTPError(INPUT_ERROR, 'not a member of dm');
         }
         if (isSender(authUserId, messageId) === true) {
-          data.messages.splice(index, 1);
+          data.messages[index].dmId = undefined;
+          data.messages[index].messageId = undefined;
           setData(data);
           return ({});
         }
@@ -420,7 +424,8 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
       } else {
         channelObj = getChannel(item.channelId);
         if (isChannelOwner(authUserId, channelObj) === true) {
-          data.messages.splice(index, 1);
+          data.messages[index].channelId = undefined;
+          data.messages[index].messageId = undefined;
           setData(data);
           return ({});
         }
@@ -428,7 +433,8 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
           throw HTTPError(INPUT_ERROR, 'not a member of channel');
         }
         if (isSender(authUserId, messageId) === true) {
-          data.messages.splice(index, 1);
+          data.messages[index].channelId = undefined;
+          data.messages[index].messageId = undefined;
           setData(data);
           return ({});
         }
@@ -436,7 +442,7 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
           throw HTTPError(AUTHORISATION_ERROR, 'you have no permission to remove message');
         }
       }
-      index++;
+      
     }
     index++;
   }
