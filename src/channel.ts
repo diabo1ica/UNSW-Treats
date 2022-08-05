@@ -419,6 +419,7 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
           data.messages[index].dmId = undefined; // has owner permission can remove anyone's message in dm
           data.messages[index].messageId = undefined;
           setData(data);
+          stampWorkspaceUpdate(getCurrentTime());
           return ({});
         }
         if (isSender(authUserId, messageId) === false) {
@@ -427,6 +428,7 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
         data.messages[index].dmId = undefined; // messaged is removed as dm/message Id becomes undefined.
         data.messages[index].messageId = undefined;
         setData(data);
+        stampWorkspaceUpdate(getCurrentTime());
         return ({});
       } else {
         channelObj = getChannel(item.channelId);
@@ -437,6 +439,7 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
           data.messages[index].channelId = undefined; // has owner permission can remove anyone's message in channel.
           data.messages[index].messageId = undefined;
           setData(data);
+          stampWorkspaceUpdate(getCurrentTime());
           return ({});
         }
         if (isSender(authUserId, messageId) === false) {
@@ -445,6 +448,7 @@ export function messageRemoveV1(authUserId: number, messageId: number) {
         data.messages[index].channelId = undefined; // messaged is removed as channel/message Id becomes undefined.
         data.messages[index].messageId = undefined;
         setData(data);
+        stampWorkspaceUpdate(getCurrentTime());
         return ({});
       }
     }

@@ -1,6 +1,6 @@
 import { getData, setData, DataStr, Dm, Message, DmMember } from './dataStore';
 import { AUTHORISATION_ERROR, INPUT_ERROR } from './tests/request';
-import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, dmMessageTemplate, getCurrentTime, sortMessages, getDmMessages, isReacted, stampUserUpdate, deepCopy } from './util';
+import { dmMemberTemplate, dmTemplate, isDmMember, generatedmId, generateMessageId, getDm, validateUserId, isDuplicateUserId, dmMessageTemplate, getCurrentTime, sortMessages, getDmMessages, isReacted, stampUserUpdate, deepCopy, stampWorkspaceUpdate } from './util';
 import HTTPError from 'http-errors';
 import { dmInviteNotif, tagNotifDm } from './notification';
 /*
@@ -262,10 +262,15 @@ export function dmRemove(id: number, dmId: number) {
       for (let j = 0; j < data.dms[i].members.length; j++) {
         if (data.dms[i].members[j].uId === id && data.dms[i].members[j].dmPermsId === 1) {
           const members = deepCopy(data.dms[i].members);
+          for (let message of data.messages.filter(message => message.dmId === data.dms[i].dmId)) {
+            message.messageId = undefined;
+            message.dmId = undefined;
+          }
           const time = getCurrentTime();
           data.dms.splice(i, 1);
           setData(data);
           members.forEach((member: DmMember) => stampUserUpdate(member.uId, time));
+          stampWorkspaceUpdate(time);
           return {};
         }
       }
@@ -314,6 +319,7 @@ export function sendLaterDm(authUserId: number, dmId: number, message: string, t
   tagNotifDm(authUserId, message, dmId);
   const delay = timeSent - getCurrentTime();
   setTimeout(() => stampUserUpdate(authUserId, timeSent), delay);
+  setTimeout(() => stampWorkspaceUpdate(timeSent), delay);
   return {
     messageId: newMessage.messageId
   };
