@@ -27,6 +27,7 @@ describe('Test suite for /users/all/v1', () => {
             nameFirst: 'Apple',
             nameLast: 'Tree',
             handleStr: 'appletree',
+            profileImgUrl: expect.any(String),
           },
           {
             userId: 2,
@@ -34,6 +35,7 @@ describe('Test suite for /users/all/v1', () => {
             nameFirst: 'Banana',
             nameLast: 'Tree',
             handleStr: 'bananatree',
+            profileImgUrl: expect.any(String),
           },
         ])
       }));
