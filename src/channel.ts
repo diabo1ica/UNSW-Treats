@@ -6,6 +6,7 @@ import { isReacted, getChannelMessages, sortMessages, generateMessageId } from '
 import { validateUserId, getChannel, getDm, isMember, isDmMember, MEMBER } from './util';
 import { isChannelOwner, isDmOwner, isSender, getCurrentTime } from './util';
 import { chInviteNotif, tagNotifCh, tagNotifChEdit, tagNotifDmEdit } from './notification';
+
 // Display channel details of channel with channelId
 // Arguements:
 //    authUserId (number)   - User id of user trying to access channel details

@@ -25,7 +25,7 @@ describe('test suite for /message/sendlater/v1', () => {
   });
 
   test('Invalid token', () => {
-    expect(requestMessageSendlater('-' + usertoken1, channelId1, generateMessage(4), getCurrentTime() + time)).toStrictEqual(AUTHORISATION_ERROR);
+    expect(requestMessageSendlater('-' + usertoken1, channelId1, generateMessage(4), getCurrentTime() + time).statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('Invalid channelId (400 error)', () => {
