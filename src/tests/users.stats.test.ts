@@ -1,44 +1,12 @@
-test('testing', () => {
-  expect(1 + 1).toStrictEqual(2);
-});
-/*
-import { requestUsersStats, requestChannelsCreate, requestRegister, requestLogin, requestClear } from './request';
+import { AUTHORISATION_ERROR, requestClear, requestRegister, requestUsersStats } from "./request";
+let user1: any;
 
-describe('users/stats/v1 tests', () => {
-  let token : string;
+describe('Error Cases', () => {
   beforeEach(() => {
     requestClear();
-    requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const obj = requestLogin('Alalalyeehoo@gmail.com', 'Sk8terboiyo');
-    token = obj.body.token;
-    requestChannelsCreate(token, 'Channel1', true);
-  });
-
-  test('users/stats/v1 Successfull', () => {
-    expect(requestUsersStats(token).body).toStrictEqual({
-      channelsExist: expect.arrayContaining([
-        {
-          numChannelsExist: 0,
-          timeStamp: expect.any(Number),
-        }
-      ]),
-      dmsExist: [],
-      messagesExist: [],
-      utilizationRate: 1,
-    });
-  });
-
-  test('users/stats/v1 Empty', () => {
-    requestClear();
-    requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    const obj = requestLogin('Alalalyeehoo@gmail.com', 'Sk8terboiyo');
-    token = obj.body.token;
-    expect(requestUsersStats(token).body).toStrictEqual({
-      channelsExist: [],
-      dmsExist: [],
-      messagesExist: [],
-      utilizationRate: 0,
-    });
-  });
+    user1 = requestRegister('z5363495@unsw.edu.au', 'aero123', 'Steve', 'Berrospi').body; // has global perms
+  })
+  test('Invalid token', () => {
+    expect(requestUsersStats('-' + user1.token).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  })
 });
-*/
