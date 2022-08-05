@@ -29,6 +29,10 @@ describe('Test suite for /channel/join/v2', () => {
     expect(channelObj.body).toStrictEqual({});
   });
 
+  test('Invalid token', () => {
+    expect(requestChannelJoin('-' + usertoken1, channelPublic).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  });
+
   test('invalid channelId (400 error)', () => {
     expect(requestChannelJoin(usertoken1, -1).statusCode).toStrictEqual(INPUT_ERROR);
   });

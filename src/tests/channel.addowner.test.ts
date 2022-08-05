@@ -28,6 +28,11 @@ describe('Test suite for /channel/addowner/v1', () => {
     expect(requestChannelAddowner(usertoken1, -1, userId2).statusCode).toStrictEqual(INPUT_ERROR);
   });
 
+  test('Invalid token', () => {
+    requestChannelJoin(usertoken2, channelId1);
+    expect(requestChannelAddowner('-' + usertoken1, channelId1, userId2).statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  });
+
   test('invalid uId (400 error)', () => {
     expect(requestChannelAddowner(usertoken1, channelId1, -1).statusCode).toStrictEqual(INPUT_ERROR);
   });

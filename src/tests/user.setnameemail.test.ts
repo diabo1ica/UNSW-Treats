@@ -1,4 +1,4 @@
-import { requestClear, requestRegister, requestLogin, requestSetemail, requestSetname, requestUserProfile } from './request';
+import { requestClear, requestRegister, requestLogin, requestSetemail, requestSetname, requestUserProfile, INPUT_ERROR } from './request';
 
 describe('users path tests', () => {
   let token : string;
@@ -23,5 +23,13 @@ describe('users path tests', () => {
         handleStr: 'jingisukan',
       }
     });
+  });
+
+  test('SetName Unsuccessfull', () => {
+    expect(requestSetname(token, '', '').statusCode).toStrictEqual(INPUT_ERROR);
+  });
+
+  test('SetName Unsuccessfull', () => {
+    expect(requestSetemail(token, '').statusCode).toStrictEqual(INPUT_ERROR);
   });
 });
