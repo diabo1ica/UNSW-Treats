@@ -4,7 +4,7 @@ test('testing', () => {
 /*
 import { requestUsersStats, requestChannelsCreate, requestRegister, requestLogin, requestClear } from './request';
 
-describe('search/v1 tests', () => {
+describe('users/stats/v1 tests', () => {
   let token : string;
   beforeEach(() => {
     requestClear();
