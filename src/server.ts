@@ -35,8 +35,10 @@ app.use(cors());
 // for logging errors
 app.use(morgan('dev'));
 
+/*
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || 'localhost';
+*/
 
 // NOTE :
 // Some of these request paths calls wrapper functions
@@ -1405,7 +1407,6 @@ const server = app.listen(parseInt(process.env.PORT || config.port), process.env
   getData(true);
   console.log(`⚡️ Server listening on port ${process.env.PORT || config.port}`);
 });
-
 
 // For coverage, handle Ctrl+C gracefully
 process.on('SIGINT', () => {

@@ -7,5 +7,9 @@
     "resetArray": [],
     "removedUsers": [],
     "updates": [],
-    "userUpdates": []
+    "userUpdates": [],
+    "channels": [],
+    "tokenArray": [],
+    "dms": [],
+    "messages": []
 }
