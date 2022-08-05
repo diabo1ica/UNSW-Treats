@@ -510,6 +510,7 @@ export function messageSendlaterv1 (authUserId: number, channelId: number, messa
   newMessage.channelId = channelId;
   data.messages.unshift(newMessage);
   setData(data);
+  tagNotifCh(authUserId, message, channelId);
   return {
     messageId: newMessage.messageId
   };

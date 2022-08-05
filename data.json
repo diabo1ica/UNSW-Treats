@@ -1,11 +1,11 @@
 {
     "users": [
         {
-            "nameFirst": "Apple",
-            "nameLast": "Tree",
-            "handleStr": "appletree",
-            "email": "apple@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFwcGxlMTAiLCJpYXQiOjE2NTk2MjU5MzAxOTcsImlzcyI6IjE2NTk2MjU5MzAxOTcifQ.",
+            "nameFirst": "Kennt",
+            "nameLast": "Alex",
+            "handleStr": "jingisukan",
+            "email": "Iloveyou@gmail.com",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5Njc0MzM0NDYwLCJpc3MiOiIxNjU5Njc0MzM0NDYwIn0.",
             "userId": 1,
             "globalPermsId": 1,
             "notifications": []
@@ -25,8 +25,8 @@
     "dms": [],
     "messages": [],
     "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTYyNTkzMDE5OSwiaXNzIjoiMTY1OTYyNTkzMDE5OSJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTYyNTkzMDQyMCwiaXNzIjoiMTY1OTYyNTkzMDQyMCJ9."
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY3NDMzNDQ2MSwiaXNzIjoiMTY1OTY3NDMzNDQ2MSJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY3NDMzNDQ4NywiaXNzIjoiMTY1OTY3NDMzNDQ4NyJ9."
     ],
     "userIdCounter": 2,
     "channelIdCounter": 0,

@@ -1,5 +1,5 @@
 import { OK, INPUT_ERROR, AUTHORISATION_ERROR } from './request';
-import { requestChannelJoin, requestMessagePin, requestRegister, requestMessageSend, requestSendDm, requestMessageUnpin } from './request';
+import { requestChannelJoin, requestMessagePin, requestRegister, requestSendChannelMessage, requestSendDm, requestMessageUnpin } from './request';
 import { requestChannelMessages, requestChannelsCreate, requestClear, requestDmCreate, requestDmMessages } from './request';
 
 let user1: any, user2: any, user3: any;
@@ -15,7 +15,7 @@ describe('Error cases', () => {
     dmId = requestDmCreate(user1.token, [user2.authUserId]).body.dmId;
     channelId = requestChannelsCreate(user3.token, 'AERO', true).body.channelId;
     messageId1 = requestSendDm(user1.token, dmId, 'PIN ME').body.messageId;
-    messageId2 = requestMessageSend(user3.token, channelId, 'PIN ME TOO').body.messageId;
+    messageId2 = requestSendChannelMessage(user3.token, channelId, 'PIN ME TOO').body.messageId;
     requestChannelJoin(user1.token, channelId);
   });
 
@@ -63,7 +63,7 @@ describe('Working cases', () => {
     dmId = requestDmCreate(user1.token, [user2.authUserId]).body.dmId;
     channelId = requestChannelsCreate(user3.token, 'AERO', true).body.channelId;
     messageId1 = requestSendDm(user1.token, dmId, 'PIN ME').body.messageId;
-    messageId2 = requestMessageSend(user3.token, channelId, 'PIN ME TOO').body.messageId;
+    messageId2 = requestSendChannelMessage(user3.token, channelId, 'PIN ME TOO').body.messageId;
     requestChannelJoin(user1.token, channelId);
   });
 

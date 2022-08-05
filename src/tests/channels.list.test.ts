@@ -1,5 +1,4 @@
 import { requestRegister, requestLogin, requestChannelsCreate, requestClear, requestChannelsList } from './request';
-// import { OK, INPUT_ERROR } from './request';
 
 describe('channels path tests', () => {
   let userID : string;

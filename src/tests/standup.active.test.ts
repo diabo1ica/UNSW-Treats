@@ -36,6 +36,11 @@ describe('Test standup active', () => {
   });
 
   test('Standup is inactive valid', () => {
+    const channelId2 = requestChannelsCreate(token1, 'AERO', true).body.channelId;
+    expect(requestStandUpActive(token1, channelId2).body).toStrictEqual({
+      isActive: false,
+      timeFinish: null
+    });
     sleepFor(length * 1000);
     const res = requestStandUpActive(token1, channelId);
     expect(res.statusCode).toStrictEqual(OK);
