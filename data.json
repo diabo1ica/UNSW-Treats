@@ -1,24 +1,13 @@
 {
     "users": [
         {
-            "nameFirst": "Kennt",
-            "nameLast": "Alex",
+            "nameFirst": "Jingisu",
+            "nameLast": "Kan",
             "handleStr": "jingisukan",
-            "email": "Iloveyou@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5Njc0MzM0NDYwLCJpc3MiOiIxNjU5Njc0MzM0NDYwIn0.",
+            "email": "Alalalyeehoo@gmail.com",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5NjgwMzcyMTc3LCJpc3MiOiIxNjU5NjgwMzcyMTc3In0.",
             "userId": 1,
             "globalPermsId": 1,
-            "profileImgUrl": "",
-            "notifications": []
-        },
-        {
-            "nameFirst": "Banana",
-            "nameLast": "Tree",
-            "handleStr": "bananatree",
-            "email": "banana@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImJhbmFuYTEwIiwiaWF0IjoxNjU5Njc4MjM5MTI5LCJpc3MiOiIxNjU5Njc4MjM5MTI5In0.",
-            "userId": 2,
-            "globalPermsId": 2,
             "profileImgUrl": "",
             "notifications": []
         }
@@ -27,11 +16,10 @@
     "dms": [],
     "messages": [],
     "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY3ODIzODkzMiwiaXNzIjoiMTY1OTY3ODIzODkzMiJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY3ODIzOTEzMCwiaXNzIjoiMTY1OTY3ODIzOTEzMCJ9."
-
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY4MDM3MjE3OSwiaXNzIjoiMTY1OTY4MDM3MjE3OSJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY4MDM3MjYwNSwiaXNzIjoiMTY1OTY4MDM3MjYwNSJ9."
     ],
-    "userIdCounter": 2,
+    "userIdCounter": 1,
     "channelIdCounter": 0,
     "dmIdCounter": 0,
     "messageIdCounter": 0,
