@@ -32,5 +32,4 @@ describe('users path tests', () => {
   test('SetName Unsuccessfull', () => {
     expect(requestSetemail(token, '').statusCode).toStrictEqual(INPUT_ERROR);
   });
-
 });
