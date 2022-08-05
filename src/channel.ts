@@ -170,11 +170,11 @@ Arguments:
 
 Return Value:
     Returns {messages, start, end} on correct input
-    Returns {error: 'error'} on authUserId is invalid
-    Returns {error: 'error'} on start is greater than the total amount of
+    Returns {error400} on authUserId is invalid
+    Returns {error400} on start is greater than the total amount of
     messages
-    Returns {error: 'error'} on channelId is invalid
-    Returns {error: 'error'} on channelId is valid but authUserId is not a
+    Returns {error400} on channelId is invalid
+    Returns {error403} on channelId is valid but authUserId is not a
     member of the channel
 */
 

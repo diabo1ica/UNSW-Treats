@@ -2,13 +2,16 @@ import { requestAdminRemove, requestChannelsCreate, requestRegister, requestLogi
 
 describe('search/v1 tests', () => {
   let token : string;
+  let token2 : string;
   let userID : number;
   let userID2 : number;
   let channelID : number;
   beforeEach(() => {
     requestClear();
     requestRegister('Alalalyeehoo@gmail.com', 'Sk8terboiyo', 'Jingisu', 'Kan');
-    userID2 = requestRegister('Halo123@gmail.com', 'LetsGo123', 'Andy', 'Alex').body.authUserId;
+    const obj2 = requestRegister('Halo123@gmail.com', 'LetsGo123', 'Andy', 'Alex');
+    userID2 = obj2.body.authUserId;
+    token2 = obj2.body.token;
     const obj = requestLogin('Alalalyeehoo@gmail.com', 'Sk8terboiyo');
     token = obj.body.token;
     userID = obj.body.authUserId;
@@ -18,5 +21,13 @@ describe('search/v1 tests', () => {
 
   test('adminRemove Error', () => {
     expect(requestAdminRemove(token, userID).statusCode).toStrictEqual(INPUT_ERROR);
+  });
+
+  test('adminRemove Error', () => {
+    expect(requestAdminRemove(token, -userID).statusCode).toStrictEqual(INPUT_ERROR);
+  });
+
+  test('adminRemove Error', () => {
+    expect(requestAdminRemove(token2, userID).statusCode).toStrictEqual(INPUT_ERROR);
   });
 });

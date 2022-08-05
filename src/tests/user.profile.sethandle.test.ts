@@ -1,5 +1,5 @@
 import { requestClear, requestRegister, requestUsersProfileSethandle } from './request';
-import { OK, INPUT_ERROR } from './request';
+import { OK, INPUT_ERROR, AUTHORISATION_ERROR } from './request';
 
 describe('Test suite for users/profile/sethandle/v1', () => {
   let usertoken1: string;
@@ -15,6 +15,10 @@ describe('Test suite for users/profile/sethandle/v1', () => {
     const userObj = requestUsersProfileSethandle(usertoken1, 'SuperMan');
     expect(userObj.statusCode).toStrictEqual(OK);
     expect(userObj.body).toStrictEqual({});
+  });
+
+  test('Invalid token', () => {
+    expect(requestUsersProfileSethandle(usertoken1 + '-', 'SuperMan').statusCode).toStrictEqual(AUTHORISATION_ERROR);
   });
 
   test('handle length not inclusive between 3 and 20 characters (400 error)', () => {

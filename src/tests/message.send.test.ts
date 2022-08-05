@@ -22,6 +22,10 @@ describe('Test suite for /message/send/v1', () => {
     });
   });
 
+  test('Invalid token', () => {
+    expect(requestMessageSend('-' + usertoken1, channelId1, 'GOODMorining').statusCode).toStrictEqual(AUTHORISATION_ERROR);
+  });
+
   test('invalid channelId (400 error)', () => {
     const messageObj = requestSendChannelMessage(usertoken1, -1, 'Helloooo!!!!!');
     expect(messageObj.statusCode).toStrictEqual(INPUT_ERROR);

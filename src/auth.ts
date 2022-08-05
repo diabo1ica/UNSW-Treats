@@ -60,8 +60,8 @@ Arguments:
 
 Return Value:
     Returns authUserId on email is valid and password is correct
-    Returns {error: 'error'} on email is invalid
-    Returns {error: 'error'} on password is incorrect
+    Returns {error400} on email is invalid
+    Returns {error400} on password is incorrect
 */
 function authLoginV1(email: string, password: string) {
   const data: DataStr = getData();
