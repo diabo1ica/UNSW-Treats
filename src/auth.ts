@@ -3,6 +3,7 @@ import { getData, setData, User, DataStr } from './dataStore';
 import HTTPError from 'http-errors';
 import { INPUT_ERROR } from './tests/request';
 import * as jose from 'jose';
+import { getCurrentTime, stampUserUpdate } from './util';
 
 const encrypt = (password: string): string => new jose.UnsecuredJWT({ password: password }).setIssuedAt(Date.now()).setIssuer(JSON.stringify(Date.now())).encode();
 const decrypt = (password: string): string => jose.UnsecuredJWT.decode(password).payload.password as string;
@@ -45,6 +46,7 @@ function authRegisterV1(email: string, password: string, nameFirst: string, name
   user.handleStr = handle;
   data.users.push(user);
   setData(data);
+  stampUserUpdate(user.userId, getCurrentTime());
   return {
     authUserId: user.userId
   };

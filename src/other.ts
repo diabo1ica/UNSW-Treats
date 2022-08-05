@@ -13,6 +13,9 @@ export function clearV1() {
   data.dms = [];
   data.messages = [];
   data.resetArray = [];
+  data.removedUsers = [];
+  data.updates = [];
+  data.userUpdates = [];
   setData(data);
   return {};
 }

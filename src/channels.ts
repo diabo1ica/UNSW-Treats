@@ -1,6 +1,6 @@
 import { getData, setData, DataStr, Channel, StandUp } from './dataStore';
 import { INPUT_ERROR } from './tests/request';
-import { validateUserId } from './util';
+import { getCurrentTime, stampUserUpdate, validateUserId } from './util';
 import HTTPError from 'http-errors';
 
 /*
@@ -48,6 +48,7 @@ export function channelsCreateV1(authUserId: number, name: string, isPublic: boo
   } // list the channel creator as an owner of the channel
   data.channels.push(channels);
   setData(data);
+  stampUserUpdate(authUserId, getCurrentTime());
   return {
     channelId: channels.channelId,
   };

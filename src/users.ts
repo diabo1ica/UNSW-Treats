@@ -140,7 +140,7 @@ export function usersAllV1(authUserId: number) {
   return { users: allUsers };
 }
 
-export function userStats(authUserId: number) { 
+export function userStats(authUserId: number) {
   const messagesSent = deepCopy(getUserUpdates(authUserId));
   const dmsJoined = deepCopy(getUserUpdates(authUserId));
   const channelsJoined = deepCopy(getUserUpdates(authUserId));
@@ -155,7 +155,7 @@ export function userStats(authUserId: number) {
       messagesSent: messagesSent,
       involvementRate: getUserInvolvement(getUserChannelsJoined(authUserId), getUserDmsJoined(authUserId), getUserMessagesSent(authUserId))
     }
-  }
+  };
 }
 /*
 export function usersStatsv1 (authUserId: number) {
@@ -260,7 +260,8 @@ export function adminRemove (authUserId: number, uId : number) {
       userSetNameV1(uId, 'Removed', 'user');
     }
   }
-
+  data.removedUsers.push(uId);
+  setData(data);
   return {};
 }
 

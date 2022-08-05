@@ -104,8 +104,9 @@ export function isMember(userId: number, channelObj: Channel) {
   return channelObj.members.some((member) => member.uId === userId);
 }
 
-export function getCurrentTime() {
-  return Math.floor((new Date()).getTime() / 1000);
+export function getCurrentTime(milliseconds = false) {
+  if (!milliseconds) return Math.floor((new Date()).getTime() / 1000);
+  return (new Date()).getTime();
 }
 
 export function getMessage(messageId: number) {
@@ -127,8 +128,8 @@ export function sortMessages(messages: Message[]) {
   messages.sort((message1, message2) => message2.timeSent - message1.timeSent);
 }
 
-export function isMessageSent(message: Message) {
-  return message.timeSent <= getCurrentTime();
+export function isMessageSent(message: Message, timeSent = getCurrentTime()) {
+  return message.timeSent <= timeSent;
 }
 
 export function getDmPerms(userId: number, dm: Dm) {
@@ -248,15 +249,15 @@ export function getNumDms(): number {
 }
 
 export function filterChannelsJoined(updates: userUpdate[]): void {
-  for (let item of updates) {
+  for (const item of updates) {
     delete item.numDmsJoined;
     delete item.numMessagesSent;
-    delete item.uId
+    delete item.uId;
   }
 }
 
 export function filterDmsJoined(updates: userUpdate[]): void {
-  for (let item of updates) {
+  for (const item of updates) {
     delete item.numChannelsJoined;
     delete item.numMessagesSent;
     delete item.uId;
@@ -264,7 +265,7 @@ export function filterDmsJoined(updates: userUpdate[]): void {
 }
 
 export function filterMessagesSent(updates: userUpdate[]): void {
-  for (let item of updates) {
+  for (const item of updates) {
     delete item.numChannelsJoined;
     delete item.numDmsJoined;
     delete item.uId;
@@ -291,4 +292,17 @@ export function getUserUpdates(authUserId: number) {
 
 export function deepCopy(object: any) {
   return JSON.parse(JSON.stringify(object));
+}
+
+export function stampUserUpdate(authUserId: number, timeStamp: number) {
+  const data = getData();
+  const userUpdate: userUpdate = {
+    numChannelsJoined: getUserChannelsJoined(authUserId),
+    numDmsJoined: getUserDmsJoined(authUserId),
+    numMessagesSent: getUserMessagesSent(authUserId),
+    uId: authUserId,
+    timeStamp: timeStamp
+  };
+  data.userUpdates.push(userUpdate);
+  setData(data);
 }
