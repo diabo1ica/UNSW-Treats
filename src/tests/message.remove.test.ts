@@ -6,6 +6,7 @@ describe('Test suite channel for /message/remove/v1', () => {
   let usertoken1: string;
   let usertoken2: string;
   let channelId1: number;
+  let channelId2: number;
   let messageId: number;
 
   beforeEach(() => {
@@ -26,6 +27,16 @@ describe('Test suite channel for /message/remove/v1', () => {
   test('message remove success by owners', () => {
     requestChannelJoin(usertoken2, channelId1);
     messageId = requestMessageSend(usertoken2, channelId1, 'Helloooo!!!!!').body.messageId;
+    const messageObj = requestMessageRemove(usertoken1, messageId);
+    expect(messageObj.statusCode).toStrictEqual(OK);
+    expect(messageObj.body).toStrictEqual({});
+  });
+
+  // global onwer can remove message as member in channel
+  test('message remove success by global owners', () => {
+    channelId2 = requestChannelsCreate(usertoken2, 'AERO2', true).body.channelId;
+    requestChannelJoin(usertoken1, channelId2);
+    messageId = requestMessageSend(usertoken2, channelId2, 'Helloooo!!!!!').body.messageId;
     const messageObj = requestMessageRemove(usertoken1, messageId);
     expect(messageObj.statusCode).toStrictEqual(OK);
     expect(messageObj.body).toStrictEqual({});

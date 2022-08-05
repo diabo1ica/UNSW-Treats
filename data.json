@@ -1,12 +1,69 @@
 {
-    "users": [],
+    "users": [
+        {
+            "nameFirst": "Apple",
+            "nameLast": "Tree",
+            "handleStr": "appletree",
+            "email": "apple@gmail.com",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFwcGxlMTAiLCJpYXQiOjE2NTk2OTAxMjIyMTAsImlzcyI6IjE2NTk2OTAxMjIyMTAifQ.",
+            "userId": 1,
+            "globalPermsId": 1,
+            "notifications": []
+        },
+        {
+            "nameFirst": "Banana",
+            "nameLast": "Tree",
+            "handleStr": "bananatree",
+            "email": "banana@gmail.com",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImJhbmFuYTEwIiwiaWF0IjoxNjU5NjkwMTIyMjU2LCJpc3MiOiIxNjU5NjkwMTIyMjU2In0.",
+            "userId": 2,
+            "globalPermsId": 2,
+            "notifications": [
+                {
+                    "channelId": -1,
+                    "dmId": 1,
+                    "notificationMessage": "appletree added you to appletree, bananatree"
+                }
+            ]
+        }
+    ],
     "channels": [],
-    "dms": [],
-    "messages": [],
-    "tokenArray": [],
+    "dms": [
+        {
+            "members": [
+                {
+                    "uId": 2,
+                    "dmPermsId": 2
+                },
+                {
+                    "uId": 1,
+                    "dmPermsId": 1
+                }
+            ],
+            "dmId": 1,
+            "creatorId": 1,
+            "name": "appletree, bananatree"
+        }
+    ],
+    "messages": [
+        {
+            "messageId": 1,
+            "uId": 1,
+            "message": "Helloooo!!!!!",
+            "timeSent": 1659690122,
+            "isPinned": false,
+            "reacts": [],
+            "dmId": 1
+        }
+    ],
+    "tokenArray": [
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY5MDEyMjIxNSwiaXNzIjoiMTY1OTY5MDEyMjIxNSJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY5MDEyMjI3MSwiaXNzIjoiMTY1OTY5MDEyMjI3MSJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY5MDEyMjMxMCwiaXNzIjoiMTY1OTY5MDEyMjMxMCJ9."
+    ],
     "userIdCounter": 2,
     "channelIdCounter": 0,
-    "dmIdCounter": 0,
-    "messageIdCounter": 0,
+    "dmIdCounter": 1,
+    "messageIdCounter": 1,
     "resetArray": []
 }
