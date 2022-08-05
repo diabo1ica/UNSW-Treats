@@ -132,7 +132,7 @@ export function usersAllV1(authUserId: number) {
   const allUsers: any[] = [];
 
   for (const item of data.users) {
-    if (item.nameFirst !== 'Removed' && item.nameLast !== 'user') {
+    if (item.counterRemoved !== 2) {
       allUsers.push({
         userId: item.userId,
         email: item.email,
@@ -305,6 +305,7 @@ export function adminRemove (authUserId: number, uId : number) {
   for (const user of data.users) {
     if (user.userId === uId) {
       userSetNameV1(uId, 'Removed', 'user');
+      user.counterRemoved = 2;
     }
   }
 

@@ -17,6 +17,7 @@ export interface User {
   userId: number,
   globalPermsId: number,
   profileImgUrl: string,
+  counterRemoved: number,
   notifications: Notification[]
 }
 
