@@ -1,13 +1,23 @@
 {
     "users": [
         {
-            "nameFirst": "Kennt",
-            "nameLast": "Alex",
-            "handleStr": "jingisukan",
-            "email": "Iloveyou@gmail.com",
-            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6IlNrOHRlcmJvaXlvIiwiaWF0IjoxNjU5Njc0MzM0NDYwLCJpc3MiOiIxNjU5Njc0MzM0NDYwIn0.",
+            "nameFirst": "Apple",
+            "nameLast": "Tree",
+            "handleStr": "appletree",
+            "email": "apple@gmail.com",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImFwcGxlMTAiLCJpYXQiOjE2NTk2Nzg2MzM3NjYsImlzcyI6IjE2NTk2Nzg2MzM3NjYifQ.",
             "userId": 1,
             "globalPermsId": 1,
+            "notifications": []
+        },
+        {
+            "nameFirst": "Banana",
+            "nameLast": "Tree",
+            "handleStr": "bananatree",
+            "email": "banana@gmail.com",
+            "password": "eyJhbGciOiJub25lIn0.eyJwYXNzd29yZCI6ImJhbmFuYTEwIiwiaWF0IjoxNjU5Njc4NjMzNzkyLCJpc3MiOiIxNjU5Njc4NjMzNzkyIn0.",
+            "userId": 2,
+            "globalPermsId": 2,
             "notifications": []
         }
     ],
@@ -15,10 +25,10 @@
     "dms": [],
     "messages": [],
     "tokenArray": [
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY3NDMzNDQ2MSwiaXNzIjoiMTY1OTY3NDMzNDQ2MSJ9.",
-        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY3NDMzNDQ4NywiaXNzIjoiMTY1OTY3NDMzNDQ4NyJ9."
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjEsImlhdCI6MTY1OTY3ODYzMzc2NywiaXNzIjoiMTY1OTY3ODYzMzc2NyJ9.",
+        "eyJhbGciOiJub25lIn0.eyJ1SWQiOjIsImlhdCI6MTY1OTY3ODYzMzc5MywiaXNzIjoiMTY1OTY3ODYzMzc5MyJ9."
     ],
-    "userIdCounter": 1,
+    "userIdCounter": 2,
     "channelIdCounter": 0,
     "dmIdCounter": 0,
     "messageIdCounter": 0,
