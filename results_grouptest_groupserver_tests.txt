@@ -1,0 +1,104 @@
+npm verb cli /import/kamen/3/cs1531/.nvm/versions/node/v18.2.0/bin/node /import/kamen/3/cs1531/.nvm/versions/node/v18.2.0/bin/npm
+npm info using npm@8.9.0
+npm info using node@v18.2.0
+npm timing npm:load:whichnode Completed in 0ms
+npm timing config:load:defaults Completed in 2ms
+npm timing config:load:file:/import/kamen/3/cs1531/.nvm/versions/node/v18.2.0/lib/node_modules/npm/npmrc Completed in 2ms
+npm timing config:load:builtin Completed in 2ms
+npm timing config:load:cli Completed in 2ms
+npm timing config:load:env Completed in 1ms
+npm timing config:load:file:/import/kamen/3/cs1531/project-automarking/tempstore/.npmrc Completed in 0ms
+npm timing config:load:project Completed in 9ms
+npm timing config:load:file:/import/kamen/3/cs1531/.npmrc Completed in 0ms
+npm timing config:load:user Completed in 0ms
+npm timing config:load:file:/import/kamen/3/cs1531/.nvm/versions/node/v18.2.0/etc/npmrc Completed in 0ms
+npm timing config:load:global Completed in 1ms
+npm timing config:load:validate Completed in 0ms
+npm timing config:load:credentials Completed in 1ms
+npm timing config:load:setEnvs Completed in 1ms
+npm timing config:load Completed in 20ms
+npm timing npm:load:configload Completed in 20ms
+npm timing npm:load:mkdirpcache Completed in 1ms
+npm timing npm:load:mkdirplogs Completed in 0ms
+npm verb title npm run test **/?(*.)+(test).ts
+npm verb argv "run" "test" "--loglevel" "verbose" "--testMatch" "**/?(*.)+(test).ts"
+npm timing npm:load:setTitle Completed in 2ms
+npm timing config:load:flatten Completed in 3ms
+npm timing npm:load:display Completed in 6ms
+npm verb logfile logs-max:10 dir:/import/kamen/3/cs1531/.npm/_logs
+npm verb logfile /import/kamen/3/cs1531/.npm/_logs/2022-08-05T13_54_16_255Z-debug-0.log
+npm timing npm:load:logFile Completed in 6ms
+npm timing npm:load:timers Completed in 0ms
+npm timing npm:load:configScope Completed in 0ms
+npm timing npm:load Completed in 38ms
+
+> test
+> jest "**/?(*.)+(test).ts"
+
+  Invalid testPattern **/?(*.)+(test).ts supplied. Running all tests instead.
+  Invalid testPattern **/?(*.)+(test).ts supplied. Running all tests instead.
+PASS src/channel.test.ts
+PASS src/channels.test.ts
+PASS src/tests/dm.messages.test.ts (11.115 s)
+PASS src/tests/standup.send.test.ts (12.332 s)
+PASS src/tests/standup.active.test.ts (6.782 s)
+PASS src/tests/message.pin.test.ts
+PASS src/tests/message.send.test.ts
+PASS src/tests/message.react.test.ts
+PASS src/tests/message.share.test.ts
+PASS src/tests/message.unpin.test.ts
+PASS src/tests/message.unreact.test.ts
+PASS src/tests/message.senddm.test.ts
+PASS src/tests/message.edit.test.ts
+PASS src/tests/admin.userperm.change.test.ts
+PASS src/tests/channel.join.test.ts
+PASS src/tests/message.sendlaterdm.test.ts
+PASS src/tests/channel.messages.test.ts
+PASS src/tests/channel.addowner.test.ts
+PASS src/tests/auth.register.logout.test.ts
+PASS src/tests/channel.details.test.ts
+PASS src/tests/message.remove.test.ts
+PASS src/tests/user.profile.sethandle.test.ts
+PASS src/tests/channel.removeowner.test.ts
+PASS src/tests/standup.start.test.ts
+PASS src/tests/message.sendlater.test.ts
+PASS src/tests/dm.leave.test.ts
+PASS src/tests/dm.create.test.ts
+PASS src/tests/auth.resetpassword.test.ts
+PASS src/tests/dm.details.test.ts
+PASS src/tests/dm.remove.test.ts
+PASS src/tests/channel.leave.test.ts
+PASS src/tests/dm.list.test.ts
+PASS src/tests/channels.list.test.ts
+PASS src/tests/channels.listall.test.ts
+PASS src/tests/channel.invite.test.ts
+PASS src/tests/auth.login.test.ts
+PASS src/tests/user.setnameemail.test.ts
+PASS src/tests/admin.userRemove.test.ts
+PASS src/tests/channels.create.test.ts
+PASS src/tests/notifications.test.ts
+PASS src/tests/user.profile.test.ts
+PASS src/tests/users.all.test.ts
+PASS src/tests/search.test.ts
+PASS src/echo.test.ts
+PASS src/tests/user.uploadphoto.test.ts
+PASS src/tests/auth.resetpassword.whitebox.test.ts
+  ● Console
+
+    console.log
+      'data.json' successfully loaded
+
+      at getData (src/dataStore.ts:143:13)
+
+PASS src/tests/users.stats.test.ts
+PASS src/tests/user.stats.test.ts
+
+Test Suites: 48 passed, 48 total
+Tests:       243 passed, 243 total
+Snapshots:   0 total
+Time:        128.96 s
+Ran all test suites.
+
+> posttest
+> pkill -f 'node_modules/sync-rpc/lib/worker.js' > /dev/null 2>&1
+
